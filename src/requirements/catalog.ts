@@ -24,7 +24,7 @@ export const EPICS = {
   E8: "Compartilhamento de cards",
   E9: "Denúncias",
   E10: "Administração e moderação",
-  TA: "Escopo do Termo de Abertura sem User Story",
+  TA: "Termo de Abertura (sem User Story)",
   NF: "Requisitos não funcionais"
 } as const;
 
@@ -104,16 +104,22 @@ export type Requirement = {
   epic: EpicId;
   text: string;
   verification: Verification;
-  /** Where it was stated, besides the user story issue. */
+  /** Where it was stated or decided, besides the user story issue. */
   source?: string;
+  /** Known gap: decided, but the current code doesn't meet it yet. */
+  gap?: string;
 };
 
 const req = <const Id extends string>(
   id: Id,
   us: UserStoryNumber,
   text: string,
-  verification: Verification
-) => ({ id, us, epic: USER_STORIES[us].epic as EpicId, text, verification }) as const;
+  verification: Verification,
+  extra: { source?: string; gap?: string } = {}
+) => ({ id, us, epic: USER_STORIES[us].epic as EpicId, text, verification, ...extra }) as const;
+
+const DECIDED = "Decisão do time, 2026-11-08";
+const MEMORY_FIELDS_GAP = "Não implementado: o model recorda não tem Data da Memória, Local nem marcações.";
 
 export const REQUIREMENTS = [
   // ── E2 · US 1 — Splash Screen ────────────────────────────────────────────────────────────
@@ -123,7 +129,10 @@ export const REQUIREMENTS = [
   req("RF-01.4", 1, "Com sessão válida de conta comum, a Splash encaminha para o Feed.", "web"),
   req("RF-01.5", 1, "Com sessão válida de administrador, a Splash encaminha para a área administrativa, sem acesso a Feed, Perfil ou Criar Recorda.", "web"),
   req("RF-01.6", 1, "Sessão inválida ou expirada é apagada e o usuário vai para o Login.", "web"),
-  req("RF-01.7", 1, "Se a verificação de sessão demorar mais que 3 s, o app segue para o Login; uma resposta tardia nunca causa uma segunda navegação.", "web"),
+  req("RF-01.7", 1, "Se a verificação de sessão demorar mais que 3 s, o app segue para o Login; uma resposta tardia nunca causa uma segunda navegação.", "web", {
+    source: `${DECIDED}: 3 s é o valor correto.`,
+    gap: "O código usa 5 s (SPLASH_TIMEOUT_MS em recorda-frontend/src/features/splash/screens/SplashScreen.tsx)."
+  }),
 
   // ── E2 · US 2 — Cadastro ─────────────────────────────────────────────────────────────────
   req("RF-02.1", 2, "A tela de Cadastro tem exatamente os campos Nome, Username, Email e Senha, sem confirmação de senha nem aceite de termos.", "web"),
@@ -179,13 +188,17 @@ export const REQUIREMENTS = [
   req("RF-08.2", 8, "A descrição é opcional, com limite de 2200 caracteres.", "web"),
   req("RF-08.3", 8, "A música vem preenchida e não é editável nesta tela.", "web"),
   req("RF-08.4", 8, "Publicar só fica habilitado com a música associada.", "web"),
+  req("RF-08.5", 8, "A tela de detalhes permite informar a Data da Memória (quando o momento aconteceu).", "web", { source: `${DECIDED}: obrigatório implementar.`, gap: MEMORY_FIELDS_GAP }),
+  req("RF-08.6", 8, "A tela de detalhes permite informar o Local da memória.", "web", { source: `${DECIDED}: obrigatório implementar.`, gap: MEMORY_FIELDS_GAP }),
+  req("RF-08.7", 8, "A tela de detalhes permite marcar outros usuários na Recorda.", "web", { source: `${DECIDED}: obrigatório implementar; Termo: marcação de amigos.`, gap: MEMORY_FIELDS_GAP }),
 
   // ── E3 · US 9 — Publicação ───────────────────────────────────────────────────────────────
-  req("RF-09.1", 9, "A Recorda é composta por mídia, música e descrição opcional.", "api"),
+  req("RF-09.1", 9, "A Recorda é composta por mídia, música, descrição opcional, Data da Memória, Local e marcações.", "api", { source: `${DECIDED}: Data da Memória, Local e marcações voltam ao escopo.`, gap: MEMORY_FIELDS_GAP }),
   req("RF-09.2", 9, "A visibilidade não é escolhida na publicação: deriva da privacidade da conta, sem seletor nem campo por publicação.", "web"),
   req("RF-09.3", 9, "A Data de Publicação é registrada automaticamente.", "api"),
   req("RF-09.4", 9, "Após publicar, a Recorda aparece imediatamente no perfil do autor e fica disponível aos feeds conforme a visibilidade da conta.", "web"),
   req("RF-09.5", 9, "Há indicador de progresso no upload e, em caso de falha, é possível tentar novamente sem perder os dados nem recapturar a mídia.", "web"),
+  req("RF-09.6", 9, "Usuários marcados são notificados da marcação.", "web", { source: `${DECIDED}; US 26.`, gap: MEMORY_FIELDS_GAP }),
 
   // ── E8 · US 10–12 — Card de compartilhamento ─────────────────────────────────────────────
   req("RF-10.1", 10, "A partir da tela de detalhes há a interface Compartilhar Recorda.", "web"),
@@ -230,7 +243,7 @@ export const REQUIREMENTS = [
 
   // ── E4 · US 17 — Detalhes da Recorda ─────────────────────────────────────────────────────
   req("RF-17.1", 17, "Tocar num card do feed ou numa miniatura do perfil abre a tela Detalhes da Recorda.", "web"),
-  req("RF-17.2", 17, "A tela mostra mídia, avatar e username do autor, relato completo, música, Data da Memória, Local, marcações e comentários.", "web"),
+  req("RF-17.2", 17, "A tela mostra mídia, avatar e username do autor, relato completo, música, Data da Memória, Local, marcações e comentários.", "web", { gap: MEMORY_FIELDS_GAP }),
   req("RF-17.3", 17, "A música continua tocando na transição do feed para os detalhes, sem reiniciar.", "native"),
   req("RF-17.4", 17, "A tela oferece curtir, comentar e compartilhar.", "web"),
   req("RF-17.5", 17, "O menu de três pontos oferece só excluir na própria Recorda e só denunciar na de outra pessoa; não há edição.", "web"),
@@ -329,7 +342,10 @@ export const REQUIREMENTS = [
 
   // ── E6 · US 35 — Streak ──────────────────────────────────────────────────────────────────
   req("RF-35.1", 35, "Só contam para a streak dias com pelo menos uma Recorda publicada, pela data de publicação.", "api"),
-  req("RF-35.2", 35, "Curtidas, comentários e outras ações não contam, e excluir uma Recorda depois não apaga o dia conquistado.", "api"),
+  req("RF-35.2", 35, "Curtidas, comentários e outras ações não contam. Só contam Recordas ativas: excluir a única Recorda de um dia tira esse dia da streak (regra da US 38).", "api", {
+    source: `${DECIDED}: seguir a US 38, que substitui o critério original da US 35.`,
+    gap: "A streak do perfil inclui Recordas excluídas (list_publication_times em recorda-backend/app/repositories/recorda_repository.py), enquanto a de Métricas já as exclui."
+  }),
   req("RF-35.3", 35, "O perfil mostra apenas um indicador de streak.", "web"),
 
   // ── E6 · US 36 — Logout ──────────────────────────────────────────────────────────────────
@@ -395,7 +411,9 @@ export const REQUIREMENTS = [
   req("RF-45.2", 45, "A remoção exige justificativa de até 500 caracteres, salva de forma imutável na auditoria.", "web"),
   req("RF-45.3", 45, "Remover a Recorda resolve automaticamente as denúncias pendentes dela.", "web"),
   req("RF-45.4", 45, "A Recorda removida some imediatamente do feed, das buscas e do perfil do autor.", "web"),
-  req("RF-45.5", 45, "Nenhuma notificação é enviada ao autor (POC; ver conflito com a US 42).", "manual"),
+  req("RF-45.5", 45, "O autor da Recorda removida é notificado conforme a US 42 (RF-42.1).", "web", {
+    source: `${DECIDED}: manter a notificação da US 42; substitui o critério original da US 45, que proibia notificar.`
+  }),
 
   // ── E10 · US 46 — Moderação de usuários ──────────────────────────────────────────────────
   req("RF-46.1", 46, "O administrador busca contas por username ou nome e vê perfil e status (ACTIVE ou SUSPENDED).", "web"),
@@ -411,14 +429,7 @@ export const REQUIREMENTS = [
   req("RF-47.4", 47, "A auditoria é append-only: não há endpoints de alteração ou exclusão.", "api"),
 
   // ── TA — Termo de Abertura, sem User Story ───────────────────────────────────────────────
-  { id: "RF-T01", us: null, epic: "TA", verification: "web", source: "Termo: Integrações", text: "Integração com Spotify (Web API/OAuth) ou Apple Music (MusicKit) para busca, estatísticas, previews, álbuns e artistas. Hoje o app usa a API do Deezer." },
-  { id: "RF-T02", us: null, epic: "TA", verification: "web", source: "Termo: perfil", text: "O perfil exibe biografia, total de amigos, conquistas, ranking e histórico de atividade." },
-  { id: "RF-T03", us: null, epic: "TA", verification: "web", source: "Termo: criação de Recordas", text: "A Recorda pode ser associada a artista ou álbum (além de música) e permite marcar amigos." },
-  { id: "RF-T04", us: null, epic: "TA", verification: "web", source: "Termo: feed", text: "Os feeds oferecem compartilhamentos, marcações e descoberta de músicas, além de perfis." },
-  { id: "RF-T05", us: null, epic: "TA", verification: "web", source: "Termo: estatísticas", text: "Rankings, tendências, scrobbles e linha do tempo pessoal." },
-  { id: "RF-T06", us: null, epic: "TA", verification: "web", source: "Termo: gamificação", text: "Gamificação com badges de conquistas e ranking entre amigos e global." },
-  { id: "RF-T07", us: null, epic: "TA", verification: "web", source: "Termo: notificações", text: "Notificações de conquistas." },
-  { id: "RF-T08", us: null, epic: "TA", verification: "web", source: "Termo: onboarding", text: "Onboarding de apresentação do app (além das preferências musicais da US 3)." },
+  { id: "RF-T01", us: null, epic: "TA", verification: "web", source: `Termo: Integrações; ${DECIDED}: o Deezer substitui Spotify/Apple Music por atender melhor ao projeto.`, text: "A busca de músicas, previews, álbuns, artistas e gêneros usa a API do Deezer." },
 
   // ── NF — Não funcionais ──────────────────────────────────────────────────────────────────
   { id: "RNF-01", us: null, epic: "NF", verification: "native", source: "Termo: objetivos", text: "O aplicativo funciona em iOS e Android." },
@@ -436,14 +447,31 @@ export const REQUIREMENTS_BY_ID = new Map<string, Requirement>(
   REQUIREMENTS.map((requirement) => [requirement.id, requirement])
 );
 
-/** Contradictions and gaps found while building the catalog. Resolve them with the team. */
+/** Contradictions and gaps still waiting for a team decision. */
 export const OPEN_QUESTIONS = [
-  "Provedor de música: o Termo exige Spotify ou Apple Music (RF-T01), mas US 3 e US 7 usam o Deezer.",
-  "Timeout da Splash: a US 1 define 3 s (RF-01.7); o código usa 5 s (SPLASH_TIMEOUT_MS em recorda-frontend/src/features/splash/screens/SplashScreen.tsx).",
-  "Notificação de remoção: a US 45 diz que o autor não é notificado (RF-45.5); a US 42, posterior, cria a notificação CONTENT_REMOVED (RF-42.1).",
-  "Data da Memória, Local e marcações: a US 17 (RF-17.2) e as notificações de marcação (RF-26.3, RF-39.3) dependem deles, mas as US 8 e 9 os tiraram do escopo.",
-  "Streak: a US 35 diz que excluir uma Recorda não apaga o dia (RF-35.2); a US 38 conta só Recordas ativas (RF-38.3).",
-  "Duração de vídeo: a US 6 cita 60 s como proposta (RF-06.6), sem valor definido.",
-  "Numeração: não existem US 13, US 30 e US 43, nem o épico E1.",
-  "Itens do Termo sem User Story: RF-T01 a RF-T08."
+  "Duração de vídeo: a US 6 cita 60 s como proposta (RF-06.6), sem valor definido."
 ] as const;
+
+/**
+ * Items of the charter (Termo de Abertura) with no user story, left out of the requirements
+ * by team decision. No tests are expected for them.
+ */
+export const OUT_OF_SCOPE = [
+  "Perfil com biografia, total de amigos, conquistas, ranking e histórico de atividade (antigo RF-T02).",
+  "Associar a Recorda a um artista ou álbum, além de uma música (antigo RF-T03).",
+  "Compartilhamentos e descoberta de músicas nos feeds (antigo RF-T04).",
+  "Rankings, tendências, scrobbles e linha do tempo pessoal (antigo RF-T05).",
+  "Gamificação com badges de conquistas e ranking entre amigos e global (antigo RF-T06).",
+  "Notificações de conquistas (antigo RF-T07).",
+  "Onboarding de apresentação do app, além das preferências musicais (antigo RF-T08)."
+] as const;
+
+/** Questions the team has answered. Each one is reflected in the requirements above. */
+export const DECISIONS = [
+  { date: "2026-11-08", decision: "O provedor de música é o Deezer, que atende melhor ao projeto, no lugar de Spotify/Apple Music do Termo.", requirements: ["RF-T01"] },
+  { date: "2026-11-08", decision: "O timeout da Splash é 3 s, como na US 1. O código (5 s) precisa ser corrigido.", requirements: ["RF-01.7"] },
+  { date: "2026-11-08", decision: "O autor é notificado quando a moderação remove sua Recorda (US 42), apesar do critério original da US 45.", requirements: ["RF-42.1", "RF-45.5"] },
+  { date: "2026-11-08", decision: "Data da Memória, Local e marcações de usuários precisam ser implementados na criação e nos detalhes da Recorda.", requirements: ["RF-08.5", "RF-08.6", "RF-08.7", "RF-09.1", "RF-09.6", "RF-17.2"] },
+  { date: "2026-11-08", decision: "A streak segue a US 38: só Recordas ativas contam, e excluir a única Recorda de um dia tira esse dia da streak.", requirements: ["RF-35.2", "RF-38.3"] },
+  { date: "2026-11-08", decision: "Itens do Termo sem User Story ficam fora dos requisitos (ver \"Fora do escopo\"), e a numeração faltante (US 13, 30, 43 e épico E1) é ignorada.", requirements: [] }
+] as const satisfies readonly { date: string; decision: string; requirements: readonly RequirementId[] }[];

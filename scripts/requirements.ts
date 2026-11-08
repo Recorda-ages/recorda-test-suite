@@ -11,8 +11,10 @@ import { writeFileSync } from "node:fs";
 import path from "node:path";
 
 import {
+  DECISIONS,
   EPICS,
   OPEN_QUESTIONS,
+  OUT_OF_SCOPE,
   REQUIREMENTS,
   REQUIREMENTS_BY_ID,
   USER_STORIES,
@@ -152,7 +154,11 @@ const cell = (text: string) => text.replaceAll("|", "\\|");
 function requirementTable(requirements: readonly Requirement[], covered: Map<string, ListedTest[]>) {
   const rows = requirements.map((r) => {
     const tests = (covered.get(r.id) ?? []).map((t) => `[${cell(t.title)}](../${t.file}#L${t.line})`).join("<br>");
-    return `| ${r.id} | ${cell(r.text)} | ${VERIFICATION_LABEL[r.verification]} | ${tests || "—"} |`;
+    const notes = [
+      r.source ? `<br>_Fonte: ${cell(r.source)}_` : "",
+      r.gap ? `<br>⚠️ ${cell(r.gap)}` : ""
+    ].join("");
+    return `| ${r.id} | ${cell(r.text)}${notes} | ${VERIFICATION_LABEL[r.verification]} | ${tests || "—"} |`;
   });
   return ["| ID | Requisito | Verificação | Testes |", "| --- | --- | --- | --- |", ...rows].join("\n");
 }
@@ -201,15 +207,33 @@ function doc() {
     return `| ${epic} | ${EPICS[epic]} | ${reqs.length} | ${count("web")} | ${count("api")} | ${count("native")} | ${count("manual")} | ${done} |`;
   });
   const automatable = REQUIREMENTS.filter((r) => r.verification === "web" || r.verification === "api").length;
+  const all: readonly Requirement[] = REQUIREMENTS;
+  const gaps = all.filter((r) => r.gap);
   out.push(
     "## Resumo",
     "",
     `${REQUIREMENTS.length} requisitos, ${automatable} verificáveis por esta suíte (web ou API), ` +
-      `${covered.size} cobertos por ${tests.length} teste(s).`,
+      `${covered.size} cobertos por ${tests.length} teste(s). ${gaps.length} decididos mas ainda não ` +
+      "atendidos pelo código (⚠️).",
     "",
     "| Épico | Nome | Requisitos | Web | API | Nativo | Manual | Cobertos |",
     "| --- | --- | --- | --- | --- | --- | --- | --- |",
     ...totals,
+    "",
+    "## Decisões",
+    "",
+    "Perguntas já respondidas pelo time e refletidas nos requisitos.",
+    "",
+    "| Data | Decisão | Requisitos |",
+    "| --- | --- | --- |",
+    ...DECISIONS.map((d) => `| ${d.date} | ${cell(d.decision)} | ${d.requirements.join(", ") || "—"} |`),
+    "",
+    "## Lacunas conhecidas",
+    "",
+    "Requisitos decididos que o código atual ainda não atende. Um teste para eles deve falhar",
+    "até a implementação (marque-o com `test.fail()` e um comentário apontando o ID).",
+    "",
+    ...gaps.map((r) => `- **${r.id}**: ${r.gap}`),
     "",
     "## Pontos em aberto",
     "",
@@ -217,6 +241,13 @@ function doc() {
     "decisão do time antes de virarem teste.",
     "",
     ...OPEN_QUESTIONS.map((question) => `- ${question}`),
+    "",
+    "## Fora do escopo",
+    "",
+    "Itens do Termo de Abertura sem User Story, deixados fora dos requisitos por decisão do time.",
+    "Não se esperam testes para eles. Os itens que o próprio Termo exclui estão em RNF-07.",
+    "",
+    ...OUT_OF_SCOPE.map((item) => `- ${item}`),
     ""
   );
 
@@ -240,8 +271,6 @@ function doc() {
       }
     } else {
       out.push(requirementTable(reqs, covered), "");
-      const sources = reqs.filter((r) => r.source).map((r) => `- **${r.id}**: ${r.source}`);
-      if (sources.length) out.push("Fontes:", "", ...sources, "");
     }
   }
 

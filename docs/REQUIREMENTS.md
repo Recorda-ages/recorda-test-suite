@@ -23,35 +23,68 @@ Fontes: Termo de Abertura do Projeto (2026/2) e os Épicos e User Stories das is
 
 ## Resumo
 
-229 requisitos, 201 verificáveis por esta suíte (web ou API), 7 cobertos por 4 teste(s).
+226 requisitos, 199 verificáveis por esta suíte (web ou API), 7 cobertos por 4 teste(s). 8 decididos mas ainda não atendidos pelo código (⚠️).
 
 | Épico | Nome | Requisitos | Web | API | Nativo | Manual | Cobertos |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | E2 | Autenticação, cadastro e onboarding | 32 | 26 | 4 | 0 | 2 | 5 |
-| E3 | Criação e publicação de Recordas | 21 | 12 | 4 | 5 | 0 | 0 |
+| E3 | Criação e publicação de Recordas | 25 | 16 | 4 | 5 | 0 | 0 |
 | E4 | Feed | 26 | 18 | 2 | 6 | 0 | 0 |
 | E5 | Interações sociais | 39 | 36 | 3 | 0 | 0 | 0 |
 | E6 | Perfil e configurações | 22 | 20 | 2 | 0 | 0 | 2 |
 | E7 | Memórias e estatísticas | 24 | 20 | 0 | 2 | 2 | 0 |
 | E8 | Compartilhamento de cards | 16 | 9 | 0 | 5 | 2 | 0 |
 | E9 | Denúncias | 15 | 12 | 3 | 0 | 0 | 0 |
-| E10 | Administração e moderação | 19 | 17 | 1 | 0 | 1 | 0 |
-| TA | Escopo do Termo de Abertura sem User Story | 8 | 8 | 0 | 0 | 0 | 0 |
+| E10 | Administração e moderação | 19 | 18 | 1 | 0 | 0 | 0 |
+| TA | Termo de Abertura (sem User Story) | 1 | 1 | 0 | 0 | 0 | 0 |
 | NF | Requisitos não funcionais | 7 | 2 | 2 | 1 | 2 | 0 |
+
+## Decisões
+
+Perguntas já respondidas pelo time e refletidas nos requisitos.
+
+| Data | Decisão | Requisitos |
+| --- | --- | --- |
+| 2026-11-08 | O provedor de música é o Deezer, que atende melhor ao projeto, no lugar de Spotify/Apple Music do Termo. | RF-T01 |
+| 2026-11-08 | O timeout da Splash é 3 s, como na US 1. O código (5 s) precisa ser corrigido. | RF-01.7 |
+| 2026-11-08 | O autor é notificado quando a moderação remove sua Recorda (US 42), apesar do critério original da US 45. | RF-42.1, RF-45.5 |
+| 2026-11-08 | Data da Memória, Local e marcações de usuários precisam ser implementados na criação e nos detalhes da Recorda. | RF-08.5, RF-08.6, RF-08.7, RF-09.1, RF-09.6, RF-17.2 |
+| 2026-11-08 | A streak segue a US 38: só Recordas ativas contam, e excluir a única Recorda de um dia tira esse dia da streak. | RF-35.2, RF-38.3 |
+| 2026-11-08 | Itens do Termo sem User Story ficam fora dos requisitos (ver "Fora do escopo"), e a numeração faltante (US 13, 30, 43 e épico E1) é ignorada. | — |
+
+## Lacunas conhecidas
+
+Requisitos decididos que o código atual ainda não atende. Um teste para eles deve falhar
+até a implementação (marque-o com `test.fail()` e um comentário apontando o ID).
+
+- **RF-01.7**: O código usa 5 s (SPLASH_TIMEOUT_MS em recorda-frontend/src/features/splash/screens/SplashScreen.tsx).
+- **RF-08.5**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
+- **RF-08.6**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
+- **RF-08.7**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
+- **RF-09.1**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
+- **RF-09.6**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
+- **RF-17.2**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
+- **RF-35.2**: A streak do perfil inclui Recordas excluídas (list_publication_times em recorda-backend/app/repositories/recorda_repository.py), enquanto a de Métricas já as exclui.
 
 ## Pontos em aberto
 
 Contradições e lacunas encontradas entre o Termo, as User Stories e o código. Precisam de
 decisão do time antes de virarem teste.
 
-- Provedor de música: o Termo exige Spotify ou Apple Music (RF-T01), mas US 3 e US 7 usam o Deezer.
-- Timeout da Splash: a US 1 define 3 s (RF-01.7); o código usa 5 s (SPLASH_TIMEOUT_MS em recorda-frontend/src/features/splash/screens/SplashScreen.tsx).
-- Notificação de remoção: a US 45 diz que o autor não é notificado (RF-45.5); a US 42, posterior, cria a notificação CONTENT_REMOVED (RF-42.1).
-- Data da Memória, Local e marcações: a US 17 (RF-17.2) e as notificações de marcação (RF-26.3, RF-39.3) dependem deles, mas as US 8 e 9 os tiraram do escopo.
-- Streak: a US 35 diz que excluir uma Recorda não apaga o dia (RF-35.2); a US 38 conta só Recordas ativas (RF-38.3).
 - Duração de vídeo: a US 6 cita 60 s como proposta (RF-06.6), sem valor definido.
-- Numeração: não existem US 13, US 30 e US 43, nem o épico E1.
-- Itens do Termo sem User Story: RF-T01 a RF-T08.
+
+## Fora do escopo
+
+Itens do Termo de Abertura sem User Story, deixados fora dos requisitos por decisão do time.
+Não se esperam testes para eles. Os itens que o próprio Termo exclui estão em RNF-07.
+
+- Perfil com biografia, total de amigos, conquistas, ranking e histórico de atividade (antigo RF-T02).
+- Associar a Recorda a um artista ou álbum, além de uma música (antigo RF-T03).
+- Compartilhamentos e descoberta de músicas nos feeds (antigo RF-T04).
+- Rankings, tendências, scrobbles e linha do tempo pessoal (antigo RF-T05).
+- Gamificação com badges de conquistas e ranking entre amigos e global (antigo RF-T06).
+- Notificações de conquistas (antigo RF-T07).
+- Onboarding de apresentação do app, além das preferências musicais (antigo RF-T08).
 
 ## E2 — Autenticação, cadastro e onboarding
 
@@ -67,7 +100,7 @@ decisão do time antes de virarem teste.
 | RF-01.4 | Com sessão válida de conta comum, a Splash encaminha para o Feed. | web | — |
 | RF-01.5 | Com sessão válida de administrador, a Splash encaminha para a área administrativa, sem acesso a Feed, Perfil ou Criar Recorda. | web | — |
 | RF-01.6 | Sessão inválida ou expirada é apagada e o usuário vai para o Login. | web | — |
-| RF-01.7 | Se a verificação de sessão demorar mais que 3 s, o app segue para o Login; uma resposta tardia nunca causa uma segunda navegação. | web | — |
+| RF-01.7 | Se a verificação de sessão demorar mais que 3 s, o app segue para o Login; uma resposta tardia nunca causa uma segunda navegação.<br>_Fonte: Decisão do time, 2026-11-08: 3 s é o valor correto._<br>⚠️ O código usa 5 s (SPLASH_TIMEOUT_MS em recorda-frontend/src/features/splash/screens/SplashScreen.tsx). | web | — |
 
 ### US 2 — Cadastro de Usuário
 
@@ -160,6 +193,9 @@ decisão do time antes de virarem teste.
 | RF-08.2 | A descrição é opcional, com limite de 2200 caracteres. | web | — |
 | RF-08.3 | A música vem preenchida e não é editável nesta tela. | web | — |
 | RF-08.4 | Publicar só fica habilitado com a música associada. | web | — |
+| RF-08.5 | A tela de detalhes permite informar a Data da Memória (quando o momento aconteceu).<br>_Fonte: Decisão do time, 2026-11-08: obrigatório implementar._<br>⚠️ Não implementado: o model recorda não tem Data da Memória, Local nem marcações. | web | — |
+| RF-08.6 | A tela de detalhes permite informar o Local da memória.<br>_Fonte: Decisão do time, 2026-11-08: obrigatório implementar._<br>⚠️ Não implementado: o model recorda não tem Data da Memória, Local nem marcações. | web | — |
+| RF-08.7 | A tela de detalhes permite marcar outros usuários na Recorda.<br>_Fonte: Decisão do time, 2026-11-08: obrigatório implementar; Termo: marcação de amigos._<br>⚠️ Não implementado: o model recorda não tem Data da Memória, Local nem marcações. | web | — |
 
 ### US 9 — Publicação da Recorda
 
@@ -167,11 +203,12 @@ decisão do time antes de virarem teste.
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-09.1 | A Recorda é composta por mídia, música e descrição opcional. | API | — |
+| RF-09.1 | A Recorda é composta por mídia, música, descrição opcional, Data da Memória, Local e marcações.<br>_Fonte: Decisão do time, 2026-11-08: Data da Memória, Local e marcações voltam ao escopo._<br>⚠️ Não implementado: o model recorda não tem Data da Memória, Local nem marcações. | API | — |
 | RF-09.2 | A visibilidade não é escolhida na publicação: deriva da privacidade da conta, sem seletor nem campo por publicação. | web | — |
 | RF-09.3 | A Data de Publicação é registrada automaticamente. | API | — |
 | RF-09.4 | Após publicar, a Recorda aparece imediatamente no perfil do autor e fica disponível aos feeds conforme a visibilidade da conta. | web | — |
 | RF-09.5 | Há indicador de progresso no upload e, em caso de falha, é possível tentar novamente sem perder os dados nem recapturar a mídia. | web | — |
+| RF-09.6 | Usuários marcados são notificados da marcação.<br>_Fonte: Decisão do time, 2026-11-08; US 26._<br>⚠️ Não implementado: o model recorda não tem Data da Memória, Local nem marcações. | web | — |
 
 ## E4 — Feed
 
@@ -220,7 +257,7 @@ decisão do time antes de virarem teste.
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
 | RF-17.1 | Tocar num card do feed ou numa miniatura do perfil abre a tela Detalhes da Recorda. | web | — |
-| RF-17.2 | A tela mostra mídia, avatar e username do autor, relato completo, música, Data da Memória, Local, marcações e comentários. | web | — |
+| RF-17.2 | A tela mostra mídia, avatar e username do autor, relato completo, música, Data da Memória, Local, marcações e comentários.<br>⚠️ Não implementado: o model recorda não tem Data da Memória, Local nem marcações. | web | — |
 | RF-17.3 | A música continua tocando na transição do feed para os detalhes, sem reiniciar. | nativo | — |
 | RF-17.4 | A tela oferece curtir, comentar e compartilhar. | web | — |
 | RF-17.5 | O menu de três pontos oferece só excluir na própria Recorda e só denunciar na de outra pessoa; não há edição. | web | — |
@@ -408,7 +445,7 @@ decisão do time antes de virarem teste.
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
 | RF-35.1 | Só contam para a streak dias com pelo menos uma Recorda publicada, pela data de publicação. | API | — |
-| RF-35.2 | Curtidas, comentários e outras ações não contam, e excluir uma Recorda depois não apaga o dia conquistado. | API | — |
+| RF-35.2 | Curtidas, comentários e outras ações não contam. Só contam Recordas ativas: excluir a única Recorda de um dia tira esse dia da streak (regra da US 38).<br>_Fonte: Decisão do time, 2026-11-08: seguir a US 38, que substitui o critério original da US 35._<br>⚠️ A streak do perfil inclui Recordas excluídas (list_publication_times em recorda-backend/app/repositories/recorda_repository.py), enquanto a de Métricas já as exclui. | API | — |
 | RF-35.3 | O perfil mostra apenas um indicador de streak. | web | — |
 
 ### US 36 — Logout
@@ -568,7 +605,7 @@ decisão do time antes de virarem teste.
 | RF-45.2 | A remoção exige justificativa de até 500 caracteres, salva de forma imutável na auditoria. | web | — |
 | RF-45.3 | Remover a Recorda resolve automaticamente as denúncias pendentes dela. | web | — |
 | RF-45.4 | A Recorda removida some imediatamente do feed, das buscas e do perfil do autor. | web | — |
-| RF-45.5 | Nenhuma notificação é enviada ao autor (POC; ver conflito com a US 42). | manual | — |
+| RF-45.5 | O autor da Recorda removida é notificado conforme a US 42 (RF-42.1).<br>_Fonte: Decisão do time, 2026-11-08: manter a notificação da US 42; substitui o critério original da US 45, que proibia notificar._ | web | — |
 
 ### US 46 — Moderação de Usuários (Suspensão e Reativação)
 
@@ -593,51 +630,23 @@ decisão do time antes de virarem teste.
 | RF-47.3 | O painel tem o histórico cronológico paginado, com filtros por administrador e período. | web | — |
 | RF-47.4 | A auditoria é append-only: não há endpoints de alteração ou exclusão. | API | — |
 
-## TA — Escopo do Termo de Abertura sem User Story
+## TA — Termo de Abertura (sem User Story)
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-T01 | Integração com Spotify (Web API/OAuth) ou Apple Music (MusicKit) para busca, estatísticas, previews, álbuns e artistas. Hoje o app usa a API do Deezer. | web | — |
-| RF-T02 | O perfil exibe biografia, total de amigos, conquistas, ranking e histórico de atividade. | web | — |
-| RF-T03 | A Recorda pode ser associada a artista ou álbum (além de música) e permite marcar amigos. | web | — |
-| RF-T04 | Os feeds oferecem compartilhamentos, marcações e descoberta de músicas, além de perfis. | web | — |
-| RF-T05 | Rankings, tendências, scrobbles e linha do tempo pessoal. | web | — |
-| RF-T06 | Gamificação com badges de conquistas e ranking entre amigos e global. | web | — |
-| RF-T07 | Notificações de conquistas. | web | — |
-| RF-T08 | Onboarding de apresentação do app (além das preferências musicais da US 3). | web | — |
-
-Fontes:
-
-- **RF-T01**: Termo: Integrações
-- **RF-T02**: Termo: perfil
-- **RF-T03**: Termo: criação de Recordas
-- **RF-T04**: Termo: feed
-- **RF-T05**: Termo: estatísticas
-- **RF-T06**: Termo: gamificação
-- **RF-T07**: Termo: notificações
-- **RF-T08**: Termo: onboarding
+| RF-T01 | A busca de músicas, previews, álbuns, artistas e gêneros usa a API do Deezer.<br>_Fonte: Termo: Integrações; Decisão do time, 2026-11-08: o Deezer substitui Spotify/Apple Music por atender melhor ao projeto._ | web | — |
 
 ## NF — Requisitos não funcionais
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RNF-01 | O aplicativo funciona em iOS e Android. | nativo | — |
-| RNF-02 | A interface está disponível em português, inglês e espanhol, sem textos fixos fora das traduções. | web | — |
-| RNF-03 | Não há coleta de dados comportamentais: só os dados necessários à conta e às preferências declaradas. | manual | — |
-| RNF-04 | Toda comunicação do app com a API usa HTTPS. | API | — |
-| RNF-05 | A interface não trava esperando a rede: carregamentos mostram indicador e falhas oferecem tentar novamente. | web | — |
-| RNF-06 | Datas e streaks são calculados no fuso America/Sao_Paulo. | API | — |
-| RNF-07 | Fora do escopo: monetização, assinaturas, chat em tempo real, comunidades ou grupos, marketplace e streaming próprio. | manual | — |
-
-Fontes:
-
-- **RNF-01**: Termo: objetivos
-- **RNF-02**: Termo; US 33
-- **RNF-03**: US 2; US 15
-- **RNF-04**: Relatório de deploy
-- **RNF-05**: US 1; US 18
-- **RNF-06**: US 37; US 38
-- **RNF-07**: Termo: fora do escopo
+| RNF-01 | O aplicativo funciona em iOS e Android.<br>_Fonte: Termo: objetivos_ | nativo | — |
+| RNF-02 | A interface está disponível em português, inglês e espanhol, sem textos fixos fora das traduções.<br>_Fonte: Termo; US 33_ | web | — |
+| RNF-03 | Não há coleta de dados comportamentais: só os dados necessários à conta e às preferências declaradas.<br>_Fonte: US 2; US 15_ | manual | — |
+| RNF-04 | Toda comunicação do app com a API usa HTTPS.<br>_Fonte: Relatório de deploy_ | API | — |
+| RNF-05 | A interface não trava esperando a rede: carregamentos mostram indicador e falhas oferecem tentar novamente.<br>_Fonte: US 1; US 18_ | web | — |
+| RNF-06 | Datas e streaks são calculados no fuso America/Sao_Paulo.<br>_Fonte: US 37; US 38_ | API | — |
+| RNF-07 | Fora do escopo: monetização, assinaturas, chat em tempo real, comunidades ou grupos, marketplace e streaming próprio.<br>_Fonte: Termo: fora do escopo_ | manual | — |
 
 ## Testes
 

@@ -67,6 +67,11 @@ Rules for the requirement field:
   `OPEN_QUESTIONS` if the stories disagree), regenerate the doc, and get it agreed.
 - Requirements marked *native* or *manual* can't be proven by this suite; don't write
   web tests that pretend to.
+- Requirements with a **known gap** (⚠️ in `REQUIREMENTS.md`, `gap` in the catalog) are
+  decided but not implemented yet. Their test should describe the decided behavior and be
+  marked `test.fail()` with a comment naming the ID. Playwright then reports it as an
+  expected failure, and as an error once the code is fixed: that's the signal to remove
+  `test.fail()` and the `gap` from the catalog.
 - After adding or changing tests, run `pnpm requirements:doc` so the coverage columns in
   `REQUIREMENTS.md` stay current.
 

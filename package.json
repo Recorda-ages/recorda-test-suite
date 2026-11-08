@@ -20,6 +20,8 @@
     "report": "playwright show-report",
     "codegen": "playwright codegen --device=\"Pixel 7\" http://localhost:8081",
     "typecheck": "tsc --noEmit",
+    "requirements:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/requirements.ts check",
+    "requirements:doc": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/requirements.ts doc",
     "stack:up": "docker compose --project-directory ../recorda-backend up -d --build --wait",
     "stack:seed": "docker compose --project-directory ../recorda-backend exec api python scripts/seed.py",
     "stack:down": "docker compose --project-directory ../recorda-backend down"

@@ -1,4 +1,4 @@
-import { expect, test } from "../../src/fixtures";
+import { expect, meta, test } from "../../src/fixtures";
 
 /**
  * First end-to-end user flow: a returning user opens the app, lands on the feed with a
@@ -9,7 +9,13 @@ import { expect, test } from "../../src/fixtures";
 test.describe("Session lifecycle", () => {
   test(
     "returning user browses the feed, opens settings and signs out",
-    { tag: "@smoke" },
+    meta({
+      description:
+        "A saved session opens the feed without logging in again; signing out from Settings " +
+        "asks for confirmation, returns to Login and clears the session for the next launch.",
+      requirement: ["RF-04.6", "RF-36.1", "RF-36.2"],
+      tag: "@smoke"
+    }),
     async ({ page, app, feedPage, profilePage, settingsPage, loginPage }) => {
       await test.step("the saved session is restored and the feed opens", async () => {
         await app.launch();

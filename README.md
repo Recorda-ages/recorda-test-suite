@@ -52,11 +52,11 @@ pnpm stack:seed
 
 ## Running
 
-| Command                | Frontend         | Backend      | Notes                                 |
-| ---------------------- | ---------------- | ------------ | ------------------------------------- |
-| `pnpm test`            | Production build | AWS          | Default; skips `@mutates` tests       |
-| `pnpm test:local`      | Dev server       | Local Docker | Fastest feedback; runs every test     |
-| `pnpm test:local:prod` | Production build | Local Docker | Runs every test                       |
+| Command                | Frontend         |
+| ---------------------- | ---------------- |
+| `pnpm test`            | Production build |
+| `pnpm test:local`      | Dev server       |
+| `pnpm test:local:prod` | Production build |
 
 These follow the same defaults (production build + AWS) unless you set `E2E_TARGET` /
 `E2E_API_URL`:
@@ -71,6 +71,8 @@ These follow the same defaults (production build + AWS) unless you set `E2E_TARG
 | `pnpm report`        | Open the last HTML report                     |
 | `pnpm codegen`       | Record locators against the running app       |
 | `pnpm typecheck`     | TypeScript check                              |
+| `pnpm requirements:check` | Every test has name, description, requirement; coverage per epic |
+| `pnpm requirements:doc`   | Regenerate `docs/REQUIREMENTS.md` (catalog + coverage) |
 | `pnpm stack:down`    | Stop the local backend containers             |
 
 For a quick loop against the local stack in UI mode, combine them:
@@ -132,17 +134,25 @@ playwright.config.ts      projects, webServer, timeouts, artifacts
 src/
   config/env.ts           every environment variable, with defaults
   data/users.ts           seeded accounts + saved-session paths
-  fixtures/index.ts       `test` / `expect`: import these in every spec
+  fixtures/index.ts       `test` / `meta` / `expect`: import these in every spec
   pages/                  page objects (one per screen) + shared components
+  requirements/
+    catalog.ts            requirement IDs (from the charter + Epics/US issues)
+    annotations.ts        `meta()`: name/description/requirement metadata + guard
   support/
     api.ts                backend client (arrange data, verify side effects)
     app.ts                multi-screen navigation (launch, sign in, go to settings…)
     i18n.ts               `t("key")` reads UI copy from the frontend's locale files
     session.ts            localStorage keys and storage-state builder
+scripts/requirements.ts   requirements:check / requirements:doc
+docs/
+  GUIDELINES.md           how to write tests
+  REQUIREMENTS.md         generated requirements + traceability (don't edit by hand)
 tests/
   setup/auth.setup.ts     saves a logged-in session per account (runs first)
   auth/                   sign-in, sign-up, password recovery
   flows/                  multi-screen user journeys
 ```
 
-Read **[docs/GUIDELINES.md](docs/GUIDELINES.md)** before writing a test.
+Read **[docs/GUIDELINES.md](docs/GUIDELINES.md)** before writing a test. Every test verifies
+a requirement from **[docs/REQUIREMENTS.md](docs/REQUIREMENTS.md)**.

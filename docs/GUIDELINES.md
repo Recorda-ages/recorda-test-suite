@@ -21,19 +21,54 @@ Rule of thumb: if the test needs only one screen and mocked data, it is not an E
 
 ## 2. Anatomy of a spec
 
+Every test starts from a requirement. Find it in
+[REQUIREMENTS.md](REQUIREMENTS.md) (generated from `src/requirements/catalog.ts`), then
+declare the test with its three mandatory fields: **name**, **description** and
+**requirement ID**.
+
 ```ts
 import { users } from "../../src/data/users";
-import { expect, test } from "../../src/fixtures";      // never from "@playwright/test"
+import { expect, meta, test } from "../../src/fixtures";   // never from "@playwright/test"
 
 test.describe("Feature or journey", () => {
-  test("user-visible outcome in plain words", { tag: "@smoke" }, async ({ app, feedPage }) => {
-    await test.step("what the user does or sees", async () => {
-      await app.launch();
-      await feedPage.expectLoaded();
-    });
-  });
+  test(
+    "invalid credentials show one generic error",              // name
+    meta({
+      description:                                              // what and why, 1–2 sentences
+        "A wrong password and an unknown username both keep the user on Login with the " +
+        "same message, so the error never reveals which field is wrong.",
+      requirement: "RF-04.3",                                   // or ["RF-04.1", "RF-04.5"]
+      tag: "@smoke"                                             // optional
+    }),
+    async ({ app, loginPage }) => {
+      await test.step("what the user does or sees", async () => {
+        await app.launch();
+        await loginPage.expectLoaded();
+      });
+    }
+  );
 });
 ```
+
+The fields are enforced three ways:
+
+- An unknown requirement ID is a **type error** (`pnpm typecheck`).
+- A test declared without `meta()` **fails when it runs**, with a message pointing here.
+- **`pnpm requirements:check`** lists every test without running it and fails on a missing
+  name, description or ID, an unknown ID, or a duplicated name. It also prints coverage per
+  epic.
+
+Rules for the requirement field:
+
+- Reference the **most specific** requirement the test proves (`RF-04.3`, not "US 4"). A
+  flow test may list several.
+- Only reference what the test **asserts**. Visiting a screen on the way doesn't count.
+- If the behavior has no requirement, don't invent an ID: add it to the catalog (or to
+  `OPEN_QUESTIONS` if the stories disagree), regenerate the doc, and get it agreed.
+- Requirements marked *native* or *manual* can't be proven by this suite; don't write
+  web tests that pretend to.
+- After adding or changing tests, run `pnpm requirements:doc` so the coverage columns in
+  `REQUIREMENTS.md` stay current.
 
 - **Name tests by behavior**, not implementation: "invalid credentials show an error",
   not "test 401".
@@ -178,6 +213,7 @@ is cleared after reopening the app".
 ## 10. Before opening a PR
 
 - [ ] `pnpm typecheck` passes
+- [ ] `pnpm requirements:check` passes, and `docs/REQUIREMENTS.md` is regenerated (`pnpm requirements:doc`)
 - [ ] New specs pass with `--repeat-each=3`
 - [ ] `pnpm test` (production build + AWS) passes
 - [ ] `pnpm test:local` passes, if you added or changed `@mutates` tests

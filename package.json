@@ -1,0 +1,33 @@
+{
+  "name": "recorda-test-suite",
+  "version": "0.1.0",
+  "private": true,
+  "description": "End-to-end tests for Recorda (recorda-frontend web build + recorda-backend API) using Playwright.",
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=22.13.0",
+    "pnpm": ">=10"
+  },
+  "scripts": {
+    "test": "playwright test",
+    "test:local": "E2E_TARGET=dev E2E_API_URL=http://localhost:8000 playwright test",
+    "test:local:prod": "E2E_TARGET=prod E2E_API_URL=http://localhost:8000 playwright test",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:headless": "E2E_HEADLESS=1 playwright test",
+    "test:watch": "E2E_SLOW_MO=400 playwright test --workers=1",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "report": "playwright show-report",
+    "codegen": "playwright codegen --device=\"Pixel 7\" http://localhost:8081",
+    "typecheck": "tsc --noEmit",
+    "stack:up": "docker compose --project-directory ../recorda-backend up -d --build --wait",
+    "stack:seed": "docker compose --project-directory ../recorda-backend exec api python scripts/seed.py",
+    "stack:down": "docker compose --project-directory ../recorda-backend down"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.0",
+    "@types/node": "^26.6.6",
+    "serve": "^14.2.7",
+    "typescript": "^7.0.2"
+  }
+}

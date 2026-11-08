@@ -1,0 +1,14 @@
+node_modules/
+.env
+
+# Playwright output
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# Saved sessions (contain access tokens)
+/.auth/
+
+# Production web export (E2E_TARGET=prod)
+/.build/

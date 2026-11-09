@@ -12,9 +12,19 @@ export const WEB_BUILD_DIR = path.join(SUITE_DIR, ".build/web");
 
 const port = new URL(env.baseURL).port || "8081";
 
+// pnpm exports its settings as npm_config_* variables; npm (via `npx`) warns about the ones it
+// doesn't know ("Unknown env config ..."). Playwright merges this env over process.env and
+// Node drops `undefined` entries when spawning, so this removes them from the web server only.
+const withoutPnpmConfig = Object.fromEntries(
+  Object.keys(process.env)
+    .filter((key) => key.toLowerCase().startsWith("npm_config_"))
+    .map((key) => [key, undefined])
+) as unknown as Record<string, string>; // WebServer.env is typed string-only
+
 // The frontend repo is npm-managed, hence `npx` for Expo commands run inside it.
 // EXPO_PUBLIC_* values are inlined into the bundle, so the API URL is set here.
 const expoEnv = {
+  ...withoutPnpmConfig,
   CI: "1", // non-interactive Expo CLI
   BROWSER: "none",
   EXPO_PUBLIC_API_URL: env.apiURL

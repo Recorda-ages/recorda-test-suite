@@ -86,6 +86,35 @@ Não se esperam testes para eles. Os itens que o próprio Termo exclui estão em
 - Notificações de conquistas (antigo RF-T07).
 - Onboarding de apresentação do app, além das preferências musicais (antigo RF-T08).
 
+## Fluxos de teste
+
+Os requisitos agrupados por jornada do usuário. Cada fluxo tem uma issue em
+[Recorda-ages/recorda-test-suite](https://github.com/Recorda-ages/recorda-test-suite/issues) e uma pasta de specs sugerida.
+
+| Fluxo | Issue | Requisitos | Web (Playwright) | Cobertos | Lacunas | Escreve dados |
+| --- | --- | --- | --- | --- | --- | --- |
+| FL-01 Abertura do app e sessão | [#1](https://github.com/Recorda-ages/recorda-test-suite/issues/1) | 9 | 9 | 4 | 1 | não |
+| FL-02 Login | [#2](https://github.com/Recorda-ages/recorda-test-suite/issues/2) | 4 | 4 | 3 | 0 | não |
+| FL-03 Cadastro e onboarding | [#3](https://github.com/Recorda-ages/recorda-test-suite/issues/3) | 11 | 11 | 0 | 0 | sim (`@mutates`) |
+| FL-04 Recuperação de senha | [#4](https://github.com/Recorda-ages/recorda-test-suite/issues/4) | 4 | 4 | 0 | 0 | sim (`@mutates`) |
+| FL-05 Criação e publicação de Recorda | [#5](https://github.com/Recorda-ages/recorda-test-suite/issues/5) | 22 | 17 | 0 | 4 | sim (`@mutates`) |
+| FL-06 Card de compartilhamento | [#6](https://github.com/Recorda-ages/recorda-test-suite/issues/6) | 14 | 9 | 0 | 0 | não |
+| FL-07 Feed | [#7](https://github.com/Recorda-ages/recorda-test-suite/issues/7) | 20 | 15 | 0 | 0 | não |
+| FL-08 Detalhes da Recorda, curtidas e comentários | [#8](https://github.com/Recorda-ages/recorda-test-suite/issues/8) | 17 | 16 | 0 | 1 | sim (`@mutates`) |
+| FL-09 Busca, seguir e rede de seguidores | [#9](https://github.com/Recorda-ages/recorda-test-suite/issues/9) | 17 | 17 | 0 | 0 | sim (`@mutates`) |
+| FL-10 Notificações | [#10](https://github.com/Recorda-ages/recorda-test-suite/issues/10) | 7 | 7 | 0 | 0 | sim (`@mutates`) |
+| FL-11 Perfil pessoal e de terceiros | [#11](https://github.com/Recorda-ages/recorda-test-suite/issues/11) | 7 | 7 | 0 | 0 | sim (`@mutates`) |
+| FL-12 Configurações, preferências e conta | [#12](https://github.com/Recorda-ages/recorda-test-suite/issues/12) | 12 | 12 | 0 | 0 | sim (`@mutates`) |
+| FL-13 Memórias: calendário, métricas e retrospectiva | [#13](https://github.com/Recorda-ages/recorda-test-suite/issues/13) | 22 | 20 | 0 | 0 | não |
+| FL-14 Denúncias | [#14](https://github.com/Recorda-ages/recorda-test-suite/issues/14) | 9 | 9 | 0 | 0 | sim (`@mutates`) |
+| FL-15 Moderação administrativa | [#15](https://github.com/Recorda-ages/recorda-test-suite/issues/15) | 21 | 21 | 0 | 0 | sim (`@mutates`) |
+
+Os fluxos contêm só requisitos de jornada do usuário (verificação *web* ou *nativo*).
+Ficam fora:
+
+- **Verificação API ou manual** (29): RF-01.1, RF-02.6, RF-02.7, RF-03.5, RF-04.2, RF-04.7, RF-06.4, RF-07.5, RF-09.1, RF-09.3, RF-10.3, RF-11.3, RF-15.3, RF-15.4, RF-20.4, RF-20.6, RF-24.5, RF-35.1, RF-35.2, RF-37.3, RF-38.4, RF-40.4, RF-41.5, RF-42.4, RF-47.4, RNF-03, RNF-04, RNF-06, RNF-07.
+- **RNF-01**: Execução em iOS e Android: é uma propriedade do app inteiro, para teste nativo (ex.: Maestro).
+
 ## E2 — Autenticação, cadastro e onboarding
 
 ### US 1 — Visualização da Splash Screen
@@ -136,11 +165,11 @@ Não se esperam testes para eles. Os itens que o próprio Termo exclui estão em
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-04.1 | A tela de Login tem os campos Usuário e Senha e é a mesma para usuários comuns e administradores. | web | [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L25) |
+| RF-04.1 | A tela de Login tem os campos Usuário e Senha e é a mesma para usuários comuns e administradores. | web | [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L24) |
 | RF-04.2 | As credenciais são validadas no backend, que retorna também o tipo de conta. | API | — |
-| RF-04.3 | Credenciais inválidas exibem uma única mensagem genérica, sem revelar qual campo está incorreto. | web | [invalid credentials show one generic error](../tests/auth/sign-in.spec.ts#L41) |
+| RF-04.3 | Credenciais inválidas exibem uma única mensagem genérica, sem revelar qual campo está incorreto. | web | [invalid credentials show one generic error](../tests/auth/sign-in.spec.ts#L39) |
 | RF-04.4 | Administradores são roteados para a área administrativa, sem acesso à navegação do app comum. | web | — |
-| RF-04.5 | Usuários comuns são roteados para o Feed. | web | [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L25) |
+| RF-04.5 | Usuários comuns são roteados para o Feed. | web | [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L24) |
 | RF-04.6 | A sessão é persistida no dispositivo: reabrir o app não exige novo login. | web | [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L10) |
 | RF-04.7 | Não há expiração de sessão por inatividade; a sessão dura até o token expirar. | API | — |
 
@@ -653,6 +682,6 @@ Não se esperam testes para eles. Os itens que o próprio Termo exclui estão em
 | Teste | Descrição | Requisitos |
 | --- | --- | --- |
 | [a signed-out user sees the login screen](../tests/auth/sign-in.spec.ts#L8) | Without a saved session the Splash hands over to Login, whose submit button stays disabled until the form is filled. | RF-01.3 |
-| [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L25) | A regular account signs in with username and password on the shared login screen and lands on the Feed. | RF-04.1, RF-04.5 |
-| [invalid credentials show one generic error](../tests/auth/sign-in.spec.ts#L41) | A wrong password and an unknown username both keep the user on Login with the same message, so the error never reveals which field is wrong. | RF-04.3 |
+| [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L24) | A regular account signs in with username and password on the shared login screen and lands on the Feed. | RF-04.1, RF-04.5 |
+| [invalid credentials show one generic error](../tests/auth/sign-in.spec.ts#L39) | A wrong password and an unknown username both keep the user on Login with the same message, so the error never reveals which field is wrong. | RF-04.3 |
 | [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L10) | A saved session opens the feed without logging in again; signing out from Settings asks for confirmation, returns to Login and clears the session for the next launch. | RF-04.6, RF-36.1, RF-36.2 |

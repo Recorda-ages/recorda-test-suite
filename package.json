@@ -12,7 +12,6 @@
     "test": "playwright test",
     "test:local": "E2E_TARGET=dev E2E_API_URL=http://localhost:8000 playwright test",
     "test:local:prod": "E2E_TARGET=prod E2E_API_URL=http://localhost:8000 playwright test",
-    "test:smoke": "playwright test --grep @smoke",
     "test:headless": "E2E_HEADLESS=1 playwright test",
     "test:watch": "E2E_SLOW_MO=400 playwright test --workers=1",
     "test:ui": "playwright test --ui",
@@ -22,6 +21,7 @@
     "typecheck": "tsc --noEmit",
     "requirements:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/requirements.ts check",
     "requirements:doc": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/requirements.ts doc",
+    "flows:issues": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/requirements.ts issues",
     "stack:up": "docker compose --project-directory ../recorda-backend up -d --build --wait",
     "stack:seed": "docker compose --project-directory ../recorda-backend exec api python scripts/seed.py",
     "stack:down": "docker compose --project-directory ../recorda-backend down"

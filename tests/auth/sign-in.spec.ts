@@ -11,8 +11,7 @@ test.describe("Sign in", () => {
       description:
         "Without a saved session the Splash hands over to Login, whose submit button stays " +
         "disabled until the form is filled.",
-      requirement: "RF-01.3",
-      tag: "@smoke"
+      requirement: "RF-01.3"
     }),
     async ({ app, loginPage }) => {
       await app.launch();
@@ -28,8 +27,7 @@ test.describe("Sign in", () => {
       description:
         "A regular account signs in with username and password on the shared login screen " +
         "and lands on the Feed.",
-      requirement: ["RF-04.1", "RF-04.5"],
-      tag: "@smoke"
+      requirement: ["RF-04.1", "RF-04.5"]
     }),
     async ({ app, feedPage }) => {
       await app.signInThroughUi(users.gabriel);

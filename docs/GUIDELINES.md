@@ -37,8 +37,7 @@ test.describe("Feature or journey", () => {
       description:                                              // what and why, 1–2 sentences
         "A wrong password and an unknown username both keep the user on Login with the " +
         "same message, so the error never reveals which field is wrong.",
-      requirement: "RF-04.3",                                   // or ["RF-04.1", "RF-04.5"]
-      tag: "@smoke"                                             // optional
+      requirement: "RF-04.3"                                    // or ["RF-04.1", "RF-04.5"]
     }),
     async ({ app, loginPage }) => {
       await test.step("what the user does or sees", async () => {
@@ -81,7 +80,6 @@ Rules for the requirement field:
   reads like "failed at: confirming sign-out returns to login".
 - **Assert in the spec, act in the page object.** Page objects expose locators and actions;
   `expectLoaded()` is the only assertion they own.
-- **Tag with `@smoke`** the few tests that must pass before anything else is worth running.
 - **Tag with `@mutates`** every test that writes to the backend (creates users, posts,
   likes, follows, changes settings). They run against the local stack only and are skipped
   on the shared deployed backend. Signing in and out doesn't count: it writes nothing.

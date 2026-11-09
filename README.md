@@ -63,7 +63,6 @@ These follow the same defaults (production build + AWS) unless you set `E2E_TARG
 
 | Command              | What it does                                  |
 | -------------------- | --------------------------------------------- |
-| `pnpm test:smoke`    | Only tests tagged `@smoke`                    |
 | `pnpm test:ui`       | Playwright UI mode (watch, time-travel debug) |
 | `pnpm test:headless` | Full suite without opening windows            |
 | `pnpm test:watch`    | One window at a time, slowed down to follow   |
@@ -73,6 +72,7 @@ These follow the same defaults (production build + AWS) unless you set `E2E_TARG
 | `pnpm typecheck`     | TypeScript check                              |
 | `pnpm requirements:check` | Every test has name, description, requirement; coverage per epic |
 | `pnpm requirements:doc`   | Regenerate `docs/REQUIREMENTS.md` (catalog + coverage) |
+| `pnpm flows:issues` | Write flow issue bodies; `--create` / `--update` / `--project` sync them to GitHub and the org project (needs `gh`) |
 | `pnpm stack:down`    | Stop the local backend containers             |
 
 For a quick loop against the local stack in UI mode, combine them:
@@ -139,6 +139,7 @@ src/
   requirements/
     catalog.ts            requirement IDs (from the charter + Epics/US issues)
     annotations.ts        `meta()`: name/description/requirement metadata + guard
+    flows.ts              requirements grouped by user flow (one GitHub issue each)
   support/
     api.ts                backend client (arrange data, verify side effects)
     app.ts                multi-screen navigation (launch, sign in, go to settings…)

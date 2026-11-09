@@ -13,8 +13,7 @@ test.describe("Session lifecycle", () => {
       description:
         "A saved session opens the feed without logging in again; signing out from Settings " +
         "asks for confirmation, returns to Login and clears the session for the next launch.",
-      requirement: ["RF-04.6", "RF-36.1", "RF-36.2"],
-      tag: "@smoke"
+      requirement: ["RF-04.6", "RF-36.1", "RF-36.2"]
     }),
     async ({ page, app, feedPage, profilePage, settingsPage, loginPage }) => {
       await test.step("the saved session is restored and the feed opens", async () => {

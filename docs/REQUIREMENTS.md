@@ -23,7 +23,7 @@ Fontes: Termo de Abertura do Projeto (2026/2) e os Épicos e User Stories das is
 
 ## Resumo
 
-226 requisitos, 199 verificáveis por esta suíte (web ou API), 7 cobertos por 4 teste(s). 8 decididos mas ainda não atendidos pelo código (⚠️).
+226 requisitos, 199 verificáveis por esta suíte (web ou API), 28 cobertos por 22 teste(s). 8 decididos mas ainda não atendidos pelo código (⚠️).
 
 | Épico | Nome | Requisitos | Web | API | Nativo | Manual | Cobertos |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -34,8 +34,8 @@ Fontes: Termo de Abertura do Projeto (2026/2) e os Épicos e User Stories das is
 | E6 | Perfil e configurações | 22 | 20 | 2 | 0 | 0 | 2 |
 | E7 | Memórias e estatísticas | 24 | 20 | 0 | 2 | 2 | 0 |
 | E8 | Compartilhamento de cards | 16 | 9 | 0 | 5 | 2 | 0 |
-| E9 | Denúncias | 15 | 12 | 3 | 0 | 0 | 0 |
-| E10 | Administração e moderação | 19 | 18 | 1 | 0 | 0 | 0 |
+| E9 | Denúncias | 15 | 12 | 3 | 0 | 0 | 3 |
+| E10 | Administração e moderação | 19 | 18 | 1 | 0 | 0 | 18 |
 | TA | Termo de Abertura (sem User Story) | 1 | 1 | 0 | 0 | 0 | 0 |
 | NF | Requisitos não funcionais | 7 | 2 | 2 | 1 | 2 | 0 |
 
@@ -107,7 +107,7 @@ Os requisitos agrupados por jornada do usuário. Cada fluxo tem uma issue em
 | FL-12 Configurações, preferências e conta | [#12](https://github.com/Recorda-ages/recorda-test-suite/issues/12) | 12 | 12 | 0 | 0 | sim (`@mutates`) |
 | FL-13 Memórias: calendário, métricas e retrospectiva | [#13](https://github.com/Recorda-ages/recorda-test-suite/issues/13) | 22 | 20 | 0 | 0 | não |
 | FL-14 Denúncias | [#14](https://github.com/Recorda-ages/recorda-test-suite/issues/14) | 9 | 9 | 0 | 0 | sim (`@mutates`) |
-| FL-15 Moderação administrativa | [#15](https://github.com/Recorda-ages/recorda-test-suite/issues/15) | 21 | 21 | 0 | 0 | sim (`@mutates`) |
+| FL-15 Moderação administrativa | [#15](https://github.com/Recorda-ages/recorda-test-suite/issues/15) | 21 | 21 | 21 | 0 | sim (`@mutates`) |
 
 Os fluxos contêm só requisitos de jornada do usuário (verificação *web* ou *nativo*).
 Ficam fora:
@@ -605,9 +605,9 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-42.1 | Quando a moderação remove uma Recorda, o autor recebe a notificação CONTENT_REMOVED com o motivo. | web | — |
-| RF-42.2 | A notificação aparece com ícone de sistema, sem expor o administrador. | web | — |
-| RF-42.3 | Tocar na notificação a marca como lida, sem navegar para a Recorda removida. | web | — |
+| RF-42.1 | Quando a moderação remove uma Recorda, o autor recebe a notificação CONTENT_REMOVED com o motivo. | web | [the removed Recorda's author receives a system notification with the reason](../tests/admin/moderation.spec.ts#L226) |
+| RF-42.2 | A notificação aparece com ícone de sistema, sem expor o administrador. | web | [the removed Recorda's author receives a system notification with the reason](../tests/admin/moderation.spec.ts#L226) |
+| RF-42.3 | Tocar na notificação a marca como lida, sem navegar para a Recorda removida. | web | [opening a content removal notification marks it read without opening the removed Recorda](../tests/admin/moderation.spec.ts#L422) |
 | RF-42.4 | Usuários suspensos não recebem a notificação. | API | — |
 
 ## E10 — Administração e moderação
@@ -618,11 +618,11 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-44.1 | O fluxo administrativo é exclusivo de usuários com role ADMIN. | web | — |
-| RF-44.2 | As denúncias são listadas agrupadas por alvo, com tipo, identificador, número de denúncias abertas e data da mais recente. | web | — |
-| RF-44.3 | O detalhe do alvo mostra o conteúdo denunciado e o histórico de denúncias (texto, data e denunciante). | web | — |
-| RF-44.4 | O administrador pode mudar o status das denúncias para RESOLVED ou DISMISSED. | web | — |
-| RF-44.5 | Toda mudança de status exige justificativa de até 500 caracteres, registrada na auditoria. | web | — |
+| RF-44.1 | O fluxo administrativo é exclusivo de usuários com role ADMIN. | web | [administrators can open the administrative area](../tests/admin/moderation.spec.ts#L41)<br>[regular accounts cannot open administrative screens](../tests/admin/moderation.spec.ts#L28) |
+| RF-44.2 | As denúncias são listadas agrupadas por alvo, com tipo, identificador, número de denúncias abertas e data da mais recente. | web | [open reports are grouped by target with their summary](../tests/admin/moderation.spec.ts#L53) |
+| RF-44.3 | O detalhe do alvo mostra o conteúdo denunciado e o histórico de denúncias (texto, data e denunciante). | web | [a reported target shows its content and report history](../tests/admin/moderation.spec.ts#L74) |
+| RF-44.4 | O administrador pode mudar o status das denúncias para RESOLVED ou DISMISSED. | web | [an administrator can resolve or dismiss a report with a reason](../tests/admin/moderation.spec.ts#L95) |
+| RF-44.5 | Toda mudança de status exige justificativa de até 500 caracteres, registrada na auditoria. | web | [an administrator can resolve or dismiss a report with a reason](../tests/admin/moderation.spec.ts#L95) |
 
 ### US 45 — Moderação e Remoção de Recordas
 
@@ -630,11 +630,11 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-45.1 | O administrador remove logicamente uma Recorda pela tela de moderação. | web | — |
-| RF-45.2 | A remoção exige justificativa de até 500 caracteres, salva de forma imutável na auditoria. | web | — |
-| RF-45.3 | Remover a Recorda resolve automaticamente as denúncias pendentes dela. | web | — |
-| RF-45.4 | A Recorda removida some imediatamente do feed, das buscas e do perfil do autor. | web | — |
-| RF-45.5 | O autor da Recorda removida é notificado conforme a US 42 (RF-42.1).<br>_Fonte: Decisão do time, 2026-11-08: manter a notificação da US 42; substitui o critério original da US 45, que proibia notificar._ | web | — |
+| RF-45.1 | O administrador remove logicamente uma Recorda pela tela de moderação. | web | [an administrator removes a Recorda from its moderation detail](../tests/admin/moderation.spec.ts#L124) |
+| RF-45.2 | A remoção exige justificativa de até 500 caracteres, salva de forma imutável na auditoria. | web | [Recorda removal requires a reason and records it in the audit log](../tests/admin/moderation.spec.ts#L146) |
+| RF-45.3 | Remover a Recorda resolve automaticamente as denúncias pendentes dela. | web | [removing a Recorda resolves its open reports](../tests/admin/moderation.spec.ts#L174) |
+| RF-45.4 | A Recorda removida some imediatamente do feed, das buscas e do perfil do autor. | web | [a removed Recorda disappears from feed, search and its author's profile](../tests/admin/moderation.spec.ts#L196) |
+| RF-45.5 | O autor da Recorda removida é notificado conforme a US 42 (RF-42.1).<br>_Fonte: Decisão do time, 2026-11-08: manter a notificação da US 42; substitui o critério original da US 45, que proibia notificar._ | web | [the removed Recorda's author receives a system notification with the reason](../tests/admin/moderation.spec.ts#L226) |
 
 ### US 46 — Moderação de Usuários (Suspensão e Reativação)
 
@@ -642,11 +642,11 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-46.1 | O administrador busca contas por username ou nome e vê perfil e status (ACTIVE ou SUSPENDED). | web | — |
-| RF-46.2 | Um administrador não pode suspender outro administrador (HTTP 403 e ação desabilitada na UI). | web | — |
-| RF-46.3 | A suspensão exige motivo de até 500 caracteres, registrado na auditoria. | web | — |
-| RF-46.4 | O conteúdo de usuários suspensos (Recordas, comentários e perfil) some para usuários comuns. | web | — |
-| RF-46.5 | O administrador reativa uma conta suspensa com justificativa, voltando ao status ACTIVE. | web | — |
+| RF-46.1 | O administrador busca contas por username ou nome e vê perfil e status (ACTIVE ou SUSPENDED). | web | [an administrator searches accounts by username or name and sees their status](../tests/admin/moderation.spec.ts#L255) |
+| RF-46.2 | Um administrador não pode suspender outro administrador (HTTP 403 e ação desabilitada na UI). | web | [an administrator cannot suspend another administrator](../tests/admin/moderation.spec.ts#L276) |
+| RF-46.3 | A suspensão exige motivo de até 500 caracteres, registrado na auditoria. | web | [suspending an account requires a reason and records the action](../tests/admin/moderation.spec.ts#L292) |
+| RF-46.4 | O conteúdo de usuários suspensos (Recordas, comentários e perfil) some para usuários comuns. | web | [content from a suspended account is hidden from regular users](../tests/admin/moderation.spec.ts#L322) |
+| RF-46.5 | O administrador reativa uma conta suspensa com justificativa, voltando ao status ACTIVE. | web | [an administrator reactivates a suspended account with a reason](../tests/admin/moderation.spec.ts#L343) |
 
 ### US 47 — Log de Auditoria
 
@@ -654,9 +654,9 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-47.1 | Toda ação de moderação (remoção, suspensão/reativação e mudança de status de denúncia) gera um registro imutável. | web | — |
-| RF-47.2 | O registro guarda administrador, tipo de ação, alvo, motivo e timestamp UTC. | web | — |
-| RF-47.3 | O painel tem o histórico cronológico paginado, com filtros por administrador e período. | web | — |
+| RF-47.1 | Toda ação de moderação (remoção, suspensão/reativação e mudança de status de denúncia) gera um registro imutável. | web | [an administrator can resolve or dismiss a report with a reason](../tests/admin/moderation.spec.ts#L95)<br>[Recorda removal requires a reason and records it in the audit log](../tests/admin/moderation.spec.ts#L146)<br>[suspending an account requires a reason and records the action](../tests/admin/moderation.spec.ts#L292)<br>[the audit log shows chronological moderation actions with administrator, target, reason and UTC timestamp](../tests/admin/moderation.spec.ts#L374) |
+| RF-47.2 | O registro guarda administrador, tipo de ação, alvo, motivo e timestamp UTC. | web | [an administrator can resolve or dismiss a report with a reason](../tests/admin/moderation.spec.ts#L95)<br>[Recorda removal requires a reason and records it in the audit log](../tests/admin/moderation.spec.ts#L146)<br>[suspending an account requires a reason and records the action](../tests/admin/moderation.spec.ts#L292)<br>[the audit log shows chronological moderation actions with administrator, target, reason and UTC timestamp](../tests/admin/moderation.spec.ts#L374) |
+| RF-47.3 | O painel tem o histórico cronológico paginado, com filtros por administrador e período. | web | [the audit history is paginated and can be filtered by administrator and period](../tests/admin/moderation.spec.ts#L398) |
 | RF-47.4 | A auditoria é append-only: não há endpoints de alteração ou exclusão. | API | — |
 
 ## TA — Termo de Abertura (sem User Story)
@@ -681,6 +681,24 @@ Ficam fora:
 
 | Teste | Descrição | Requisitos |
 | --- | --- | --- |
+| [administrators can open the administrative area](../tests/admin/moderation.spec.ts#L41) | The seeded administrator can open the administrative area. | RF-44.1 |
+| [regular accounts cannot open administrative screens](../tests/admin/moderation.spec.ts#L28) | A regular account cannot open the administrative area. | RF-44.1 |
+| [open reports are grouped by target with their summary](../tests/admin/moderation.spec.ts#L53) | The reports screen groups open reports by target and shows target type, identifier, open count and latest report date. | RF-44.2 |
+| [a reported target shows its content and report history](../tests/admin/moderation.spec.ts#L74) | Opening a report group shows the reported content and each report's text, date and reporter. | RF-44.3 |
+| [an administrator can resolve or dismiss a report with a reason](../tests/admin/moderation.spec.ts#L95) | The administrator can choose RESOLVED or DISMISSED, and each status change requires a reason no longer than 500 characters. | RF-44.4, RF-44.5, RF-47.1, RF-47.2 |
+| [an administrator removes a Recorda from its moderation detail](../tests/admin/moderation.spec.ts#L124) | The administrator confirms logical removal of a reported Recorda from the moderation screen. | RF-45.1 |
+| [Recorda removal requires a reason and records it in the audit log](../tests/admin/moderation.spec.ts#L146) | Removal cannot be confirmed without a reason, enforces the 500-character limit and records the reason in the audit log. | RF-45.2, RF-47.1, RF-47.2 |
+| [removing a Recorda resolves its open reports](../tests/admin/moderation.spec.ts#L174) | After removing a reported Recorda, every pending report for that target is shown as resolved. | RF-45.3 |
+| [a removed Recorda disappears from feed, search and its author's profile](../tests/admin/moderation.spec.ts#L196) | After moderation removes a test Recorda, it is no longer visible in the feed, search results or the author's profile. | RF-45.4 |
+| [the removed Recorda's author receives a system notification with the reason](../tests/admin/moderation.spec.ts#L226) | Removing a Recorda notifies its author with CONTENT_REMOVED and the reason, using a system icon without exposing the administrator. | RF-42.1, RF-42.2, RF-45.5 |
+| [an administrator searches accounts by username or name and sees their status](../tests/admin/moderation.spec.ts#L255) | The account search accepts a username or a name and shows the matching profile with ACTIVE or SUSPENDED status. | RF-46.1 |
+| [an administrator cannot suspend another administrator](../tests/admin/moderation.spec.ts#L276) | Searching for an administrator shows a disabled suspension action. | RF-46.2 |
+| [suspending an account requires a reason and records the action](../tests/admin/moderation.spec.ts#L292) | The suspension dialog requires a reason of at most 500 characters and the audit log records the suspension and reason. | RF-46.3, RF-47.1, RF-47.2 |
+| [content from a suspended account is hidden from regular users](../tests/admin/moderation.spec.ts#L322) | A regular account cannot see the suspended user's Recordas, comments or profile. | RF-46.4 |
+| [an administrator reactivates a suspended account with a reason](../tests/admin/moderation.spec.ts#L343) | Reactivation requires a reason of at most 500 characters and changes the account status back to ACTIVE. | RF-46.5 |
+| [the audit log shows chronological moderation actions with administrator, target, reason and UTC timestamp](../tests/admin/moderation.spec.ts#L374) | Audit entries are immutable records that identify the administrator, action, target, reason and UTC timestamp. | RF-47.1, RF-47.2 |
+| [the audit history is paginated and can be filtered by administrator and period](../tests/admin/moderation.spec.ts#L398) | The audit panel supports chronological pagination and filters by administrator and date range. | RF-47.3 |
+| [opening a content removal notification marks it read without opening the removed Recorda](../tests/admin/moderation.spec.ts#L422) | Opening the CONTENT_REMOVED notification marks it as read and keeps the user out of the removed Recorda. | RF-42.3 |
 | [a signed-out user sees the login screen](../tests/auth/sign-in.spec.ts#L8) | Without a saved session the Splash hands over to Login, whose submit button stays disabled until the form is filled. | RF-01.3 |
 | [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L24) | A regular account signs in with username and password on the shared login screen and lands on the Feed. | RF-04.1, RF-04.5 |
 | [invalid credentials show one generic error](../tests/auth/sign-in.spec.ts#L39) | A wrong password and an unknown username both keep the user on Login with the same message, so the error never reveals which field is wrong. | RF-04.3 |

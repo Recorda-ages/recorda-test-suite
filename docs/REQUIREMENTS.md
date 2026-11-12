@@ -23,11 +23,11 @@ Fontes: Termo de Abertura do Projeto (2026/2) e os Épicos e User Stories das is
 
 ## Resumo
 
-226 requisitos, 199 verificáveis por esta suíte (web ou API), 7 cobertos por 4 teste(s). 8 decididos mas ainda não atendidos pelo código (⚠️).
+226 requisitos, 199 verificáveis por esta suíte (web ou API), 12 cobertos por 11 teste(s). 8 decididos mas ainda não atendidos pelo código (⚠️).
 
 | Épico | Nome | Requisitos | Web | API | Nativo | Manual | Cobertos |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| E2 | Autenticação, cadastro e onboarding | 32 | 26 | 4 | 0 | 2 | 5 |
+| E2 | Autenticação, cadastro e onboarding | 32 | 26 | 4 | 0 | 2 | 10 |
 | E3 | Criação e publicação de Recordas | 25 | 16 | 4 | 5 | 0 | 0 |
 | E4 | Feed | 26 | 18 | 2 | 6 | 0 | 0 |
 | E5 | Interações sociais | 39 | 36 | 3 | 0 | 0 | 0 |
@@ -93,7 +93,7 @@ Os requisitos agrupados por jornada do usuário. Cada fluxo tem uma issue em
 
 | Fluxo | Issue | Requisitos | Web (Playwright) | Cobertos | Lacunas | Escreve dados |
 | --- | --- | --- | --- | --- | --- | --- |
-| FL-01 Abertura do app e sessão | [#1](https://github.com/Recorda-ages/recorda-test-suite/issues/1) | 9 | 9 | 4 | 1 | não |
+| FL-01 Abertura do app e sessão | [#1](https://github.com/Recorda-ages/recorda-test-suite/issues/1) | 9 | 9 | 9 | 1 | não |
 | FL-02 Login | [#2](https://github.com/Recorda-ages/recorda-test-suite/issues/2) | 4 | 4 | 3 | 0 | não |
 | FL-03 Cadastro e onboarding | [#3](https://github.com/Recorda-ages/recorda-test-suite/issues/3) | 11 | 11 | 0 | 0 | sim (`@mutates`) |
 | FL-04 Recuperação de senha | [#4](https://github.com/Recorda-ages/recorda-test-suite/issues/4) | 4 | 4 | 0 | 0 | sim (`@mutates`) |
@@ -124,12 +124,12 @@ Ficam fora:
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
 | RF-01.1 | Exibir a Splash Screen com a identidade visual (fundo escuro, logo) conforme os protótipos do Figma. | manual | — |
-| RF-01.2 | A Splash Screen é obrigatoriamente a primeira etapa ao abrir o aplicativo. | web | — |
-| RF-01.3 | Sem sessão salva, a Splash encaminha para o Login. | web | [a signed-out user sees the login screen](../tests/auth/sign-in.spec.ts#L8) |
-| RF-01.4 | Com sessão válida de conta comum, a Splash encaminha para o Feed. | web | — |
-| RF-01.5 | Com sessão válida de administrador, a Splash encaminha para a área administrativa, sem acesso a Feed, Perfil ou Criar Recorda. | web | — |
-| RF-01.6 | Sessão inválida ou expirada é apagada e o usuário vai para o Login. | web | — |
-| RF-01.7 | Se a verificação de sessão demorar mais que 3 s, o app segue para o Login; uma resposta tardia nunca causa uma segunda navegação.<br>_Fonte: Decisão do time, 2026-11-08: 3 s é o valor correto._<br>⚠️ O código usa 5 s (SPLASH_TIMEOUT_MS em recorda-frontend/src/features/splash/screens/SplashScreen.tsx). | web | — |
+| RF-01.2 | A Splash Screen é obrigatoriamente a primeira etapa ao abrir o aplicativo. | web | [splash is the first screen and hands over to login](../tests/flows/session-startup.spec.ts#L10)<br>[a saved user session opens the feed and survives reopening](../tests/flows/session-startup.spec.ts#L33)<br>[a saved administrator session opens only the administrative area](../tests/flows/session-startup.spec.ts#L60) |
+| RF-01.3 | Sem sessão salva, a Splash encaminha para o Login. | web | [a signed-out user sees the login screen](../tests/auth/sign-in.spec.ts#L8)<br>[splash is the first screen and hands over to login](../tests/flows/session-startup.spec.ts#L10) |
+| RF-01.4 | Com sessão válida de conta comum, a Splash encaminha para o Feed. | web | [a saved user session opens the feed and survives reopening](../tests/flows/session-startup.spec.ts#L33) |
+| RF-01.5 | Com sessão válida de administrador, a Splash encaminha para a área administrativa, sem acesso a Feed, Perfil ou Criar Recorda. | web | [a saved administrator session opens only the administrative area](../tests/flows/session-startup.spec.ts#L60) |
+| RF-01.6 | Sessão inválida ou expirada é apagada e o usuário vai para o Login. | web | [an invalid session is cleared before returning to login](../tests/flows/session-startup.spec.ts#L94)<br>[an expired session is cleared before returning to login](../tests/flows/session-startup.spec.ts#L94) |
+| RF-01.7 | Se a verificação de sessão demorar mais que 3 s, o app segue para o Login; uma resposta tardia nunca causa uma segunda navegação.<br>_Fonte: Decisão do time, 2026-11-08: 3 s é o valor correto._<br>⚠️ O código usa 5 s (SPLASH_TIMEOUT_MS em recorda-frontend/src/features/splash/screens/SplashScreen.tsx). | web | [a slow session check sends the user to login after three seconds](../tests/flows/session-timeout.spec.ts#L42)<br>[a late valid session response cannot navigate away from login](../tests/flows/session-timeout.spec.ts#L69) |
 
 ### US 2 — Cadastro de Usuário
 
@@ -170,7 +170,7 @@ Ficam fora:
 | RF-04.3 | Credenciais inválidas exibem uma única mensagem genérica, sem revelar qual campo está incorreto. | web | [invalid credentials show one generic error](../tests/auth/sign-in.spec.ts#L39) |
 | RF-04.4 | Administradores são roteados para a área administrativa, sem acesso à navegação do app comum. | web | — |
 | RF-04.5 | Usuários comuns são roteados para o Feed. | web | [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L24) |
-| RF-04.6 | A sessão é persistida no dispositivo: reabrir o app não exige novo login. | web | [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L10) |
+| RF-04.6 | A sessão é persistida no dispositivo: reabrir o app não exige novo login. | web | [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L14)<br>[a saved user session opens the feed and survives reopening](../tests/flows/session-startup.spec.ts#L33) |
 | RF-04.7 | Não há expiração de sessão por inatividade; a sessão dura até o token expirar. | API | — |
 
 ### US 5 — Recuperação de Senha
@@ -483,8 +483,8 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-36.1 | Sair pede confirmação. | web | [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L10) |
-| RF-36.2 | Ao confirmar, a sessão e os dados em memória são limpos, o app vai para o Login e o idioma local do aparelho é preservado. | web | [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L10) |
+| RF-36.1 | Sair pede confirmação. | web | [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L14) |
+| RF-36.2 | Ao confirmar, a sessão e os dados em memória são limpos, o app vai para o Login e o idioma local do aparelho é preservado. | web | [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L14) |
 
 ## E7 — Memórias e estatísticas
 
@@ -684,4 +684,11 @@ Ficam fora:
 | [a signed-out user sees the login screen](../tests/auth/sign-in.spec.ts#L8) | Without a saved session the Splash hands over to Login, whose submit button stays disabled until the form is filled. | RF-01.3 |
 | [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L24) | A regular account signs in with username and password on the shared login screen and lands on the Feed. | RF-04.1, RF-04.5 |
 | [invalid credentials show one generic error](../tests/auth/sign-in.spec.ts#L39) | A wrong password and an unknown username both keep the user on Login with the same message, so the error never reveals which field is wrong. | RF-04.3 |
-| [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L10) | A saved session opens the feed without logging in again; signing out from Settings asks for confirmation, returns to Login and clears the session for the next launch. | RF-04.6, RF-36.1, RF-36.2 |
+| [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L14) | A saved session opens the feed without logging in again; signing out from Settings asks for confirmation, returns to Login and clears the session for the next launch while restoring the device language. | RF-04.6, RF-36.1, RF-36.2 |
+| [splash is the first screen and hands over to login](../tests/flows/session-startup.spec.ts#L10) | A fresh launch shows Splash before Login, without exposing authenticated screens. | RF-01.2, RF-01.3 |
+| [a saved user session opens the feed and survives reopening](../tests/flows/session-startup.spec.ts#L33) | Gabriel reaches Feed through Splash on both launch and reload, without entering credentials. | RF-01.2, RF-01.4, RF-04.6 |
+| [a saved administrator session opens only the administrative area](../tests/flows/session-startup.spec.ts#L60) | Admin reaches the moderation area after Splash, with no user navigation, including after reopening. | RF-01.2, RF-01.5 |
+| [an invalid session is cleared before returning to login](../tests/flows/session-startup.spec.ts#L94) | An invalid saved token cannot open Feed; authentication storage is cleared and reopening stays signed out. | RF-01.6 |
+| [an expired session is cleared before returning to login](../tests/flows/session-startup.spec.ts#L94) | An expired saved token cannot open Feed; authentication storage is cleared and reopening stays signed out. | RF-01.6 |
+| [a slow session check sends the user to login after three seconds](../tests/flows/session-timeout.spec.ts#L42) | When session verification exceeds the required three-second deadline, Splash must give way to Login. | RF-01.7 |
+| [a late valid session response cannot navigate away from login](../tests/flows/session-timeout.spec.ts#L69) | After the current timeout sends the user to Login, releasing a real successful session response cannot reopen Feed or admin. | RF-01.7 |

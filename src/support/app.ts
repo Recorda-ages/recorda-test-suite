@@ -1,7 +1,25 @@
 import { expect, type Page } from "@playwright/test";
 
 import type { TestUser } from "../data/users";
-import type { FeedPage, LoginPage, ProfilePage, SettingsPage } from "../pages";
+import type {
+  AccountPage,
+  FeedPage,
+  LanguagePage,
+  LoginPage,
+  MusicPreferencesPage,
+  ProfilePage,
+  SettingsPage
+} from "../pages";
+
+type Pages = {
+  loginPage: LoginPage;
+  feedPage: FeedPage;
+  profilePage: ProfilePage;
+  settingsPage: SettingsPage;
+  accountPage: AccountPage;
+  languagePage: LanguagePage;
+  musicPreferencesPage: MusicPreferencesPage;
+};
 
 /**
  * Navigation helpers. The app has no URL routing (React Navigation without `linking`):
@@ -12,12 +30,7 @@ import type { FeedPage, LoginPage, ProfilePage, SettingsPage } from "../pages";
 export class App {
   constructor(
     private readonly page: Page,
-    private readonly pages: {
-      loginPage: LoginPage;
-      feedPage: FeedPage;
-      profilePage: ProfilePage;
-      settingsPage: SettingsPage;
-    }
+    private readonly pages: Pages
   ) {}
 
   /** Loads the app and waits for the Splash to hand over to Login or Feed. */
@@ -48,5 +61,26 @@ export class App {
     await this.goToProfile();
     await this.pages.profilePage.openSettings();
     await this.pages.settingsPage.expectLoaded();
+  }
+
+  /** Feed → Profile → Settings → Minha conta. */
+  async goToAccount(): Promise<void> {
+    await this.goToSettings();
+    await this.pages.settingsPage.accountButton.click();
+    await this.pages.accountPage.expectLoaded();
+  }
+
+  /** Feed → Profile → Settings → Idioma. */
+  async goToLanguage(): Promise<void> {
+    await this.goToSettings();
+    await this.pages.settingsPage.languageButton.click();
+    await this.pages.languagePage.expectLoaded();
+  }
+
+  /** Feed → Profile → Settings → Preferências musicais (first step: artists). */
+  async goToMusicPreferences(): Promise<void> {
+    await this.goToSettings();
+    await this.pages.settingsPage.musicPreferencesButton.click();
+    await this.pages.musicPreferencesPage.expectLoaded();
   }
 }

@@ -7,7 +7,8 @@ import type { LoginResponse } from "./api";
  */
 export const STORAGE_KEYS = {
   token: "auth_token",
-  role: "role"
+  role: "role",
+  language: "app_language"
 } as const;
 
 /** Builds a Playwright storage state equivalent to a signed-in browser. */
@@ -21,6 +22,19 @@ export function storageStateFor(baseURL: string, session: LoginResponse) {
           { name: STORAGE_KEYS.token, value: session.access_token },
           { name: STORAGE_KEYS.role, value: session.user.role }
         ]
+      }
+    ]
+  };
+}
+
+/** A signed-out browser whose app language was already chosen on this device. */
+export function signedOutWithLanguage(baseURL: string, language: string) {
+  return {
+    cookies: [],
+    origins: [
+      {
+        origin: new URL(baseURL).origin,
+        localStorage: [{ name: STORAGE_KEYS.language, value: language }]
       }
     ]
   };

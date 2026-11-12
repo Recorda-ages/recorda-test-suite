@@ -233,3 +233,14 @@ Fixing these makes tests simpler. Remove an item when it lands.
   output as `aria-selected`, so the active tab can't be asserted. This is an accessibility
   bug too: screen readers on web don't announce the active tab.
 - No React Navigation `linking` config, so screens can't be opened directly by URL.
+- The privacy `ConfirmationDialog` in `SettingsScreen` has no `testID`;
+  `SettingsPage.privacyDialog` finds it by role and title.
+- `OnboardingMusicScreen` has no root `testID`, so `MusicPreferencesPage.songs` can't be
+  scoped to the screen.
+- Artist and genre chips, song rows and the language options use
+  `accessibilityState.checked`, which react-native-web 0.21 does not output as
+  `aria-checked`, so `toBeChecked()` can't see a selection. `MusicPreferencesPage` reads it
+  from the step's counter instead.
+- Minha conta still loads and saves name, username, email and password through
+  `accountService.mock`; the backend already has `GET`/`PATCH /users/me/account`.
+  `tests/settings/account.spec.ts` marks those checks `test.fail()` (RF-34.1, RF-34.2).

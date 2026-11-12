@@ -120,6 +120,8 @@ const req = <const Id extends string>(
 
 const DECIDED = "Decisão do time, 2026-11-08";
 const MEMORY_FIELDS_GAP = "Não implementado: o model recorda não tem Data da Memória, Local nem marcações.";
+const ACCOUNT_MOCK_GAP =
+  "A tela Minha conta ainda lê e salva pelo accountService.mock (recorda-frontend/src/features/account/services/accountAdapter.ts), embora o backend já tenha GET e PATCH /users/me/account.";
 
 export const REQUIREMENTS = [
   // ── E2 · US 1 — Splash Screen ────────────────────────────────────────────────────────────
@@ -336,8 +338,8 @@ export const REQUIREMENTS = [
   req("RF-33.2", 33, "Antes do login vale a preferência local; após autenticar prevalece o idioma da conta, que também é gravado no aparelho.", "web"),
 
   // ── E6 · US 34 — Gerenciar conta ─────────────────────────────────────────────────────────
-  req("RF-34.1", 34, "É possível editar nome, username e email; o email muda após validar formato e unicidade, sem link de confirmação.", "web"),
-  req("RF-34.2", 34, "A senha é opcional e só muda com Nova senha e Repetir nova senha preenchidas e iguais, sem pedir a senha atual.", "web"),
+  req("RF-34.1", 34, "É possível editar nome, username e email; o email muda após validar formato e unicidade, sem link de confirmação.", "web", { gap: ACCOUNT_MOCK_GAP }),
+  req("RF-34.2", 34, "A senha é opcional e só muda com Nova senha e Repetir nova senha preenchidas e iguais, sem pedir a senha atual.", "web", { gap: ACCOUNT_MOCK_GAP }),
   req("RF-34.3", 34, "Excluir a conta pede confirmação (Cancelar/Excluir) e aplica exclusão lógica sem anonimização.", "web"),
 
   // ── E6 · US 35 — Streak ──────────────────────────────────────────────────────────────────

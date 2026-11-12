@@ -23,7 +23,7 @@ Fontes: Termo de Abertura do Projeto (2026/2) e os Épicos e User Stories das is
 
 ## Resumo
 
-226 requisitos, 199 verificáveis por esta suíte (web ou API), 7 cobertos por 4 teste(s). 8 decididos mas ainda não atendidos pelo código (⚠️).
+226 requisitos, 199 verificáveis por esta suíte (web ou API), 19 cobertos por 20 teste(s). 10 decididos mas ainda não atendidos pelo código (⚠️).
 
 | Épico | Nome | Requisitos | Web | API | Nativo | Manual | Cobertos |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -31,13 +31,13 @@ Fontes: Termo de Abertura do Projeto (2026/2) e os Épicos e User Stories das is
 | E3 | Criação e publicação de Recordas | 25 | 16 | 4 | 5 | 0 | 0 |
 | E4 | Feed | 26 | 18 | 2 | 6 | 0 | 0 |
 | E5 | Interações sociais | 39 | 36 | 3 | 0 | 0 | 0 |
-| E6 | Perfil e configurações | 22 | 20 | 2 | 0 | 0 | 2 |
+| E6 | Perfil e configurações | 22 | 20 | 2 | 0 | 0 | 13 |
 | E7 | Memórias e estatísticas | 24 | 20 | 0 | 2 | 2 | 0 |
 | E8 | Compartilhamento de cards | 16 | 9 | 0 | 5 | 2 | 0 |
 | E9 | Denúncias | 15 | 12 | 3 | 0 | 0 | 0 |
 | E10 | Administração e moderação | 19 | 18 | 1 | 0 | 0 | 0 |
 | TA | Termo de Abertura (sem User Story) | 1 | 1 | 0 | 0 | 0 | 0 |
-| NF | Requisitos não funcionais | 7 | 2 | 2 | 1 | 2 | 0 |
+| NF | Requisitos não funcionais | 7 | 2 | 2 | 1 | 2 | 1 |
 
 ## Decisões
 
@@ -64,6 +64,8 @@ até a implementação (marque-o com `test.fail()` e um comentário apontando o 
 - **RF-09.1**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
 - **RF-09.6**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
 - **RF-17.2**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
+- **RF-34.1**: A tela Minha conta ainda lê e salva pelo accountService.mock (recorda-frontend/src/features/account/services/accountAdapter.ts), embora o backend já tenha GET e PATCH /users/me/account.
+- **RF-34.2**: A tela Minha conta ainda lê e salva pelo accountService.mock (recorda-frontend/src/features/account/services/accountAdapter.ts), embora o backend já tenha GET e PATCH /users/me/account.
 - **RF-35.2**: A streak do perfil inclui Recordas excluídas (list_publication_times em recorda-backend/app/repositories/recorda_repository.py), enquanto a de Métricas já as exclui.
 
 ## Pontos em aberto
@@ -104,7 +106,7 @@ Os requisitos agrupados por jornada do usuário. Cada fluxo tem uma issue em
 | FL-09 Busca, seguir e rede de seguidores | [#9](https://github.com/Recorda-ages/recorda-test-suite/issues/9) | 17 | 17 | 0 | 0 | sim (`@mutates`) |
 | FL-10 Notificações | [#10](https://github.com/Recorda-ages/recorda-test-suite/issues/10) | 7 | 7 | 0 | 0 | sim (`@mutates`) |
 | FL-11 Perfil pessoal e de terceiros | [#11](https://github.com/Recorda-ages/recorda-test-suite/issues/11) | 7 | 7 | 0 | 0 | sim (`@mutates`) |
-| FL-12 Configurações, preferências e conta | [#12](https://github.com/Recorda-ages/recorda-test-suite/issues/12) | 12 | 12 | 0 | 0 | sim (`@mutates`) |
+| FL-12 Configurações, preferências e conta | [#12](https://github.com/Recorda-ages/recorda-test-suite/issues/12) | 12 | 12 | 12 | 2 | sim (`@mutates`) |
 | FL-13 Memórias: calendário, métricas e retrospectiva | [#13](https://github.com/Recorda-ages/recorda-test-suite/issues/13) | 22 | 20 | 0 | 0 | não |
 | FL-14 Denúncias | [#14](https://github.com/Recorda-ages/recorda-test-suite/issues/14) | 9 | 9 | 0 | 0 | sim (`@mutates`) |
 | FL-15 Moderação administrativa | [#15](https://github.com/Recorda-ages/recorda-test-suite/issues/15) | 21 | 21 | 0 | 0 | sim (`@mutates`) |
@@ -434,9 +436,9 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-31.1 | A edição abre com as escolhas atuais selecionadas. | web | — |
-| RF-31.2 | Salvar exige no mínimo 3 artistas e 3 gêneros e exatamente uma música. | web | — |
-| RF-31.3 | Preferências atualizadas refletem no perfil, nas sugestões e no feed. | web | — |
+| RF-31.1 | A edição abre com as escolhas atuais selecionadas. | web | [the editor opens with the current artists, genres and song selected](../tests/settings/music-preferences.spec.ts#L40) |
+| RF-31.2 | Salvar exige no mínimo 3 artistas e 3 gêneros e exatamente uma música. | web | [saving needs at least three artists, three genres and exactly one song](../tests/settings/music-preferences.spec.ts#L81) |
+| RF-31.3 | Preferências atualizadas refletem no perfil, nas sugestões e no feed. | web | [new preferences show on the profile, in suggestions and in the feed](../tests/settings/music-preferences.spec.ts#L133) |
 
 ### US 32 — Configurações e privacidade
 
@@ -444,9 +446,9 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-32.1 | É possível alternar entre conta pública e privada, com confirmação e efeito imediato. | web | — |
-| RF-32.2 | Ao tornar a conta pública, todos os pedidos pendentes são aceitos na mesma transação e cada solicitante é notificado. | web | — |
-| RF-32.3 | As Configurações dão acesso a Minha conta, preferências musicais, idioma e logout. | web | — |
+| RF-32.1 | É possível alternar entre conta pública e privada, com confirmação e efeito imediato. | web | [switching to a private account asks first and applies at once](../tests/settings/privacy.spec.ts#L8) |
+| RF-32.2 | Ao tornar a conta pública, todos os pedidos pendentes são aceitos na mesma transação e cada solicitante é notificado. | web | [going public accepts every pending follow request and notifies each requester](../tests/settings/privacy.spec.ts#L50) |
+| RF-32.3 | As Configurações dão acesso a Minha conta, preferências musicais, idioma e logout. | web | [settings lead to my account, music preferences, language and sign-out](../tests/settings/settings-menu.spec.ts#L4) |
 
 ### US 33 — Idioma da conta e do aparelho
 
@@ -454,8 +456,8 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-33.1 | Português, inglês e espanhol podem ser escolhidos com efeito imediato. | web | — |
-| RF-33.2 | Antes do login vale a preferência local; após autenticar prevalece o idioma da conta, que também é gravado no aparelho. | web | — |
+| RF-33.1 | Português, inglês e espanhol podem ser escolhidos com efeito imediato. | web | [Portuguese, English and Spanish apply immediately and stay after reopening](../tests/settings/language.spec.ts#L55) |
+| RF-33.2 | Antes do login vale a preferência local; após autenticar prevalece o idioma da conta, que também é gravado no aparelho. | web | [the device language applies before login and the account language after it](../tests/settings/language.spec.ts#L171) |
 
 ### US 34 — Gerenciar conta
 
@@ -463,9 +465,9 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-34.1 | É possível editar nome, username e email; o email muda após validar formato e unicidade, sem link de confirmação. | web | — |
-| RF-34.2 | A senha é opcional e só muda com Nova senha e Repetir nova senha preenchidas e iguais, sem pedir a senha atual. | web | — |
-| RF-34.3 | Excluir a conta pede confirmação (Cancelar/Excluir) e aplica exclusão lógica sem anonimização. | web | — |
+| RF-34.1 | É possível editar nome, username e email; o email muda após validar formato e unicidade, sem link de confirmação.<br>⚠️ A tela Minha conta ainda lê e salva pelo accountService.mock (recorda-frontend/src/features/account/services/accountAdapter.ts), embora o backend já tenha GET e PATCH /users/me/account. | web | [an invalid email is refused before saving](../tests/settings/account.spec.ts#L10)<br>[saving name, username and email updates the account](../tests/settings/account.spec.ts#L31)<br>[an email already in use is refused](../tests/settings/account.spec.ts#L63) |
+| RF-34.2 | A senha é opcional e só muda com Nova senha e Repetir nova senha preenchidas e iguais, sem pedir a senha atual.<br>⚠️ A tela Minha conta ainda lê e salva pelo accountService.mock (recorda-frontend/src/features/account/services/accountAdapter.ts), embora o backend já tenha GET e PATCH /users/me/account. | web | [a new password needs both fields filled with the same value](../tests/settings/account.spec.ts#L91)<br>[matching passwords replace the old one without asking for the current one](../tests/settings/account.spec.ts#L122) |
+| RF-34.3 | Excluir a conta pede confirmação (Cancelar/Excluir) e aplica exclusão lógica sem anonimização. | web | [deleting asks for confirmation and keeps the data without anonymizing it](../tests/settings/account.spec.ts#L151) |
 
 ### US 35 — Streak de publicações
 
@@ -670,7 +672,7 @@ Ficam fora:
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
 | RNF-01 | O aplicativo funciona em iOS e Android.<br>_Fonte: Termo: objetivos_ | nativo | — |
-| RNF-02 | A interface está disponível em português, inglês e espanhol, sem textos fixos fora das traduções.<br>_Fonte: Termo; US 33_ | web | — |
+| RNF-02 | A interface está disponível em português, inglês e espanhol, sem textos fixos fora das traduções.<br>_Fonte: Termo; US 33_ | web | [feed and settings screens are fully translated to en](../tests/settings/language.spec.ts#L108)<br>[feed and settings screens are fully translated to es](../tests/settings/language.spec.ts#L108) |
 | RNF-03 | Não há coleta de dados comportamentais: só os dados necessários à conta e às preferências declaradas.<br>_Fonte: US 2; US 15_ | manual | — |
 | RNF-04 | Toda comunicação do app com a API usa HTTPS.<br>_Fonte: Relatório de deploy_ | API | — |
 | RNF-05 | A interface não trava esperando a rede: carregamentos mostram indicador e falhas oferecem tentar novamente.<br>_Fonte: US 1; US 18_ | web | — |
@@ -685,3 +687,19 @@ Ficam fora:
 | [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L24) | A regular account signs in with username and password on the shared login screen and lands on the Feed. | RF-04.1, RF-04.5 |
 | [invalid credentials show one generic error](../tests/auth/sign-in.spec.ts#L39) | A wrong password and an unknown username both keep the user on Login with the same message, so the error never reveals which field is wrong. | RF-04.3 |
 | [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L10) | A saved session opens the feed without logging in again; signing out from Settings asks for confirmation, returns to Login and clears the session for the next launch. | RF-04.6, RF-36.1, RF-36.2 |
+| [an invalid email is refused before saving](../tests/settings/account.spec.ts#L10) | Saving an email without a valid format shows the format error and leaves the account's email unchanged. | RF-34.1 |
+| [saving name, username and email updates the account](../tests/settings/account.spec.ts#L31) | New name, username and email saved in Minha conta are what the account has on the server, with no confirmation link for the email. | RF-34.1 |
+| [an email already in use is refused](../tests/settings/account.spec.ts#L63) | Saving the email of another account shows that it is already in use, keeps what was typed and does not change the account. | RF-34.1 |
+| [a new password needs both fields filled with the same value](../tests/settings/account.spec.ts#L91) | Filling only Nova senha, or two different values, shows an error and keeps the old password working. | RF-34.2 |
+| [matching passwords replace the old one without asking for the current one](../tests/settings/account.spec.ts#L122) | With Nova senha and Repetir nova senha equal, saving changes the password: the new one signs in and the old one no longer does. The current password is never asked. | RF-34.2 |
+| [deleting asks for confirmation and keeps the data without anonymizing it](../tests/settings/account.spec.ts#L151) | Cancel closes the dialog and keeps the account. Excluir signs out to Login; the account can't sign in anymore, and its username and email stay taken, so the record was deleted logically rather than anonymized. | RF-34.3 |
+| [Portuguese, English and Spanish apply immediately and stay after reopening](../tests/settings/language.spec.ts#L55) | Picking English and then Spanish changes the open screen and Settings at once, saves the language on the account and keeps it after the app is reopened. | RF-33.1 |
+| [feed and settings screens are fully translated to en](../tests/settings/language.spec.ts#L108) | With the account in en, the feed, profile, Settings, language and Minha conta screens show their copy in that language, with no Portuguese text left behind. | RNF-02 |
+| [feed and settings screens are fully translated to es](../tests/settings/language.spec.ts#L108) | With the account in es, the feed, profile, Settings, language and Minha conta screens show their copy in that language, with no Portuguese text left behind. | RNF-02 |
+| [the device language applies before login and the account language after it](../tests/settings/language.spec.ts#L171) | With English chosen on the device, the login screen is in English. After signing in with an account in Portuguese, the app switches to Portuguese and saves it on the device. | RF-33.2 |
+| [the editor opens with the current artists, genres and song selected](../tests/settings/music-preferences.spec.ts#L40) | Each step of the editor starts with the account's current choices: its three artists and three genres lead the list and count as selected (unselecting each one lowers the counter), and its favorite song comes first, ready to save. | RF-31.1 |
+| [saving needs at least three artists, three genres and exactly one song](../tests/settings/music-preferences.spec.ts#L81) | With two artists or two genres the step can't move on; with three again it can. The song is a single choice, and saving stores exactly the one picked. | RF-31.2 |
+| [new preferences show on the profile, in suggestions and in the feed](../tests/settings/music-preferences.spec.ts#L133) | An account whose tastes match nobody has no suggestions and no discovery posts. After replacing its artists, genres and song with popular ones, the profile shows the new choices, and the search suggestions and the general feed start showing people and posts. | RF-31.3 |
+| [switching to a private account asks first and applies at once](../tests/settings/privacy.spec.ts#L8) | A new account starts public. Cancelling the confirmation keeps it public; confirming makes it private on the server right away, and switching back makes it public again. | RF-32.1 |
+| [going public accepts every pending follow request and notifies each requester](../tests/settings/privacy.spec.ts#L50) | Two people asked to follow a private account. Making it public accepts both requests at once, says how many were accepted, and each requester gets a FOLLOW_ACCEPTED notification. | RF-32.2 |
+| [settings lead to my account, music preferences, language and sign-out](../tests/settings/settings-menu.spec.ts#L4) | From Settings the user opens Minha conta, the music preferences editor and the language screen and comes back from each, and reaches the sign-out confirmation. | RF-32.3 |

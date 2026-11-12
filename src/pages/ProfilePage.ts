@@ -22,4 +22,19 @@ export class ProfilePage {
   async openSettings(): Promise<void> {
     await this.settingsButton.click();
   }
+
+  favoriteSong(song: { title: string; artistName: string }): Locator {
+    return this.root.getByLabel(
+      t("profile.favoriteSongA11y", { title: song.title, artist: song.artistName }),
+      { exact: true }
+    );
+  }
+
+  favoriteArtist(name: string): Locator {
+    return this.root.getByLabel(t("profile.favoriteArtistA11y", { name }), { exact: true });
+  }
+
+  favoriteGenre(name: string): Locator {
+    return this.root.getByLabel(t("profile.favoriteGenreA11y", { name }), { exact: true });
+  }
 }

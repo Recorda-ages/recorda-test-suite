@@ -23,11 +23,11 @@ Fontes: Termo de Abertura do Projeto (2026/2) e os Épicos e User Stories das is
 
 ## Resumo
 
-226 requisitos, 199 verificáveis por esta suíte (web ou API), 7 cobertos por 4 teste(s). 8 decididos mas ainda não atendidos pelo código (⚠️).
+226 requisitos, 199 verificáveis por esta suíte (web ou API), 11 cobertos por 7 teste(s). 8 decididos mas ainda não atendidos pelo código (⚠️).
 
 | Épico | Nome | Requisitos | Web | API | Nativo | Manual | Cobertos |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| E2 | Autenticação, cadastro e onboarding | 32 | 26 | 4 | 0 | 2 | 5 |
+| E2 | Autenticação, cadastro e onboarding | 32 | 26 | 4 | 0 | 2 | 9 |
 | E3 | Criação e publicação de Recordas | 25 | 16 | 4 | 5 | 0 | 0 |
 | E4 | Feed | 26 | 18 | 2 | 6 | 0 | 0 |
 | E5 | Interações sociais | 39 | 36 | 3 | 0 | 0 | 0 |
@@ -96,7 +96,7 @@ Os requisitos agrupados por jornada do usuário. Cada fluxo tem uma issue em
 | FL-01 Abertura do app e sessão | [#1](https://github.com/Recorda-ages/recorda-test-suite/issues/1) | 9 | 9 | 4 | 1 | não |
 | FL-02 Login | [#2](https://github.com/Recorda-ages/recorda-test-suite/issues/2) | 4 | 4 | 3 | 0 | não |
 | FL-03 Cadastro e onboarding | [#3](https://github.com/Recorda-ages/recorda-test-suite/issues/3) | 11 | 11 | 0 | 0 | sim (`@mutates`) |
-| FL-04 Recuperação de senha | [#4](https://github.com/Recorda-ages/recorda-test-suite/issues/4) | 4 | 4 | 0 | 0 | sim (`@mutates`) |
+| FL-04 Recuperação de senha | [#4](https://github.com/Recorda-ages/recorda-test-suite/issues/4) | 4 | 4 | 4 | 0 | sim (`@mutates`) |
 | FL-05 Criação e publicação de Recorda | [#5](https://github.com/Recorda-ages/recorda-test-suite/issues/5) | 22 | 17 | 0 | 4 | sim (`@mutates`) |
 | FL-06 Card de compartilhamento | [#6](https://github.com/Recorda-ages/recorda-test-suite/issues/6) | 14 | 9 | 0 | 0 | não |
 | FL-07 Feed | [#7](https://github.com/Recorda-ages/recorda-test-suite/issues/7) | 20 | 15 | 0 | 0 | não |
@@ -179,10 +179,10 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-05.1 | A tela Recuperar Senha tem os campos Email, Nova Senha e Confirmar Senha e o botão Redefinir Senha. | web | — |
-| RF-05.2 | Nova Senha e Confirmar Senha devem ser idênticas e ter no mínimo 8 caracteres. | web | — |
-| RF-05.3 | A senha da conta com o email informado é substituída diretamente, sem email nem token de verificação. | web | — |
-| RF-05.4 | Email sem conta exibe o mesmo erro genérico das outras falhas, sem confirmar a existência da conta. | web | — |
+| RF-05.1 | A tela Recuperar Senha tem os campos Email, Nova Senha e Confirmar Senha e o botão Redefinir Senha. | web | [the recovery form validates matching passwords of at least eight characters @mutates](../tests/auth/password-recovery.spec.ts#L10) |
+| RF-05.2 | Nova Senha e Confirmar Senha devem ser idênticas e ter no mínimo 8 caracteres. | web | [the recovery form validates matching passwords of at least eight characters @mutates](../tests/auth/password-recovery.spec.ts#L10) |
+| RF-05.3 | A senha da conta com o email informado é substituída diretamente, sem email nem token de verificação. | web | [a new password replaces the old password and allows sign in @mutates](../tests/auth/password-recovery.spec.ts#L45) |
+| RF-05.4 | Email sem conta exibe o mesmo erro genérico das outras falhas, sem confirmar a existência da conta. | web | [an unknown email and a network failure show the same generic error @mutates](../tests/auth/password-recovery.spec.ts#L76) |
 
 ## E3 — Criação e publicação de Recordas
 
@@ -681,6 +681,9 @@ Ficam fora:
 
 | Teste | Descrição | Requisitos |
 | --- | --- | --- |
+| [the recovery form validates matching passwords of at least eight characters @mutates](../tests/auth/password-recovery.spec.ts#L10) | The recovery screen exposes the required fields and only enables submission for matching passwords of at least eight characters. | RF-05.1, RF-05.2 |
+| [a new password replaces the old password and allows sign in @mutates](../tests/auth/password-recovery.spec.ts#L45) | A dedicated account resets its password directly through the form, then signs in with the new password. | RF-05.3 |
+| [an unknown email and a network failure show the same generic error @mutates](../tests/auth/password-recovery.spec.ts#L76) | An unknown email and a failed request show the same generic message without revealing account existence. | RF-05.4 |
 | [a signed-out user sees the login screen](../tests/auth/sign-in.spec.ts#L8) | Without a saved session the Splash hands over to Login, whose submit button stays disabled until the form is filled. | RF-01.3 |
 | [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L24) | A regular account signs in with username and password on the shared login screen and lands on the Feed. | RF-04.1, RF-04.5 |
 | [invalid credentials show one generic error](../tests/auth/sign-in.spec.ts#L39) | A wrong password and an unknown username both keep the user on Login with the same message, so the error never reveals which field is wrong. | RF-04.3 |

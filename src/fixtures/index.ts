@@ -1,7 +1,7 @@
 import { test as base } from "@playwright/test";
 
 import { env } from "../config/env";
-import { FeedPage, LoginPage, ProfilePage, SettingsPage } from "../pages";
+import { AdminPage, FeedPage, LoginPage, ProfilePage, SettingsPage } from "../pages";
 import { assertHasMetadata } from "../requirements/annotations";
 import { RecordaApi } from "../support/api";
 import { App } from "../support/app";
@@ -15,6 +15,7 @@ type Fixtures = {
   feedPage: FeedPage;
   profilePage: ProfilePage;
   settingsPage: SettingsPage;
+  adminPage: AdminPage;
   /** Automatic: fails any test declared without `meta()` (description + requirement). */
   requireMetadata: void;
 };
@@ -49,6 +50,7 @@ export const test = base.extend<Fixtures>({
   feedPage: async ({ page }, use) => use(new FeedPage(page)),
   profilePage: async ({ page }, use) => use(new ProfilePage(page)),
   settingsPage: async ({ page }, use) => use(new SettingsPage(page)),
+  adminPage: async ({ page }, use) => use(new AdminPage(page)),
 
   app: async ({ page, loginPage, feedPage, profilePage, settingsPage }, use) => {
     await use(new App(page, { loginPage, feedPage, profilePage, settingsPage }));

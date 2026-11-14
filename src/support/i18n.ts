@@ -15,8 +15,11 @@ const messages = JSON.parse(
   readFileSync(path.join(env.frontendDir, "src/i18n/locales", `${LOCALE}.json`), "utf8")
 ) as Messages;
 
-/** `t("settings.signOut")` → "Sair". Throws on unknown keys so typos fail loudly. */
-export function t(key: string): string {
+/**
+ * `t("settings.signOut")` → "Sair". Throws on unknown keys so typos fail loudly.
+ * `{{name}}` placeholders are filled from `params`, as i18next does in the app.
+ */
+export function t(key: string, params: Record<string, string | number> = {}): string {
   const value = key
     .split(".")
     .reduce<string | Messages | undefined>(
@@ -26,5 +29,7 @@ export function t(key: string): string {
   if (typeof value !== "string") {
     throw new Error(`Missing ${LOCALE} translation for "${key}"`);
   }
-  return value;
+  return value.replace(/\{\{(\w+)\}\}/g, (placeholder, name: string) =>
+    name in params ? String(params[name]) : placeholder
+  );
 }

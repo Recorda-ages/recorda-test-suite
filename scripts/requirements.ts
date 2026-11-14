@@ -60,7 +60,7 @@ type JsonSuite = {
 };
 
 function listTests(): ListedTest[] {
-  const output = execFileSync(path.join(ROOT, "node_modules/.bin/playwright"), ["test", "--list", "--reporter=json"], {
+  const output = execFileSync(process.execPath, [path.join(ROOT, "node_modules/@playwright/test/cli.js"), "test", "--list", "--reporter=json"], {
     cwd: ROOT,
     encoding: "utf8",
     maxBuffer: 64 * 1024 * 1024,

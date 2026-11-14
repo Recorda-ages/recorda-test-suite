@@ -1,7 +1,9 @@
 import { expect, type Page } from "@playwright/test";
 
 import type { TestUser } from "../data/users";
-import type { FeedPage, LoginPage, ProfilePage, SettingsPage } from "../pages";
+import type { FeedPage, LoginPage, NotificationsPage, ProfilePage, SettingsPage } from "../pages";
+import type { LoginResponse } from "./api";
+import { STORAGE_KEYS } from "./session";
 
 /**
  * Navigation helpers. The app has no URL routing (React Navigation without `linking`):
@@ -15,6 +17,7 @@ export class App {
     private readonly pages: {
       loginPage: LoginPage;
       feedPage: FeedPage;
+      notificationsPage: NotificationsPage;
       profilePage: ProfilePage;
       settingsPage: SettingsPage;
     }
@@ -29,6 +32,22 @@ export class App {
     });
   }
 
+  /**
+   * Launches the app signed in as an account the test created (seeded accounts use saved
+   * sessions instead, see docs/GUIDELINES.md §3). The session is written to localStorage
+   * before the app boots, on this and every later launch of the page.
+   */
+  async launchAs(session: LoginResponse): Promise<void> {
+    await this.page.addInitScript(
+      ({ keys, token, role }) => {
+        localStorage.setItem(keys.token, token);
+        localStorage.setItem(keys.role, role);
+      },
+      { keys: STORAGE_KEYS, token: session.access_token, role: session.user.role }
+    );
+    await this.launch();
+  }
+
   /** Launches the app and signs in through the login form. Lands on the Feed. */
   async signInThroughUi(user: TestUser): Promise<void> {
     await this.launch();
@@ -41,6 +60,12 @@ export class App {
   async goToProfile(): Promise<void> {
     await this.pages.feedPage.tabBar.select("profile");
     await this.pages.profilePage.expectLoaded();
+  }
+
+  /** Feed → Notifications, through the bell in the Feed header. */
+  async goToNotifications(): Promise<void> {
+    await this.pages.feedPage.notificationsButton.click();
+    await this.pages.notificationsPage.expectLoaded();
   }
 
   /** Feed → Profile → Settings. */

@@ -23,14 +23,14 @@ Fontes: Termo de Abertura do Projeto (2026/2) e os Épicos e User Stories das is
 
 ## Resumo
 
-226 requisitos, 199 verificáveis por esta suíte (web ou API), 7 cobertos por 4 teste(s). 8 decididos mas ainda não atendidos pelo código (⚠️).
+226 requisitos, 199 verificáveis por esta suíte (web ou API), 14 cobertos por 10 teste(s). 8 decididos mas ainda não atendidos pelo código (⚠️).
 
 | Épico | Nome | Requisitos | Web | API | Nativo | Manual | Cobertos |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | E2 | Autenticação, cadastro e onboarding | 32 | 26 | 4 | 0 | 2 | 5 |
 | E3 | Criação e publicação de Recordas | 25 | 16 | 4 | 5 | 0 | 0 |
 | E4 | Feed | 26 | 18 | 2 | 6 | 0 | 0 |
-| E5 | Interações sociais | 39 | 36 | 3 | 0 | 0 | 0 |
+| E5 | Interações sociais | 39 | 36 | 3 | 0 | 0 | 7 |
 | E6 | Perfil e configurações | 22 | 20 | 2 | 0 | 0 | 2 |
 | E7 | Memórias e estatísticas | 24 | 20 | 0 | 2 | 2 | 0 |
 | E8 | Compartilhamento de cards | 16 | 9 | 0 | 5 | 2 | 0 |
@@ -102,7 +102,7 @@ Os requisitos agrupados por jornada do usuário. Cada fluxo tem uma issue em
 | FL-07 Feed | [#7](https://github.com/Recorda-ages/recorda-test-suite/issues/7) | 20 | 15 | 0 | 0 | não |
 | FL-08 Detalhes da Recorda, curtidas e comentários | [#8](https://github.com/Recorda-ages/recorda-test-suite/issues/8) | 17 | 16 | 0 | 1 | sim (`@mutates`) |
 | FL-09 Busca, seguir e rede de seguidores | [#9](https://github.com/Recorda-ages/recorda-test-suite/issues/9) | 17 | 17 | 0 | 0 | sim (`@mutates`) |
-| FL-10 Notificações | [#10](https://github.com/Recorda-ages/recorda-test-suite/issues/10) | 7 | 7 | 0 | 0 | sim (`@mutates`) |
+| FL-10 Notificações | [#10](https://github.com/Recorda-ages/recorda-test-suite/issues/10) | 7 | 7 | 7 | 0 | sim (`@mutates`) |
 | FL-11 Perfil pessoal e de terceiros | [#11](https://github.com/Recorda-ages/recorda-test-suite/issues/11) | 7 | 7 | 0 | 0 | sim (`@mutates`) |
 | FL-12 Configurações, preferências e conta | [#12](https://github.com/Recorda-ages/recorda-test-suite/issues/12) | 12 | 12 | 0 | 0 | sim (`@mutates`) |
 | FL-13 Memórias: calendário, métricas e retrospectiva | [#13](https://github.com/Recorda-ages/recorda-test-suite/issues/13) | 22 | 20 | 0 | 0 | não |
@@ -334,7 +334,7 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-21.1 | As solicitações recebidas são acessíveis pela central de notificações. | web | — |
+| RF-21.1 | As solicitações recebidas são acessíveis pela central de notificações. | web | [follow requests are accepted or declined from the notification list](../tests/notifications/notification-center.spec.ts#L230) |
 | RF-21.2 | Ao aceitar, o solicitante passa a ver as Recordas imediatamente e é notificado da aprovação. | web | — |
 | RF-21.3 | Ao recusar, a solicitação é descartada sem notificar o solicitante. | web | — |
 | RF-21.4 | Quem enviou uma solicitação pendente pode cancelá-la. | web | — |
@@ -389,12 +389,12 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-26.1 | O cabeçalho do Feed tem um sino que abre as notificações. | web | — |
-| RF-26.2 | A lista mostra o histórico recente, do mais novo ao mais antigo, com ícone do autor da ação, descrição e ação opcional. | web | — |
-| RF-26.3 | Geram notificação: novo seguidor, solicitação recebida, solicitação aprovada, curtida, comentário e marcação. | web | — |
-| RF-26.4 | Solicitações para seguir podem ser aceitas ou recusadas na própria lista. | web | — |
-| RF-26.5 | O sino mostra o contador de não lidas, e abrir a lista marca todas como lidas. | web | — |
-| RF-26.6 | Tocar numa notificação leva ao conteúdo relacionado. | web | — |
+| RF-26.1 | O cabeçalho do Feed tem um sino que abre as notificações. | web | [the bell shows the unread count and opening the list marks it as read](../tests/notifications/notification-center.spec.ts#L45) |
+| RF-26.2 | A lista mostra o histórico recente, do mais novo ao mais antigo, com ícone do autor da ação, descrição e ação opcional. | web | [notifications are listed newest first with who acted, what happened and the action](../tests/notifications/notification-center.spec.ts#L96) |
+| RF-26.3 | Geram notificação: novo seguidor, solicitação recebida, solicitação aprovada, curtida, comentário e marcação. | web | [follows, requests, likes, comments and mentions notify the account owner](../tests/notifications/notification-center.spec.ts#L161)<br>[an approved follow request notifies the requester](../tests/notifications/notification-center.spec.ts#L207) |
+| RF-26.4 | Solicitações para seguir podem ser aceitas ou recusadas na própria lista. | web | [follow requests are accepted or declined from the notification list](../tests/notifications/notification-center.spec.ts#L230) |
+| RF-26.5 | O sino mostra o contador de não lidas, e abrir a lista marca todas como lidas. | web | [the bell shows the unread count and opening the list marks it as read](../tests/notifications/notification-center.spec.ts#L45) |
+| RF-26.6 | Tocar numa notificação leva ao conteúdo relacionado. | web | [tapping a notification opens the related Recorda or profile](../tests/notifications/notification-center.spec.ts#L285) |
 
 ### US 27 — Sugestões por Afinidade
 
@@ -685,3 +685,9 @@ Ficam fora:
 | [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L24) | A regular account signs in with username and password on the shared login screen and lands on the Feed. | RF-04.1, RF-04.5 |
 | [invalid credentials show one generic error](../tests/auth/sign-in.spec.ts#L39) | A wrong password and an unknown username both keep the user on Login with the same message, so the error never reveals which field is wrong. | RF-04.3 |
 | [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L10) | A saved session opens the feed without logging in again; signing out from Settings asks for confirmation, returns to Login and clears the session for the next launch. | RF-04.6, RF-36.1, RF-36.2 |
+| [the bell shows the unread count and opening the list marks it as read](../tests/notifications/notification-center.spec.ts#L45) | Two new followers show as 2 unread on the Feed bell, which opens the notification center; after opening it the count is gone, also after reopening the app. | RF-26.1, RF-26.5 |
+| [notifications are listed newest first with who acted, what happened and the action](../tests/notifications/notification-center.spec.ts#L96) | A follow, then a like, then a follow request appear in reverse order, each with the actor's avatar initial and username and a description; only the request offers Accept and Decline, and the like shows the liked Recorda. | RF-26.2 |
+| [follows, requests, likes, comments and mentions notify the account owner](../tests/notifications/notification-center.spec.ts#L161) | Following a public account, liking and commenting on its Recorda, mentioning it in a Recorda and requesting to follow it once private each add a notification for it. | RF-26.3 |
+| [an approved follow request notifies the requester](../tests/notifications/notification-center.spec.ts#L207) | When a private account accepts a follow request, the person who asked gets a notification that the request was approved. | RF-26.3 |
+| [follow requests are accepted or declined from the notification list](../tests/notifications/notification-center.spec.ts#L230) | A private account finds its follow requests in the notification center, accepts one (it becomes a new follower) and declines the other (it disappears); only the accepted person ends up following. | RF-21.1, RF-26.4 |
+| [tapping a notification opens the related Recorda or profile](../tests/notifications/notification-center.spec.ts#L285) | A like notification opens the liked Recorda, and a new-follower notification opens the follower's profile. | RF-26.6 |

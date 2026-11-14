@@ -23,7 +23,7 @@ Fontes: Termo de Abertura do Projeto (2026/2) e os Épicos e User Stories das is
 
 ## Resumo
 
-226 requisitos, 199 verificáveis por esta suíte (web ou API), 7 cobertos por 4 teste(s). 8 decididos mas ainda não atendidos pelo código (⚠️).
+226 requisitos, 199 verificáveis por esta suíte (web ou API), 14 cobertos por 14 teste(s). 9 decididos mas ainda não atendidos pelo código (⚠️).
 
 | Épico | Nome | Requisitos | Web | API | Nativo | Manual | Cobertos |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -31,7 +31,7 @@ Fontes: Termo de Abertura do Projeto (2026/2) e os Épicos e User Stories das is
 | E3 | Criação e publicação de Recordas | 25 | 16 | 4 | 5 | 0 | 0 |
 | E4 | Feed | 26 | 18 | 2 | 6 | 0 | 0 |
 | E5 | Interações sociais | 39 | 36 | 3 | 0 | 0 | 0 |
-| E6 | Perfil e configurações | 22 | 20 | 2 | 0 | 0 | 2 |
+| E6 | Perfil e configurações | 22 | 20 | 2 | 0 | 0 | 9 |
 | E7 | Memórias e estatísticas | 24 | 20 | 0 | 2 | 2 | 0 |
 | E8 | Compartilhamento de cards | 16 | 9 | 0 | 5 | 2 | 0 |
 | E9 | Denúncias | 15 | 12 | 3 | 0 | 0 | 0 |
@@ -64,6 +64,7 @@ até a implementação (marque-o com `test.fail()` e um comentário apontando o 
 - **RF-09.1**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
 - **RF-09.6**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
 - **RF-17.2**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
+- **RF-28.2**: Só no build web: trocar o avatar não envia nada, porque profileService.uploadAvatar (recorda-frontend/src/features/profile/services/profileService.ts) usa File do expo-file-system, sem suporte no web. No app (Expo Go) a troca funciona; remover funciona nas duas plataformas.
 - **RF-35.2**: A streak do perfil inclui Recordas excluídas (list_publication_times em recorda-backend/app/repositories/recorda_repository.py), enquanto a de Métricas já as exclui.
 
 ## Pontos em aberto
@@ -103,7 +104,7 @@ Os requisitos agrupados por jornada do usuário. Cada fluxo tem uma issue em
 | FL-08 Detalhes da Recorda, curtidas e comentários | [#8](https://github.com/Recorda-ages/recorda-test-suite/issues/8) | 17 | 16 | 0 | 1 | sim (`@mutates`) |
 | FL-09 Busca, seguir e rede de seguidores | [#9](https://github.com/Recorda-ages/recorda-test-suite/issues/9) | 17 | 17 | 0 | 0 | sim (`@mutates`) |
 | FL-10 Notificações | [#10](https://github.com/Recorda-ages/recorda-test-suite/issues/10) | 7 | 7 | 0 | 0 | sim (`@mutates`) |
-| FL-11 Perfil pessoal e de terceiros | [#11](https://github.com/Recorda-ages/recorda-test-suite/issues/11) | 7 | 7 | 0 | 0 | sim (`@mutates`) |
+| FL-11 Perfil pessoal e de terceiros | [#11](https://github.com/Recorda-ages/recorda-test-suite/issues/11) | 7 | 7 | 7 | 1 | sim (`@mutates`) |
 | FL-12 Configurações, preferências e conta | [#12](https://github.com/Recorda-ages/recorda-test-suite/issues/12) | 12 | 12 | 0 | 0 | sim (`@mutates`) |
 | FL-13 Memórias: calendário, métricas e retrospectiva | [#13](https://github.com/Recorda-ages/recorda-test-suite/issues/13) | 22 | 20 | 0 | 0 | não |
 | FL-14 Denúncias | [#14](https://github.com/Recorda-ages/recorda-test-suite/issues/14) | 9 | 9 | 0 | 0 | sim (`@mutates`) |
@@ -414,10 +415,10 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-28.1 | O perfil mostra nome, username, avatar, contadores, uma única streak, música favorita e chips de artistas e gêneros. | web | — |
-| RF-28.2 | É possível trocar e remover o avatar. | web | — |
-| RF-28.3 | O perfil mostra a grade paginada das próprias Recordas. | web | — |
-| RF-28.4 | O perfil mantém as abas Recordas, Métricas e Calendário. | web | — |
+| RF-28.1 | O perfil mostra nome, username, avatar, contadores, uma única streak, música favorita e chips de artistas e gêneros. | web | [the profile shows identity, avatar, counters, one streak and music](../tests/profile/own-profile.spec.ts#L34) |
+| RF-28.2 | É possível trocar e remover o avatar.<br>⚠️ Só no build web: trocar o avatar não envia nada, porque profileService.uploadAvatar (recorda-frontend/src/features/profile/services/profileService.ts) usa File do expo-file-system, sem suporte no web. No app (Expo Go) a troca funciona; remover funciona nas duas plataformas. | web | [removing the avatar brings back the default picture](../tests/profile/own-profile.spec.ts#L203)<br>[choosing a picture from the gallery sets it as the avatar](../tests/profile/own-profile.spec.ts#L237) |
+| RF-28.3 | O perfil mostra a grade paginada das próprias Recordas. | web | [the grid loads the next page of Recordas when scrolling to the end](../tests/profile/own-profile.spec.ts#L165) |
+| RF-28.4 | O perfil mantém as abas Recordas, Métricas e Calendário. | web | [the Recordas, Métricas and Calendário tabs switch the content below the header](../tests/profile/own-profile.spec.ts#L94) |
 
 ### US 29 — Perfil de terceiros
 
@@ -425,8 +426,8 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-29.1 | Perfil público, ou com follow aprovado, mostra cabeçalho, contadores e conteúdo. | web | — |
-| RF-29.2 | Perfil privado sem aprovação mostra nome, username, streak e música, oculta contadores e Recordas e mantém as três abas com aviso de restrição. | web | — |
+| RF-29.1 | Perfil público, ou com follow aprovado, mostra cabeçalho, contadores e conteúdo. | web | [a public profile shows the header, counters and Recordas](../tests/profile/third-party-profile.spec.ts#L17)<br>[a private profile with an approved follow shows the header, counters and Recordas](../tests/profile/third-party-profile.spec.ts#L17) |
+| RF-29.2 | Perfil privado sem aprovação mostra nome, username, streak e música, oculta contadores e Recordas e mantém as três abas com aviso de restrição. | web | [a private profile without approval hides counters and Recordas behind a notice](../tests/profile/third-party-profile.spec.ts#L58)<br>[a private profile without approval hides the streak](../tests/profile/third-party-profile.spec.ts#L113) |
 
 ### US 31 — Editar preferências musicais
 
@@ -475,7 +476,7 @@ Ficam fora:
 | --- | --- | --- | --- |
 | RF-35.1 | Só contam para a streak dias com pelo menos uma Recorda publicada, pela data de publicação. | API | — |
 | RF-35.2 | Curtidas, comentários e outras ações não contam. Só contam Recordas ativas: excluir a única Recorda de um dia tira esse dia da streak (regra da US 38).<br>_Fonte: Decisão do time, 2026-11-08: seguir a US 38, que substitui o critério original da US 35._<br>⚠️ A streak do perfil inclui Recordas excluídas (list_publication_times em recorda-backend/app/repositories/recorda_repository.py), enquanto a de Métricas já as exclui. | API | — |
-| RF-35.3 | O perfil mostra apenas um indicador de streak. | web | — |
+| RF-35.3 | O perfil mostra apenas um indicador de streak. | web | [the profile shows identity, avatar, counters, one streak and music](../tests/profile/own-profile.spec.ts#L34)<br>[publishing today shows a single active streak of one day](../tests/profile/own-profile.spec.ts#L140) |
 
 ### US 36 — Logout
 
@@ -685,3 +686,13 @@ Ficam fora:
 | [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L24) | A regular account signs in with username and password on the shared login screen and lands on the Feed. | RF-04.1, RF-04.5 |
 | [invalid credentials show one generic error](../tests/auth/sign-in.spec.ts#L39) | A wrong password and an unknown username both keep the user on Login with the same message, so the error never reveals which field is wrong. | RF-04.3 |
 | [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L10) | A saved session opens the feed without logging in again; signing out from Settings asks for confirmation, returns to Login and clears the session for the next launch. | RF-04.6, RF-36.1, RF-36.2 |
+| [the profile shows identity, avatar, counters, one streak and music](../tests/profile/own-profile.spec.ts#L34) | The header shows the account's name, @username, picture, Recordas/followers/following counters, a single streak indicator, the favorite song and the first favorite artist and genre, all matching what the backend has for the account. | RF-28.1, RF-35.3 |
+| [the Recordas, Métricas and Calendário tabs switch the content below the header](../tests/profile/own-profile.spec.ts#L94) | The profile keeps three tabs in a fixed order; each shows its own content (the Recordas grid, the metrics cards, the memory calendar) and Recordas comes back. | RF-28.4 |
+| [publishing today shows a single active streak of one day](../tests/profile/own-profile.spec.ts#L140) | After a new account publishes its first Recorda, the profile shows one streak indicator, highlighted as active, reading one day. | RF-35.3 |
+| [the grid loads the next page of Recordas when scrolling to the end](../tests/profile/own-profile.spec.ts#L165) | With one Recorda more than a page, the grid first shows a full page without the oldest Recorda, and scrolling to the end loads it. | RF-28.3 |
+| [removing the avatar brings back the default picture](../tests/profile/own-profile.spec.ts#L203) | An account with a profile picture removes it from the avatar menu after confirming; the default icon replaces it and stays after reopening the app. | RF-28.2 |
+| [choosing a picture from the gallery sets it as the avatar](../tests/profile/own-profile.spec.ts#L237) | In the web build, an account without a picture picks an image from the gallery; it replaces the default icon and stays after reopening the app. | RF-28.2 |
+| [a public profile shows the header, counters and Recordas](../tests/profile/third-party-profile.spec.ts#L17) | Opened from the search, the profile shows the owner's name, @username, streak and favorite song, the Recordas/followers/following counters and the Recordas grid, with no private-account notice. | RF-29.1 |
+| [a private profile with an approved follow shows the header, counters and Recordas](../tests/profile/third-party-profile.spec.ts#L17) | Opened from the search, the profile shows the owner's name, @username, streak and favorite song, the Recordas/followers/following counters and the Recordas grid, with no private-account notice. | RF-29.1 |
+| [a private profile without approval hides counters and Recordas behind a notice](../tests/profile/third-party-profile.spec.ts#L58) | A private account whose follow request is pending shows its name, @username and favorite song, but no counters and no Recordas; each of the three tabs shows the private-account notice instead of its content. | RF-29.2 |
+| [a private profile without approval hides the streak](../tests/profile/third-party-profile.spec.ts#L113) | A private account whose follow request is pending shows its name and favorite song but no streak indicator, as the team decided. | RF-29.2 |

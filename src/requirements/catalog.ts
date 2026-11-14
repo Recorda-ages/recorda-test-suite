@@ -313,7 +313,9 @@ export const REQUIREMENTS = [
 
   // ── E6 · US 28 — Perfil pessoal ──────────────────────────────────────────────────────────
   req("RF-28.1", 28, "O perfil mostra nome, username, avatar, contadores, uma única streak, música favorita e chips de artistas e gêneros.", "web"),
-  req("RF-28.2", 28, "É possível trocar e remover o avatar.", "web"),
+  req("RF-28.2", 28, "É possível trocar e remover o avatar.", "web", {
+    gap: "Só no build web: trocar o avatar não envia nada, porque profileService.uploadAvatar (recorda-frontend/src/features/profile/services/profileService.ts) usa File do expo-file-system, sem suporte no web. No app (Expo Go) a troca funciona; remover funciona nas duas plataformas."
+  }),
   req("RF-28.3", 28, "O perfil mostra a grade paginada das próprias Recordas.", "web"),
   req("RF-28.4", 28, "O perfil mantém as abas Recordas, Métricas e Calendário.", "web"),
 

@@ -1,7 +1,16 @@
 import { expect, type Page } from "@playwright/test";
 
 import type { TestUser } from "../data/users";
-import type { FeedPage, LoginPage, ProfilePage, SettingsPage } from "../pages";
+import type {
+  FeedPage,
+  LoginPage,
+  ProfilePage,
+  SettingsPage,
+  UserProfilePage,
+  UserSearchPage
+} from "../pages";
+import type { LoginResponse } from "./api";
+import { STORAGE_KEYS } from "./session";
 
 /**
  * Navigation helpers. The app has no URL routing (React Navigation without `linking`):
@@ -17,6 +26,8 @@ export class App {
       feedPage: FeedPage;
       profilePage: ProfilePage;
       settingsPage: SettingsPage;
+      userProfilePage: UserProfilePage;
+      userSearchPage: UserSearchPage;
     }
   ) {}
 
@@ -27,6 +38,22 @@ export class App {
     await expect(this.pages.loginPage.root.or(this.pages.feedPage.root)).toBeVisible({
       timeout: 30_000
     });
+  }
+
+  /**
+   * Launches the app signed in as an account the test created (seeded accounts use saved
+   * sessions instead, see docs/GUIDELINES.md §3). The session is written to localStorage
+   * before the app boots, on this and every later launch of the page.
+   */
+  async launchAs(session: LoginResponse): Promise<void> {
+    await this.page.addInitScript(
+      ({ keys, token, role }) => {
+        localStorage.setItem(keys.token, token);
+        localStorage.setItem(keys.role, role);
+      },
+      { keys: STORAGE_KEYS, token: session.access_token, role: session.user.role }
+    );
+    await this.launch();
   }
 
   /** Launches the app and signs in through the login form. Lands on the Feed. */
@@ -41,6 +68,14 @@ export class App {
   async goToProfile(): Promise<void> {
     await this.pages.feedPage.tabBar.select("profile");
     await this.pages.profilePage.expectLoaded();
+  }
+
+  /** Feed → search → `username`'s profile. */
+  async goToUserProfile(username: string): Promise<void> {
+    await this.pages.feedPage.searchButton.click();
+    await this.pages.userSearchPage.expectLoaded();
+    await this.pages.userSearchPage.openProfile(username);
+    await this.pages.userProfilePage.expectLoaded();
   }
 
   /** Feed → Profile → Settings. */

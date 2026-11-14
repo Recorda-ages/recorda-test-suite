@@ -207,7 +207,7 @@ export const REQUIREMENTS = [
   req("RF-10.4", 10, "Para vídeos, o card usa o primeiro quadro: o resultado é sempre uma imagem estática.", "web"),
   req("RF-10.5", 10, "A geração ocorre no dispositivo, com indicador de progresso.", "web"),
   req("RF-11.1", 11, "Os presets aparecem como lista horizontal rolável abaixo do card.", "web"),
-  req("RF-11.2", 11, "É possível alternar entre 3 presets pré-definidos.", "web"),
+  req("RF-11.2", 11, "É possível alternar entre 3 presets pré-definidos.", "web", { gap: "ShareCardScreen oferece quatro presets (light, mint, teal, dark); a US 11 exige exatamente três." }),
   req("RF-11.3", 11, "Os presets respeitam a marca (tons de verde e fundo escuro).", "manual"),
   req("RF-11.4", 11, "O card é atualizado em tempo real conforme o preset selecionado.", "web"),
   req("RF-11.5", 11, "O card exportado é sempre vertical (9:16).", "web"),

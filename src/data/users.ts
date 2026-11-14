@@ -20,7 +20,12 @@ export type TestUser = {
 export const users = {
   /** Main demo account: onboarding done, follows other seed users, has Recordas. */
   gabriel: { username: "gabriel", password: env.userPassword, role: "USER" },
+  /** Public account. */
   ana: { username: "ana", password: env.userPassword, role: "USER" },
+  /** Private account; gabriel's follow is approved. */
+  marina: { username: "marina", password: env.userPassword, role: "USER" },
+  /** Private account; gabriel's follow request is still pending. */
+  camila: { username: "camila", password: env.userPassword, role: "USER" },
   admin: { username: "admin", password: env.adminPassword, role: "ADMIN" }
 } as const satisfies Record<string, TestUser>;
 

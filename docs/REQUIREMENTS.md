@@ -23,7 +23,7 @@ Fontes: Termo de Abertura do Projeto (2026/2) e os Épicos e User Stories das is
 
 ## Resumo
 
-226 requisitos, 199 verificáveis por esta suíte (web ou API), 28 cobertos por 22 teste(s). 8 decididos mas ainda não atendidos pelo código (⚠️).
+226 requisitos, 199 verificáveis por esta suíte (web ou API), 7 cobertos por 4 teste(s). 8 decididos mas ainda não atendidos pelo código (⚠️).
 
 | Épico | Nome | Requisitos | Web | API | Nativo | Manual | Cobertos |
 | --- | --- | --- | --- | --- | --- | --- | --- |

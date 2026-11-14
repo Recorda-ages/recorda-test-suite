@@ -23,11 +23,11 @@ Fontes: Termo de Abertura do Projeto (2026/2) e os Épicos e User Stories das is
 
 ## Resumo
 
-226 requisitos, 199 verificáveis por esta suíte (web ou API), 7 cobertos por 4 teste(s). 8 decididos mas ainda não atendidos pelo código (⚠️).
+226 requisitos, 199 verificáveis por esta suíte (web ou API), 8 cobertos por 5 teste(s). 8 decididos mas ainda não atendidos pelo código (⚠️).
 
 | Épico | Nome | Requisitos | Web | API | Nativo | Manual | Cobertos |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| E2 | Autenticação, cadastro e onboarding | 32 | 26 | 4 | 0 | 2 | 5 |
+| E2 | Autenticação, cadastro e onboarding | 32 | 26 | 4 | 0 | 2 | 6 |
 | E3 | Criação e publicação de Recordas | 25 | 16 | 4 | 5 | 0 | 0 |
 | E4 | Feed | 26 | 18 | 2 | 6 | 0 | 0 |
 | E5 | Interações sociais | 39 | 36 | 3 | 0 | 0 | 0 |
@@ -94,7 +94,7 @@ Os requisitos agrupados por jornada do usuário. Cada fluxo tem uma issue em
 | Fluxo | Issue | Requisitos | Web (Playwright) | Cobertos | Lacunas | Escreve dados |
 | --- | --- | --- | --- | --- | --- | --- |
 | FL-01 Abertura do app e sessão | [#1](https://github.com/Recorda-ages/recorda-test-suite/issues/1) | 9 | 9 | 4 | 1 | não |
-| FL-02 Login | [#2](https://github.com/Recorda-ages/recorda-test-suite/issues/2) | 4 | 4 | 3 | 0 | não |
+| FL-02 Login | [#2](https://github.com/Recorda-ages/recorda-test-suite/issues/2) | 4 | 4 | 4 | 0 | não |
 | FL-03 Cadastro e onboarding | [#3](https://github.com/Recorda-ages/recorda-test-suite/issues/3) | 11 | 11 | 0 | 0 | sim (`@mutates`) |
 | FL-04 Recuperação de senha | [#4](https://github.com/Recorda-ages/recorda-test-suite/issues/4) | 4 | 4 | 0 | 0 | sim (`@mutates`) |
 | FL-05 Criação e publicação de Recorda | [#5](https://github.com/Recorda-ages/recorda-test-suite/issues/5) | 22 | 17 | 0 | 4 | sim (`@mutates`) |
@@ -165,10 +165,10 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-04.1 | A tela de Login tem os campos Usuário e Senha e é a mesma para usuários comuns e administradores. | web | [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L24) |
+| RF-04.1 | A tela de Login tem os campos Usuário e Senha e é a mesma para usuários comuns e administradores. | web | [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L24)<br>[an administrator signs in on the same screen and lands on the admin area](../tests/auth/sign-in.spec.ts#L39) |
 | RF-04.2 | As credenciais são validadas no backend, que retorna também o tipo de conta. | API | — |
-| RF-04.3 | Credenciais inválidas exibem uma única mensagem genérica, sem revelar qual campo está incorreto. | web | [invalid credentials show one generic error](../tests/auth/sign-in.spec.ts#L39) |
-| RF-04.4 | Administradores são roteados para a área administrativa, sem acesso à navegação do app comum. | web | — |
+| RF-04.3 | Credenciais inválidas exibem uma única mensagem genérica, sem revelar qual campo está incorreto. | web | [invalid credentials show one generic error](../tests/auth/sign-in.spec.ts#L71) |
+| RF-04.4 | Administradores são roteados para a área administrativa, sem acesso à navegação do app comum. | web | [an administrator signs in on the same screen and lands on the admin area](../tests/auth/sign-in.spec.ts#L39) |
 | RF-04.5 | Usuários comuns são roteados para o Feed. | web | [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L24) |
 | RF-04.6 | A sessão é persistida no dispositivo: reabrir o app não exige novo login. | web | [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L10) |
 | RF-04.7 | Não há expiração de sessão por inatividade; a sessão dura até o token expirar. | API | — |
@@ -683,5 +683,6 @@ Ficam fora:
 | --- | --- | --- |
 | [a signed-out user sees the login screen](../tests/auth/sign-in.spec.ts#L8) | Without a saved session the Splash hands over to Login, whose submit button stays disabled until the form is filled. | RF-01.3 |
 | [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L24) | A regular account signs in with username and password on the shared login screen and lands on the Feed. | RF-04.1, RF-04.5 |
-| [invalid credentials show one generic error](../tests/auth/sign-in.spec.ts#L39) | A wrong password and an unknown username both keep the user on Login with the same message, so the error never reveals which field is wrong. | RF-04.3 |
+| [an administrator signs in on the same screen and lands on the admin area](../tests/auth/sign-in.spec.ts#L39) | The admin uses the same login form and lands on Denúncias. No admin tab shows the Feed or the app's bottom bar (Feed, Câmera, Perfil). | RF-04.1, RF-04.4 |
+| [invalid credentials show one generic error](../tests/auth/sign-in.spec.ts#L71) | A wrong password and an unknown username both keep the user on Login with the same message, so the error never reveals which field is wrong. | RF-04.3 |
 | [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L10) | A saved session opens the feed without logging in again; signing out from Settings asks for confirmation, returns to Login and clears the session for the next launch. | RF-04.6, RF-36.1, RF-36.2 |

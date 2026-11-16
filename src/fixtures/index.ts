@@ -1,7 +1,14 @@
 import { test as base } from "@playwright/test";
 
 import { env } from "../config/env";
-import { FeedPage, LoginPage, ProfilePage, SettingsPage } from "../pages";
+import {
+  FeedPage,
+  LoginPage,
+  NotificationsPage,
+  ProfilePage,
+  RecordaDetailsPage,
+  SettingsPage
+} from "../pages";
 import { assertHasMetadata } from "../requirements/annotations";
 import { RecordaApi } from "../support/api";
 import { App } from "../support/app";
@@ -15,6 +22,8 @@ type Fixtures = {
   feedPage: FeedPage;
   profilePage: ProfilePage;
   settingsPage: SettingsPage;
+  recordaDetailsPage: RecordaDetailsPage;
+  notificationsPage: NotificationsPage;
   /** Automatic: fails any test declared without `meta()` (description + requirement). */
   requireMetadata: void;
 };
@@ -49,9 +58,13 @@ export const test = base.extend<Fixtures>({
   feedPage: async ({ page }, use) => use(new FeedPage(page)),
   profilePage: async ({ page }, use) => use(new ProfilePage(page)),
   settingsPage: async ({ page }, use) => use(new SettingsPage(page)),
+  recordaDetailsPage: async ({ page }, use) => use(new RecordaDetailsPage(page)),
+  notificationsPage: async ({ page }, use) => use(new NotificationsPage(page)),
 
-  app: async ({ page, loginPage, feedPage, profilePage, settingsPage }, use) => {
-    await use(new App(page, { loginPage, feedPage, profilePage, settingsPage }));
+  app: async ({ page, loginPage, feedPage, profilePage, settingsPage, notificationsPage }, use) => {
+    await use(
+      new App(page, { loginPage, feedPage, profilePage, settingsPage, notificationsPage })
+    );
   }
 });
 

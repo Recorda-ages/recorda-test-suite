@@ -5,6 +5,10 @@ import { FeedPage, LoginPage, ProfilePage, SettingsPage } from "../pages";
 import { assertHasMetadata } from "../requirements/annotations";
 import { RecordaApi } from "../support/api";
 import { App } from "../support/app";
+import {
+  createModerationData,
+  type ModerationData,
+} from "../support/moderationData";
 
 type Fixtures = {
   /** Backend client for arranging data and checking side effects. */
@@ -15,6 +19,8 @@ type Fixtures = {
   feedPage: FeedPage;
   profilePage: ProfilePage;
   settingsPage: SettingsPage;
+  /** Isolated users, Recordas and reports for admin moderation flows. */
+  moderationData: ModerationData;
   /** Automatic: fails any test declared without `meta()` (description + requirement). */
   requireMetadata: void;
 };
@@ -36,13 +42,19 @@ export const test = base.extend<Fixtures>({
       assertHasMetadata(testInfo);
       await use();
     },
-    { auto: true }
+    { auto: true },
   ],
 
   api: async ({ playwright }, use) => {
-    const request = await playwright.request.newContext({ baseURL: env.apiURL });
+    const request = await playwright.request.newContext({
+      baseURL: env.apiURL,
+    });
     await use(new RecordaApi(request));
     await request.dispose();
+  },
+
+  moderationData: async ({ api }, use) => {
+    await use(await createModerationData(api));
   },
 
   loginPage: async ({ page }, use) => use(new LoginPage(page)),
@@ -50,9 +62,14 @@ export const test = base.extend<Fixtures>({
   profilePage: async ({ page }, use) => use(new ProfilePage(page)),
   settingsPage: async ({ page }, use) => use(new SettingsPage(page)),
 
-  app: async ({ page, loginPage, feedPage, profilePage, settingsPage }, use) => {
-    await use(new App(page, { loginPage, feedPage, profilePage, settingsPage }));
-  }
+  app: async (
+    { page, loginPage, feedPage, profilePage, settingsPage },
+    use,
+  ) => {
+    await use(
+      new App(page, { loginPage, feedPage, profilePage, settingsPage }),
+    );
+  },
 });
 
 export { meta } from "../requirements/annotations";

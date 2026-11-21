@@ -233,3 +233,9 @@ Fixing these makes tests simpler. Remove an item when it lands.
   output as `aria-selected`, so the active tab can't be asserted. This is an accessibility
   bug too: screen readers on web don't announce the active tab.
 - No React Navigation `linking` config, so screens can't be opened directly by URL.
+
+- Onboarding chips (artists, genres) and songs use `accessibilityState.checked`, which
+  react-native-web 0.21 does not output as `aria-checked`, so the selected state can't be
+  asserted. Tests check the "N selecionados" counter and the enabled Finish button instead.
+  Fix: add `aria-checked` next to `accessibilityState` in `ArtistChip`,
+  `OnboardingGenresScreen` and `OnboardingMusicScreen`.

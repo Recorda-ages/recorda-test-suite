@@ -4,12 +4,14 @@ import { t } from "../support/i18n";
 import { BottomTabBar } from "./components/BottomTabBar";
 
 export class ProfilePage {
+  readonly favoriteSong: Locator;
   readonly root: Locator;
   readonly settingsButton: Locator;
   readonly tabBar: BottomTabBar;
 
   constructor(page: Page) {
     this.root = page.getByTestId("profile-screen");
+    this.favoriteSong = this.root.getByTestId("profile-favorite-song");
     // Icon-only button; its accessible name is the Settings screen title.
     this.settingsButton = this.root.getByRole("button", { name: t("settings.title") });
     this.tabBar = new BottomTabBar(this.root);

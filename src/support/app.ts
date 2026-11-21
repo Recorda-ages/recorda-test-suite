@@ -6,7 +6,8 @@ import type {
   LoginPage,
   NotificationsPage,
   ProfilePage,
-  SettingsPage
+  SettingsPage,
+  SignUpPage
 } from "../pages";
 import type { TestAccount } from "./api";
 import { STORAGE_KEYS } from "./session";
@@ -26,6 +27,7 @@ export class App {
       profilePage: ProfilePage;
       settingsPage: SettingsPage;
       notificationsPage: NotificationsPage;
+      signUpPage: SignUpPage;
     }
   ) {}
 
@@ -36,6 +38,14 @@ export class App {
     await expect(this.pages.loginPage.root.or(this.pages.feedPage.root)).toBeVisible({
       timeout: 30_000
     });
+  }
+
+    /** Signed out: launches the app and opens Sign Up from the Login screen. */
+  async goToSignUp(): Promise<void> {
+    await this.launch();
+    await this.pages.loginPage.expectLoaded();
+    await this.pages.loginPage.signUpLink.click();
+    await this.pages.signUpPage.expectLoaded();
   }
 
   /**

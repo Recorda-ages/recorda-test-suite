@@ -5,9 +5,11 @@ import {
   FeedPage,
   LoginPage,
   NotificationsPage,
+  OnboardingPage,
   ProfilePage,
   RecordaDetailsPage,
-  SettingsPage
+  SettingsPage,
+  SignUpPage
 } from "../pages";
 import { assertHasMetadata } from "../requirements/annotations";
 import { RecordaApi } from "../support/api";
@@ -24,6 +26,8 @@ type Fixtures = {
   settingsPage: SettingsPage;
   recordaDetailsPage: RecordaDetailsPage;
   notificationsPage: NotificationsPage;
+  signUpPage: SignUpPage;
+  onboardingPage: OnboardingPage;
   /** Automatic: fails any test declared without `meta()` (description + requirement). */
   requireMetadata: void;
 };
@@ -60,10 +64,12 @@ export const test = base.extend<Fixtures>({
   settingsPage: async ({ page }, use) => use(new SettingsPage(page)),
   recordaDetailsPage: async ({ page }, use) => use(new RecordaDetailsPage(page)),
   notificationsPage: async ({ page }, use) => use(new NotificationsPage(page)),
+  signUpPage: async ({ page }, use) => use(new SignUpPage(page)),
+  onboardingPage: async ({ page }, use) => use(new OnboardingPage(page)),
 
-  app: async ({ page, loginPage, feedPage, profilePage, settingsPage, notificationsPage }, use) => {
+  app: async ({ page, loginPage, feedPage, profilePage, settingsPage, notificationsPage, signUpPage }, use) => {
     await use(
-      new App(page, { loginPage, feedPage, profilePage, settingsPage, notificationsPage })
+      new App(page, { loginPage, feedPage, profilePage, settingsPage, notificationsPage, signUpPage })
     );
   }
 });

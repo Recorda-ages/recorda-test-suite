@@ -1,6 +1,7 @@
 import { signedOut, users } from "../../src/data/users";
 import { expect, meta, test } from "../../src/fixtures";
-import type { SignUpData } from "../../src/pages";
+import type { OnboardingPage, SignUpData, SignUpPage } from "../../src/pages";
+import type { App } from "../../src/support/app";
 import { uniqueId } from "../../src/support/api";
 import { t } from "../../src/support/i18n";
 
@@ -31,6 +32,18 @@ function newUser(label: string): SignUpData {
 function splitSongLabel(label: string): { title: string; artist: string } {
   const separator = label.lastIndexOf(", ");
   return { title: label.slice(0, separator), artist: label.slice(separator + 2) };
+}
+
+/** Signs up a brand-new user and waits on onboarding step 1. */
+async function signUpToOnboarding(
+  app: App,
+  signUpPage: SignUpPage,
+  onboardingPage: OnboardingPage,
+  label: string
+): Promise<void> {
+  await app.goToSignUp();
+  await signUpPage.signUp(newUser(label));
+  await onboardingPage.artists.expectLoaded();
 }
 
 test.describe("Sign up and onboarding", () => {
@@ -202,6 +215,86 @@ test.describe("Sign up and onboarding", () => {
         await signUpPage.name.click();
 
         await expect(signUpPage.fieldError("password")).toHaveCount(0);
+      });
+    }
+  );
+
+  test(
+    "each onboarding step needs its minimum choices to move on",
+    meta({
+      description:
+        "Next stays disabled until 3 artists and then 3 genres are picked, and Finish stays " +
+        "disabled until a favorite song is picked.",
+      requirement: "RF-03.4",
+      tag: "@mutates"
+    }),
+    async ({ app, signUpPage, onboardingPage }) => {
+      const { artists, genres, music } = onboardingPage;
+      await signUpToOnboarding(app, signUpPage, onboardingPage, "minimum");
+
+      await test.step("artists: 2 are not enough, 3 are", async () => {
+        await expect(artists.next).toBeDisabled();
+        await artists.selectFirst(2);
+        await expect(artists.next).toBeDisabled();
+        await artists.chips.nth(2).click();
+        await expect(artists.next).toBeEnabled();
+        await artists.next.click();
+      });
+
+      await test.step("genres: 2 are not enough, 3 are", async () => {
+        await genres.expectLoaded();
+        await expect(genres.next).toBeDisabled();
+        await genres.selectFirst(2);
+        await expect(genres.next).toBeDisabled();
+        await genres.chips.nth(2).click();
+        await expect(genres.next).toBeEnabled();
+        await genres.next.click();
+      });
+
+      await test.step("music: Finish needs one song", async () => {
+        await music.expectLoaded();
+        await expect(music.finish).toBeDisabled();
+        await music.selectFirstSong();
+        await expect(music.finish).toBeEnabled();
+      });
+    }
+  );
+
+  test(
+    "going back to a previous step keeps what was selected",
+    meta({
+      description:
+        "Returning from genres to artists, and from music to genres, shows the same number " +
+        "of choices already selected, so nothing has to be picked again.",
+      requirement: "RF-03.7",
+      tag: "@mutates"
+    }),
+    async ({ app, signUpPage, onboardingPage }) => {
+      const { artists, genres, music } = onboardingPage;
+      const threeSelected = t("onboarding.selectedCount", { count: 3 });
+      await signUpToOnboarding(app, signUpPage, onboardingPage, "back");
+
+      await test.step("picks 3 artists and 3 genres, reaching music", async () => {
+        await artists.selectFirst(3);
+        await artists.next.click();
+        await genres.expectLoaded();
+        await genres.selectFirst(3);
+        await genres.next.click();
+        await music.expectLoaded();
+      });
+
+      await test.step("back to genres: the 3 genres are still selected", async () => {
+        await music.back.click();
+        await genres.expectLoaded();
+        await expect(genres.selectionCount).toHaveText(threeSelected);
+        await expect(genres.next).toBeEnabled();
+      });
+
+      await test.step("back to artists: the 3 artists are still selected", async () => {
+        await genres.back.click();
+        await artists.expectLoaded();
+        await expect(artists.selectionCount).toHaveText(threeSelected);
+        await expect(artists.next).toBeEnabled();
       });
     }
   );

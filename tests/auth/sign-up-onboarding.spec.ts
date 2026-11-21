@@ -1,4 +1,4 @@
-import { signedOut } from "../../src/data/users";
+import { signedOut, users } from "../../src/data/users";
 import { expect, meta, test } from "../../src/fixtures";
 import type { SignUpData } from "../../src/pages";
 import { uniqueId } from "../../src/support/api";
@@ -14,6 +14,8 @@ import { t } from "../../src/support/i18n";
 test.use({ storageState: signedOut });
 
 const PASSWORD = "Senha@1234";
+/** Email of the seeded `gabriel` account (recorda-backend/app/db/development_seed_data.py). */
+const SEEDED_EMAIL = "gabriel@recorda.com";
 
 function newUser(label: string): SignUpData {
   const username = `e2e-${label}-${uniqueId()}`;
@@ -89,6 +91,117 @@ test.describe("Sign up and onboarding", () => {
           "aria-label",
           t("profile.favoriteSongA11y", splitSongLabel(song))
         );
+      });
+    }
+  );
+
+  test(
+    "the sign-up form asks only for name, username, email and password",
+    meta({
+      description:
+        "Sign Up shows exactly the Name, Username, Email and Password fields, with no " +
+        "password confirmation and no terms checkbox.",
+      requirement: "RF-02.1"
+    }),
+    async ({ app, signUpPage }) => {
+      await app.goToSignUp();
+
+      await expect(signUpPage.name).toBeVisible();
+      await expect(signUpPage.username).toBeVisible();
+      await expect(signUpPage.email).toBeVisible();
+      await expect(signUpPage.password).toBeVisible();
+      await expect(signUpPage.root.getByTestId("input-confirm-password")).toHaveCount(0);
+      await expect(signUpPage.root.getByRole("checkbox")).toHaveCount(0);
+    }
+  );
+
+  test(
+    "a username or email already in use is rejected on its own field",
+    meta({
+      description:
+        "Signing up with the username of a seeded account, or with its email, keeps the " +
+        "user on Sign Up and shows the error under that field only.",
+      requirement: "RF-02.2",
+      tag: "@mutates"
+    }),
+    async ({ app, signUpPage, onboardingPage }) => {
+      await test.step("a username that already exists", async () => {
+        await app.goToSignUp();
+        await signUpPage.signUp({ ...newUser("dup-user"), username: users.gabriel.username });
+
+        await expect(signUpPage.fieldError("username")).toBeVisible();
+        await expect(signUpPage.fieldError("email")).toHaveCount(0);
+        await expect(onboardingPage.artists.root).toBeHidden();
+      });
+
+      await test.step("an email that already exists", async () => {
+        await app.goToSignUp();
+        await signUpPage.signUp({ ...newUser("dup-mail"), email: SEEDED_EMAIL });
+
+        await expect(signUpPage.fieldError("email")).toBeVisible();
+        await expect(signUpPage.fieldError("username")).toHaveCount(0);
+        await expect(onboardingPage.artists.root).toBeHidden();
+      });
+    }
+  );
+
+  test(
+    "each invalid field shows its own error before anything is sent",
+    meta({
+      description:
+        "Submitting an empty form shows a specific message under every field, and an " +
+        "invalid email shows the email-format message; the user stays on Sign Up.",
+      requirement: "RF-02.3"
+    }),
+    async ({ app, signUpPage }) => {
+      await app.goToSignUp();
+
+      await test.step("an empty form flags every field", async () => {
+        await signUpPage.submit.click();
+
+        await expect(signUpPage.fieldError("name")).toHaveText(t("auth.validation.nameRequired"));
+        await expect(signUpPage.fieldError("username")).toHaveText(
+          t("auth.validation.usernameRequired")
+        );
+        await expect(signUpPage.fieldError("email")).toHaveText(t("auth.validation.emailRequired"));
+        await expect(signUpPage.fieldError("password")).toBeVisible();
+      });
+
+      await test.step("a malformed email gets the format message", async () => {
+        await signUpPage.fill({ email: "nao-e-um-email" });
+        await signUpPage.submit.click();
+
+        await expect(signUpPage.fieldError("email")).toHaveText(t("auth.validation.emailInvalid"));
+        await signUpPage.expectLoaded();
+      });
+    }
+  );
+
+  test(
+    "a password shorter than 8 characters is not accepted",
+    meta({
+      description:
+        "A 7-character password shows the minimum-length message and keeps the user on " +
+        "Sign Up; with 8 characters the message goes away.",
+      requirement: "RF-02.4"
+    }),
+    async ({ app, signUpPage }) => {
+      const minLength = t("auth.validation.passwordMinLength", { min: 8 });
+      await app.goToSignUp();
+
+      await test.step("7 characters are rejected", async () => {
+        await signUpPage.fill({ ...newUser("short-pw"), password: "1234567" });
+        await signUpPage.submit.click();
+
+        await expect(signUpPage.fieldError("password")).toHaveText(minLength);
+        await signUpPage.expectLoaded();
+      });
+
+      await test.step("8 characters clear the error", async () => {
+        await signUpPage.password.fill("12345678");
+        await signUpPage.name.click();
+
+        await expect(signUpPage.fieldError("password")).toHaveCount(0);
       });
     }
   );

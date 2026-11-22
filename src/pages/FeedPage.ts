@@ -14,12 +14,15 @@ const TAB_KEY: Record<FeedVariant, string> = {
 export class FeedPage {
   readonly root: Locator;
   readonly notificationsButton: Locator;
+  /** Unread count on the bell; not rendered when everything is read. */
+  readonly notificationsBadge: Locator;
   readonly searchButton: Locator;
   readonly tabBar: BottomTabBar;
 
   constructor(page: Page) {
     this.root = page.getByTestId("feed-screen");
     this.notificationsButton = this.root.getByTestId("feed-notifications-button");
+    this.notificationsBadge = this.notificationsButton.getByTestId("feed-notifications-badge");
     this.searchButton = this.root.getByTestId("feed-search-button");
     this.tabBar = new BottomTabBar(this.root);
   }
@@ -39,6 +42,21 @@ export class FeedPage {
   /** Recorda cards of a feed tab (`feed-post-<recorda_id>`). */
   posts(variant: FeedVariant): Locator {
     return this.panel(variant).locator('[data-testid^="feed-post-"]');
+  }
+
+  /** One Recorda card of a feed tab. */
+  post(variant: FeedVariant, recordaId: string): Locator {
+    return this.panel(variant).getByTestId(`feed-post-${recordaId}`);
+  }
+
+  /** Like button of a card (`like-button-<recorda_id>`). */
+  likeButton(variant: FeedVariant, recordaId: string): Locator {
+    return this.post(variant, recordaId).getByTestId(`like-button-${recordaId}`);
+  }
+
+  /** Three-dots menu of a card (a Modal, outside the screen root). */
+  cardMenu(): Locator {
+    return this.root.page().getByTestId("recorda-card-menu");
   }
 
   emptyState(variant: FeedVariant): Locator {

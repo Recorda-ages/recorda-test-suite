@@ -1,26 +1,62 @@
 import { test as base } from "@playwright/test";
 
 import { env } from "../config/env";
-import { FeedPage, LoginPage, ProfilePage, SettingsPage } from "../pages";
-import { assertHasMetadata } from "../requirements/annotations";
-import { RecordaApi } from "../support/api";
-import { App } from "../support/app";
 import {
-  createModerationData,
-  type ModerationData,
-} from "../support/moderationData";
+  AccountPage,
+  AdminAuditLogPage,
+  AdminPage,
+  AdminReportDetailPage,
+  AdminReportsPage,
+  AdminUsersPage,
+  FeedPage,
+  LanguagePage,
+  LoginPage,
+  MusicPreferencesPage,
+  NotificationsPage,
+  OnboardingPage,
+  ProfilePage,
+  RecordaDetailsPage,
+  SettingsPage,
+  ShareCardPage,
+  SignUpPage,
+  UserProfilePage,
+  UserSearchPage
+} from "../pages";
+import { assertHasMetadata } from "../requirements/annotations";
+import { RecordaApi, type NewAccount } from "../support/api";
+import { App } from "../support/app";
+import { storageStateFor } from "../support/session";
 
 type Fixtures = {
   /** Backend client for arranging data and checking side effects. */
   api: RecordaApi;
   /** Multi-screen navigation (launch, sign in, go to settings…). */
   app: App;
+  /**
+   * A brand-new account with the onboarding answered, for tests that change the account.
+   * It writes to the backend: use it only in `@mutates` tests. To open the app signed in as
+   * it, add `test.use(signedInAsNewAccount)` to the file or describe.
+   */
+  newAccount: NewAccount;
   loginPage: LoginPage;
   feedPage: FeedPage;
   profilePage: ProfilePage;
   settingsPage: SettingsPage;
-  /** Isolated users, Recordas and reports for admin moderation flows. */
-  moderationData: ModerationData;
+  recordaDetailsPage: RecordaDetailsPage;
+  notificationsPage: NotificationsPage;
+  adminPage: AdminPage;
+  adminReportsPage: AdminReportsPage;
+  adminReportDetailPage: AdminReportDetailPage;
+  adminUsersPage: AdminUsersPage;
+  adminAuditLogPage: AdminAuditLogPage;
+  shareCardPage: ShareCardPage;
+  userProfilePage: UserProfilePage;
+  userSearchPage: UserSearchPage;
+  accountPage: AccountPage;
+  languagePage: LanguagePage;
+  musicPreferencesPage: MusicPreferencesPage;
+  signUpPage: SignUpPage;
+  onboardingPage: OnboardingPage;
   /** Automatic: fails any test declared without `meta()` (description + requirement). */
   requireMetadata: void;
 };
@@ -42,35 +78,80 @@ export const test = base.extend<Fixtures>({
       assertHasMetadata(testInfo);
       await use();
     },
-    { auto: true },
+    { auto: true }
   ],
 
   api: async ({ playwright }, use) => {
-    const request = await playwright.request.newContext({
-      baseURL: env.apiURL,
-    });
+    const request = await playwright.request.newContext({ baseURL: env.apiURL });
     await use(new RecordaApi(request));
     await request.dispose();
   },
 
-  moderationData: async ({ api }, use) => {
-    await use(await createModerationData(api));
+  newAccount: async ({ api }, use) => {
+    await use(await api.createUser("account"));
   },
 
   loginPage: async ({ page }, use) => use(new LoginPage(page)),
   feedPage: async ({ page }, use) => use(new FeedPage(page)),
   profilePage: async ({ page }, use) => use(new ProfilePage(page)),
   settingsPage: async ({ page }, use) => use(new SettingsPage(page)),
+  recordaDetailsPage: async ({ page }, use) => use(new RecordaDetailsPage(page)),
+  notificationsPage: async ({ page }, use) => use(new NotificationsPage(page)),
+  adminPage: async ({ page }, use) => use(new AdminPage(page)),
+  adminReportsPage: async ({ page }, use) => use(new AdminReportsPage(page)),
+  adminReportDetailPage: async ({ page }, use) => use(new AdminReportDetailPage(page)),
+  adminUsersPage: async ({ page }, use) => use(new AdminUsersPage(page)),
+  adminAuditLogPage: async ({ page }, use) => use(new AdminAuditLogPage(page)),
+  shareCardPage: async ({ page }, use) => use(new ShareCardPage(page)),
+  userProfilePage: async ({ page }, use) => use(new UserProfilePage(page)),
+  userSearchPage: async ({ page }, use) => use(new UserSearchPage(page)),
+  accountPage: async ({ page }, use) => use(new AccountPage(page)),
+  languagePage: async ({ page }, use) => use(new LanguagePage(page)),
+  musicPreferencesPage: async ({ page }, use) => use(new MusicPreferencesPage(page)),
+  signUpPage: async ({ page }, use) => use(new SignUpPage(page)),
+  onboardingPage: async ({ page }, use) => use(new OnboardingPage(page)),
 
   app: async (
-    { page, loginPage, feedPage, profilePage, settingsPage },
-    use,
+    {
+      page,
+      loginPage,
+      feedPage,
+      profilePage,
+      settingsPage,
+      notificationsPage,
+      userProfilePage,
+      userSearchPage,
+      accountPage,
+      languagePage,
+      musicPreferencesPage,
+      signUpPage
+    },
+    use
   ) => {
     await use(
-      new App(page, { loginPage, feedPage, profilePage, settingsPage }),
+      new App(page, {
+        loginPage,
+        feedPage,
+        profilePage,
+        settingsPage,
+        notificationsPage,
+        userProfilePage,
+        userSearchPage,
+        accountPage,
+        languagePage,
+        musicPreferencesPage,
+        signUpPage
+      })
     );
-  },
+  }
 });
+
+/** `test.use(signedInAsNewAccount)`: the app opens signed in as the test's `newAccount`. */
+export const signedInAsNewAccount: Parameters<typeof test.use>[0] = {
+  storageState: async ({ newAccount }, use) => {
+    await use(storageStateFor(env.baseURL, newAccount.session));
+  }
+};
 
 export { meta } from "../requirements/annotations";
 export { expect } from "@playwright/test";

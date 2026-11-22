@@ -120,6 +120,8 @@ const req = <const Id extends string>(
 
 const DECIDED = "Decisão do time, 2026-11-08";
 const MEMORY_FIELDS_GAP = "Não implementado: o model recorda não tem Data da Memória, Local nem marcações.";
+const ACCOUNT_MOCK_GAP =
+  "A tela Minha conta ainda lê e salva pelo accountService.mock (recorda-frontend/src/features/account/services/accountAdapter.ts), embora o backend já tenha GET e PATCH /users/me/account.";
 
 export const REQUIREMENTS = [
   // ── E2 · US 1 — Splash Screen ────────────────────────────────────────────────────────────
@@ -204,10 +206,10 @@ export const REQUIREMENTS = [
   req("RF-10.1", 10, "A partir da tela de detalhes há a interface Compartilhar Recorda.", "web"),
   req("RF-10.2", 10, "O card é uma imagem na proporção 9:16 (Stories).", "web"),
   req("RF-10.3", 10, "O card contém a mídia, a identidade visual do app e capa e nome da música.", "manual"),
-  req("RF-10.4", 10, "Para vídeos, o card usa o primeiro quadro: o resultado é sempre uma imagem estática.", "web"),
+  req("RF-10.4", 10, "Para vídeos, o card usa o primeiro quadro: o resultado é sempre uma imagem estática.", "web", { gap: "No web, a captura do card (html2canvas-pro em ShareCardScreen) ignora contentFit=\"cover\" e estica mídias que não são verticais, como o vídeo do seed." }),
   req("RF-10.5", 10, "A geração ocorre no dispositivo, com indicador de progresso.", "web"),
   req("RF-11.1", 11, "Os presets aparecem como lista horizontal rolável abaixo do card.", "web"),
-  req("RF-11.2", 11, "É possível alternar entre 3 presets pré-definidos.", "web"),
+  req("RF-11.2", 11, "É possível alternar entre 3 presets pré-definidos.", "web", { gap: "ShareCardScreen oferece quatro presets (light, mint, teal, dark); a US 11 exige exatamente três." }),
   req("RF-11.3", 11, "Os presets respeitam a marca (tons de verde e fundo escuro).", "manual"),
   req("RF-11.4", 11, "O card é atualizado em tempo real conforme o preset selecionado.", "web"),
   req("RF-11.5", 11, "O card exportado é sempre vertical (9:16).", "web"),
@@ -288,7 +290,9 @@ export const REQUIREMENTS = [
   // ── E5 · US 24 — Comentários ─────────────────────────────────────────────────────────────
   req("RF-24.1", 24, "A tela de detalhes lista os comentários e tem um campo para escrever um novo.", "web"),
   req("RF-24.2", 24, "Os comentários são uma lista plana por data de criação, sem respostas nem curtidas.", "web"),
-  req("RF-24.3", 24, "Cada comentário mostra avatar, username, texto e data.", "web"),
+  req("RF-24.3", 24, "Cada comentário mostra avatar, username, texto e data.", "web", {
+    gap: "A linha do comentário não mostra a data (CommentRow em recorda-frontend/src/features/feed/components/RecordaDetailView.tsx)."
+  }),
   req("RF-24.4", 24, "Comentários têm no máximo 500 caracteres.", "web"),
   req("RF-24.5", 24, "Só comenta quem tem permissão para ver a Recorda.", "api"),
   req("RF-24.6", 24, "O autor da Recorda é notificado de novos comentários.", "web"),
@@ -313,13 +317,15 @@ export const REQUIREMENTS = [
 
   // ── E6 · US 28 — Perfil pessoal ──────────────────────────────────────────────────────────
   req("RF-28.1", 28, "O perfil mostra nome, username, avatar, contadores, uma única streak, música favorita e chips de artistas e gêneros.", "web"),
-  req("RF-28.2", 28, "É possível trocar e remover o avatar.", "web"),
+  req("RF-28.2", 28, "É possível trocar e remover o avatar.", "web", {
+    gap: "Só no build web: trocar o avatar não envia nada, porque profileService.uploadAvatar (recorda-frontend/src/features/profile/services/profileService.ts) usa File do expo-file-system, sem suporte no web. No app (Expo Go) a troca funciona; remover funciona nas duas plataformas."
+  }),
   req("RF-28.3", 28, "O perfil mostra a grade paginada das próprias Recordas.", "web"),
   req("RF-28.4", 28, "O perfil mantém as abas Recordas, Métricas e Calendário.", "web"),
 
   // ── E6 · US 29 — Perfil de terceiros ─────────────────────────────────────────────────────
   req("RF-29.1", 29, "Perfil público, ou com follow aprovado, mostra cabeçalho, contadores e conteúdo.", "web"),
-  req("RF-29.2", 29, "Perfil privado sem aprovação mostra nome, username, streak e música, oculta contadores e Recordas e mantém as três abas com aviso de restrição.", "web"),
+  req("RF-29.2", 29, "Perfil privado sem aprovação mostra nome, username, streak e música, oculta contadores e Recordas e mantém as três abas com aviso de restrição.", "web", { gap: "O StreakBadge do frontend oculta o streak quando can_view_content é false; ver OPEN_QUESTIONS." }),
 
   // ── E6 · US 31 — Editar preferências musicais ────────────────────────────────────────────
   req("RF-31.1", 31, "A edição abre com as escolhas atuais selecionadas.", "web"),
@@ -336,8 +342,8 @@ export const REQUIREMENTS = [
   req("RF-33.2", 33, "Antes do login vale a preferência local; após autenticar prevalece o idioma da conta, que também é gravado no aparelho.", "web"),
 
   // ── E6 · US 34 — Gerenciar conta ─────────────────────────────────────────────────────────
-  req("RF-34.1", 34, "É possível editar nome, username e email; o email muda após validar formato e unicidade, sem link de confirmação.", "web"),
-  req("RF-34.2", 34, "A senha é opcional e só muda com Nova senha e Repetir nova senha preenchidas e iguais, sem pedir a senha atual.", "web"),
+  req("RF-34.1", 34, "É possível editar nome, username e email; o email muda após validar formato e unicidade, sem link de confirmação.", "web", { gap: ACCOUNT_MOCK_GAP }),
+  req("RF-34.2", 34, "A senha é opcional e só muda com Nova senha e Repetir nova senha preenchidas e iguais, sem pedir a senha atual.", "web", { gap: ACCOUNT_MOCK_GAP }),
   req("RF-34.3", 34, "Excluir a conta pede confirmação (Cancelar/Excluir) e aplica exclusão lógica sem anonimização.", "web"),
 
   // ── E6 · US 35 — Streak ──────────────────────────────────────────────────────────────────
@@ -449,7 +455,8 @@ export const REQUIREMENTS_BY_ID = new Map<string, Requirement>(
 
 /** Contradictions and gaps still waiting for a team decision. */
 export const OPEN_QUESTIONS = [
-  "Duração de vídeo: a US 6 cita 60 s como proposta (RF-06.6), sem valor definido."
+  "Duração de vídeo: a US 6 cita 60 s como proposta (RF-06.6), sem valor definido.",
+  "Streak em perfil privado sem aprovação (RF-29.2): a US 29 e a decisão D-06 do backend mostram o streak, mas o StreakBadge do frontend o oculta provisoriamente (recorda-frontend docs/issue-260.md)."
 ] as const;
 
 /**

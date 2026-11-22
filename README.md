@@ -152,6 +152,7 @@ docs/
 tests/
   setup/auth.setup.ts     saves a logged-in session per account (runs first)
   auth/                   sign-in, sign-up, password recovery
+  settings/               privacy, music preferences, language, Minha conta
   flows/                  multi-screen user journeys
 ```
 

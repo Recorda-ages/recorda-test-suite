@@ -1,671 +1,448 @@
-import { devices, type Page } from "@playwright/test";
-
-import { env } from "../../src/config/env";
 import { storageStateOf, users } from "../../src/data/users";
 import { expect, meta, test } from "../../src/fixtures";
-import { storageStateFor } from "../../src/support/session";
+import type { AdminPage, AdminReportDetailPage, AdminReportsPage } from "../../src/pages";
+import { uniqueId, type NewAccount, type RecordaApi } from "../../src/support/api";
+import type { App } from "../../src/support/app";
+import { t } from "../../src/support/i18n";
 
+/**
+ * FL-15: the administrator reviews reports, changes their status, removes a Recorda,
+ * suspends and reactivates an account, and reads the audit log.
+ *
+ * Targets are always users and Recordas created by the test (never the seed accounts), and
+ * every reason is unique, so parallel tests never act on or assert each other's data.
+ */
 test.use({ storageState: storageStateOf(users.admin) });
 
-const adminScreen = (page: Page) => page.getByTestId("admin-reports-screen");
+type Reported = {
+  author: NewAccount;
+  reporters: [NewAccount, NewAccount];
+  recordaId: string;
+  songTitle: string;
+  reportIds: [string, string];
+  descriptions: [string, string];
+};
 
-async function openAdmin(page: Page) {
-  await page.goto("/");
-  await expect(adminScreen(page)).toBeVisible();
+/** A new author publishes a Recorda and two new users report it, the second one last. */
+async function reportedRecorda(api: RecordaApi, label: string): Promise<Reported> {
+  const [author, first, second] = await Promise.all([
+    api.createUser(`${label}-author`),
+    api.createUser(`${label}-rep1`),
+    api.createUser(`${label}-rep2`)
+  ]);
+  const songTitle = `Song ${label} ${uniqueId()}`;
+  const { recorda_id: recordaId } = await api.createRecorda(author, {
+    description: `Recorda ${label} ${uniqueId()}`,
+    songTitle
+  });
+  const descriptions: [string, string] = [`Report one ${uniqueId()}`, `Report two ${uniqueId()}`];
+  const reportIds: [string, string] = [
+    await api.reportRecorda(first, recordaId, descriptions[0]),
+    await api.reportRecorda(second, recordaId, descriptions[1])
+  ];
+  return { author, reporters: [first, second], recordaId, songTitle, reportIds, descriptions };
 }
 
-async function openReportGroup(page: Page, rowTestId: string) {
-  await page.getByTestId("admin-tab-reports").click();
-  const group = page.getByTestId(rowTestId);
-  await expect(group).toBeVisible();
-  await group.click();
+/** A unique reason, so the audit log and history can be searched for this test's action. */
+function reason(action: string): string {
+  return `E2E ${action} ${uniqueId()}`;
 }
 
-async function openUserDetail(
-  page: Page,
-  user: { user_id: string; username: string },
-) {
-  await page.getByTestId("admin-tab-users").click();
-  await page.getByTestId("admin-users-search").fill(user.username);
-  await page.getByTestId(`admin-user-history-${user.user_id}`).click();
-  await expect(page.getByTestId("admin-user-detail-screen")).toBeVisible();
+/** Admin home (Denúncias) → the target's row → its detail. */
+async function openReportedRecorda(
+  app: App,
+  adminPage: AdminPage,
+  reports: AdminReportsPage,
+  detail: AdminReportDetailPage,
+  target: Reported
+): Promise<void> {
+  await app.launch();
+  await adminPage.expectLoaded("reports");
+  await reports.row("RECORDA", target.recordaId).click();
+  await detail.expectLoaded();
 }
+
+/** "22/11/2026 às 15:34", whatever the date: the shape `admin.reportDetail.dateTime` gives. */
+const dateTime = new RegExp(
+  t("admin.reportDetail.dateTime", { date: "\\S+", time: "\\d{1,2}:\\d{2}" })
+);
 
 test.describe("Admin access", () => {
   test.use({ storageState: storageStateOf(users.gabriel) });
 
   test(
-    "regular accounts cannot open administrative screens",
+    "only administrators can open the moderation area",
     meta({
-      description: "A regular account cannot open the administrative area.",
-      requirement: "RF-44.1",
+      description:
+        "A regular account opens the app on its Feed with no admin screen, and the admin API " +
+        "refuses it; the administrator's own call is accepted.",
+      requirement: "RF-44.1"
     }),
-    async ({ page }) => {
-      await page.goto("/");
-      await expect(page.getByTestId("admin-reports-screen")).toBeHidden();
-    },
+    async ({ api, app, adminPage, feedPage }) => {
+      await test.step("a regular account lands on the Feed, not on the admin area", async () => {
+        await app.launch();
+        await feedPage.expectLoaded();
+        await expect(adminPage.screen("reports")).toHaveCount(0);
+        await expect(adminPage.screen("users")).toHaveCount(0);
+        await expect(adminPage.screen("auditLog")).toHaveCount(0);
+      });
+
+      await test.step("the admin API refuses a regular account", async () => {
+        expect(await api.adminReportsStatus(await api.account(users.gabriel))).toBe(403);
+        expect(await api.adminReportsStatus(await api.account(users.admin))).toBe(200);
+      });
+    }
   );
 });
 
-test(
-  "administrators can open the administrative area",
-  meta({
-    description:
-      "The seeded administrator opens the administrative area after signing in.",
-    requirement: "RF-44.1",
-  }),
-  async ({ page }) => {
-    await openAdmin(page);
-  },
-);
-
-test.describe("Report moderation", () => {
+test.describe("Reports", () => {
   test(
-    "open reports are grouped by target with their summary",
+    "open reports are grouped by target with type, open count and latest date",
     meta({
       description:
-        "Open reports are grouped by target and show target type, open count and latest report date.",
+        "Two reports of the same Recorda show as one row that says it is a Recorda, pending, " +
+        "with 2 reports, identifies it by author and song, and shows the latest report's date.",
       requirement: "RF-44.2",
-      tag: "@mutates",
+      tag: "@mutates"
     }),
-    async ({ page, moderationData }) => {
-      await openAdmin(page);
-      await page.getByTestId("admin-tab-reports").click();
+    async ({ api, app, adminPage, adminReportsPage: reports }) => {
+      const target = await reportedRecorda(api, "group");
 
-      const group = page.getByTestId(moderationData.recordas[0].rowTestId);
-      await expect(group).toBeVisible();
-      await expect(group).toHaveAttribute(
-        "data-testid",
-        moderationData.recordas[0].rowTestId,
-      );
-      await expect(group.getByTestId("report-target-type")).toContainText(
-        /RECORDA/i,
-      );
-      await expect(group.getByTestId("open-report-count")).toContainText("2");
-      await expect(group.getByTestId("latest-report-date")).toBeVisible();
-    },
+      await app.launch();
+      await adminPage.expectLoaded("reports");
+      await expect(reports.statusFilter("open")).toBeVisible();
+    
+      const row = reports.row("RECORDA", target.recordaId);
+      await expect(row).toHaveCount(1);
+      await expect(row).toContainText(t("admin.reports.target.recorda").toLocaleUpperCase("pt-BR"));
+      await expect(row).toContainText(t("admin.status.open").toLocaleUpperCase("pt-BR"));
+      await expect(row).toContainText(t("admin.reports.count", { count: 2 }));
+      await expect(row).toContainText(`@${target.author.user.username}`);
+      await expect(row).toContainText(target.songTitle);
+      await expect(row).toContainText(/\d{2}\/\d{2}\/\d{4}/);
+    }
   );
 
   test(
-    "a reported target shows its content and report history",
+    "the detail shows the reported Recorda and every report with text, date and reporter",
     meta({
       description:
-        "Opening a report group shows the reported Recorda and each report's text, date and reporter.",
+        "Opening a report group shows the reported photo and each report's description, " +
+        "reporter and date.",
       requirement: "RF-44.3",
-      tag: "@mutates",
+      tag: "@mutates"
     }),
-    async ({ page, moderationData }) => {
-      const recorda = moderationData.recordas[0];
-      await openAdmin(page);
-      await openReportGroup(page, recorda.rowTestId);
+    async ({ api, app, adminPage, adminReportsPage, adminReportDetailPage: detail }) => {
+      const target = await reportedRecorda(api, "detail");
+      await openReportedRecorda(app, adminPage, adminReportsPage, detail, target);
 
-      await expect(page.getByTestId("admin-report-recorda")).toBeVisible();
-      const report = page.getByTestId(
-        `admin-report-entry-${recorda.reportIds[0]}`,
-      );
-      await expect(report.getByTestId("report-text")).toBeVisible();
-      await expect(report.getByTestId("report-date")).toBeVisible();
-      await expect(report.getByTestId("reporter-name")).toBeVisible();
-    },
+      await expect(detail.recorda).toBeVisible();
+      await expect(detail.photo).toBeVisible();
+      for (const [index, reportId] of target.reportIds.entries()) {
+        const entry = detail.entry(reportId);
+        await expect(entry).toContainText(target.descriptions[index]!);
+        await expect(entry).toContainText(`@${target.reporters[index]!.user.username}`);
+        await expect(entry).toContainText(dateTime);
+      }
+    }
   );
 
-  test(
-    "an administrator can resolve or dismiss a report with a reason",
-    meta({
-      description:
-        "The administrator can resolve or dismiss reports, and each status change requires a reason of at most 500 characters.",
-      requirement: ["RF-44.4", "RF-44.5", "RF-47.1", "RF-47.2"],
-      tag: "@mutates",
-    }),
-    async ({ page, moderationData }) => {
-      const first = moderationData.recordas[0];
-      const second = await moderationData.createSecondRecorda();
-      await openAdmin(page);
-      await openReportGroup(page, first.rowTestId);
+  for (const status of ["RESOLVED", "DISMISSED"] as const) {
+    test(
+      `marking reports as ${status.toLowerCase()} needs a reason and is recorded`,
+      meta({
+        description:
+          "The status dialog accepts at most 500 characters and can't be confirmed empty. With " +
+          "a reason, the reports change status, the detail history shows the action, and the " +
+          "audit log records administrator, action, target, reason and time.",
+        requirement: ["RF-44.4", "RF-44.5", "RF-47.1", "RF-47.2"],
+        tag: "@mutates"
+      }),
+      async ({
+        api,
+        app,
+        adminPage,
+        adminReportsPage: reports,
+        adminReportDetailPage: detail,
+        adminAuditLogPage: audit
+      }) => {
+        const target = await reportedRecorda(api, status.toLowerCase());
+        const why = reason(status);
+        await openReportedRecorda(app, adminPage, reports, detail, target);
 
-      const statusDialog = page.getByTestId("moderation-status-dialog");
-      const reason = statusDialog.getByTestId("moderation-reason");
-      await expect(reason).toHaveAttribute("maxlength", "500");
-      await page.getByTestId("admin-report-status-RESOLVED").click();
-      await expect(
-        page.getByTestId("resolve-report-confirm-button"),
-      ).toBeDisabled();
-      await reason.fill("Reviewed by moderation");
-      await page.getByTestId("resolve-report-confirm-button").click();
-      await expect(
-        page
-          .getByTestId(`admin-report-entry-${first.reportIds[0]}`)
-          .getByTestId("report-status"),
-      ).toContainText(/resolv/i);
+        await test.step("the reason is required and limited to 500 characters", async () => {
+          const dialog = detail.statusDialog(status);
+          await detail.statusButton(status).click();
+          await dialog.expectOpen();
+          await expect(dialog.reason).toHaveAttribute("maxlength", "500");
+          await expect(dialog.confirmButton).toBeDisabled();
+          await dialog.cancelButton.click();
+          await expect(dialog.reason).toBeHidden();
+        });
 
-      await openReportGroup(page, second.rowTestId);
-      const dismissDialog = page.getByTestId("moderation-status-dialog");
-      await dismissDialog
-        .getByTestId("moderation-reason")
-        .fill("Report does not violate policy");
-      await page.getByTestId("admin-report-status-DISMISSED").click();
-      await page.getByTestId("dismiss-report-confirm-button").click();
-      await expect(
-        page
-          .getByTestId(`admin-report-entry-${second.reportIds[0]}`)
-          .getByTestId("report-status"),
-      ).toContainText(/descart|dismiss/i);
-    },
-  );
+        await test.step("with a reason, the reports change status", async () => {
+          await detail.changeStatus(status, why);
+          const label = t(`admin.status.${status.toLowerCase()}`);
+          for (const reportId of target.reportIds) {
+            await expect(detail.entry(reportId)).toContainText(label);
+          }
+          await expect(detail.historyEntries().filter({ hasText: why })).toContainText(
+            t(`admin.reportDetail.history.statusChangedTo.${status}`)
+          );
+        });
+
+        await test.step("the audit log records who did what, to what, why and when", async () => {
+          await detail.backButton.click();
+          await adminPage.tabBar("reports").select("auditLog");
+          await audit.expectLoaded();
+          await audit.find(why);
+          const entry = audit.entriesWith(why);
+          await expect(entry).toHaveCount(1);
+          await expect(entry).toContainText(users.admin.username);
+          await expect(entry).toContainText(t("admin.auditLog.actions.CHANGE_REPORT_STATUS_RECORDA"));
+          await expect(entry).toContainText(target.songTitle);
+          await expect(entry).toContainText(t("admin.auditLog.reason", { reason: why }));
+        });
+      }
+    );
+  }
 });
 
-test.describe("Recorda moderation", () => {
+test.describe("Removing a Recorda", () => {
   test(
-    "an administrator removes a Recorda from its moderation detail",
+    "removing a Recorda needs a reason, resolves its reports and is audited",
     meta({
       description:
-        "The administrator confirms logical removal of a reported Recorda from the moderation screen.",
-      requirement: "RF-45.1",
-      tag: "@mutates",
+        "The removal dialog accepts at most 500 characters and can't be confirmed empty. " +
+        "Removing takes the Recorda down, resolves both open reports and adds a " +
+        "removal entry to the audit log.",
+      requirement: ["RF-45.1", "RF-45.2", "RF-45.3", "RF-47.1", "RF-47.2"],
+      tag: "@mutates"
     }),
-    async ({ page, moderationData }) => {
-      await openAdmin(page);
-      await openReportGroup(page, moderationData.recordas[0].rowTestId);
-      await page.getByTestId("admin-report-remove-recorda").click();
+    async ({
+      api,
+      app,
+      adminPage,
+      adminReportsPage: reports,
+      adminReportDetailPage: detail,
+      adminAuditLogPage: audit
+    }) => {
+      const target = await reportedRecorda(api, "remove");
+      const why = reason("removal");
+      await openReportedRecorda(app, adminPage, reports, detail, target);
 
-      const dialog = page.getByTestId("remove-recorda-dialog");
-      await expect(dialog).toBeVisible();
-      await dialog
-        .getByTestId("moderation-reason")
-        .fill("Content violates the community rules");
-      await dialog.getByTestId("confirm-removal-button").click();
-      await expect(dialog).toBeHidden();
-    },
-  );
-
-  test(
-    "Recorda removal requires a reason and records it in the audit log",
-    meta({
-      description:
-        "Removal requires a reason of at most 500 characters and the audit log records it.",
-      requirement: ["RF-45.2", "RF-47.1", "RF-47.2"],
-      tag: "@mutates",
-    }),
-    async ({ page, moderationData }) => {
-      await openAdmin(page);
-      await openReportGroup(page, moderationData.recordas[0].rowTestId);
-      await page.getByTestId("admin-report-remove-recorda").click();
-
-      const dialog = page.getByTestId("remove-recorda-dialog");
-      const reason = dialog.getByTestId("moderation-reason");
-      await expect(reason).toHaveAttribute("maxlength", "500");
-      await expect(dialog.getByTestId("confirm-removal-button")).toBeDisabled();
-      await reason.fill("Content violates the community rules");
-      await dialog.getByTestId("confirm-removal-button").click();
-
-      await page.getByTestId("admin-tab-auditLog").click();
-      await expect(
-        page
-          .getByTestId(/^admin-audit-log-entry-/)
-          .first()
-          .getByTestId("audit-reason"),
-      ).toContainText("Content violates the community rules");
-    },
-  );
-
-  test(
-    "removing a Recorda resolves its open reports",
-    meta({
-      description:
-        "After removal, every report for that target is shown as resolved.",
-      requirement: "RF-45.3",
-      tag: "@mutates",
-    }),
-    async ({ page, moderationData }) => {
-      const recorda = moderationData.recordas[0];
-      await openAdmin(page);
-      await openReportGroup(page, recorda.rowTestId);
-      await page.getByTestId("admin-report-remove-recorda").click();
-      const dialog = page.getByTestId("remove-recorda-dialog");
-      await dialog
-        .getByTestId("moderation-reason")
-        .fill("Content violates the community rules");
-      await dialog.getByTestId("confirm-removal-button").click();
-
-      await page.getByTestId("admin-tab-reports").click();
-      await page.getByTestId("admin-reports-status-filter-RESOLVED").click();
-      const group = page.getByTestId(recorda.rowTestId);
-      await expect(group).toBeVisible();
-      await expect(
-        page
-          .getByTestId(`admin-report-entry-${recorda.reportIds[0]}`)
-          .getByTestId("report-status"),
-      ).toContainText(/resolv/i);
-    },
-  );
-
-  test(
-    "a removed Recorda disappears from the feed and its author's profile",
-    meta({
-      description:
-        "After moderation removes a test Recorda, it is no longer visible in the feed or the author's profile.",
-      requirement: "RF-45.4",
-      tag: "@mutates",
-    }),
-    async ({ browser, page, api, moderationData }) => {
-      const recorda = moderationData.recordas[0];
-      const readerSession = await api.login(users.gabriel);
-      const readerContext = await browser.newContext({
-        ...devices["Pixel 7"],
-        baseURL: env.baseURL,
-        storageState: storageStateFor(env.baseURL, readerSession),
+      await test.step("the reason is required and limited to 500 characters", async () => {
+        await detail.removeRecordaButton.click();
+        await detail.removeDialog.expectOpen();
+        await expect(detail.removeDialog.reason).toHaveAttribute("maxlength", "500");
+        await expect(detail.removeDialog.confirmButton).toBeDisabled();
+        await detail.removeDialog.cancelButton.click();
+        await expect(detail.removeDialog.reason).toBeHidden();
       });
 
-      try {
-        const readerPage = await readerContext.newPage();
-        await readerPage.goto("/");
-        await expect(readerPage.getByTestId("feed-screen")).toBeVisible();
-        await expect(
-          readerPage.getByTestId(`feed-post-${recorda.id}`),
-        ).toBeVisible();
-
-        await openAdmin(page);
-        await openReportGroup(page, recorda.rowTestId);
-        await page.getByTestId("admin-report-remove-recorda").click();
-        const dialog = page.getByTestId("remove-recorda-dialog");
-        await dialog
-          .getByTestId("moderation-reason")
-          .fill("Content violates the community rules");
-        await dialog.getByTestId("confirm-removal-button").click();
-
-        await readerPage.reload();
-        await expect(readerPage.getByTestId("feed-screen")).toBeVisible();
-        await expect(
-          readerPage.getByTestId(`feed-post-${recorda.id}`),
-        ).toHaveCount(0);
-        await readerPage.getByTestId("feed-search-button").click();
-        await readerPage
-          .getByTestId("user-search-input")
-          .fill(moderationData.target.user.username);
-        const target = readerPage.getByTestId(
-          `user-search-result-${moderationData.target.user.user_id}`,
+      await test.step("removing takes the Recorda down and resolves its reports", async () => {
+        await detail.removeRecorda(why);
+        await expect(detail.historyEntries().filter({ hasText: why })).toContainText(
+          t("admin.reportDetail.history.REMOVE_RECORDA")
         );
-        await expect(target).toBeVisible();
-        await target.click();
-        await expect(
-          readerPage.getByTestId("user-profile-screen"),
-        ).toBeVisible();
-        await expect(
-          readerPage.getByTestId(`recorda-grid-item-${recorda.id}`),
-        ).toHaveCount(0);
-      } finally {
-        await readerContext.close();
-      }
-    },
+        await expect(detail.recorda).toHaveCount(0);
+        for (const reportId of target.reportIds) {
+          await expect(detail.entry(reportId)).toContainText(t("admin.status.resolved"));
+        }
+      });
+
+      await test.step("the audit log records the removal with its reason", async () => {
+        await detail.backButton.click();
+        await adminPage.tabBar("reports").select("auditLog");
+        await audit.expectLoaded();
+        await audit.find(why);
+        const entry = audit.entriesWith(why);
+        await expect(entry).toHaveCount(1);
+        await expect(entry).toContainText(users.admin.username);
+        await expect(entry).toContainText(t("admin.auditLog.actions.REMOVE_RECORDA"));
+        await expect(entry).toContainText(t("admin.auditLog.reason", { reason: why }));
+      });
+    }
   );
 
   test(
-    "the removed Recorda's author receives a system notification with the reason",
+    "a removed Recorda disappears for everyone and its author is told why",
     meta({
       description:
-        "Removing a Recorda notifies its author with CONTENT_REMOVED and the reason, using a system icon without exposing the administrator.",
-      requirement: ["RF-42.1", "RF-42.2", "RF-45.5"],
-      tag: "@mutates",
+        "After removal, a follower can no longer open the Recorda or see it on the author's " +
+        "profile. The author gets a system notification with the song and the reason, without " +
+        "naming the administrator; tapping it marks it read and opens nothing.",
+      requirement: ["RF-45.4", "RF-45.5", "RF-42.1", "RF-42.2", "RF-42.3"],
+      tag: "@mutates"
     }),
-    async ({ api, browser, page, moderationData }) => {
-      const author = await api.login(users.gabriel);
-      const { recorda_id: recordaId } = await api.createRecorda(
-        author.access_token,
-        {
-          media_url: "https://example.test/moderation/notification.jpg",
-          media_type: "PHOTO",
-          description: "E2E content removal notification",
-          deezer_track_id: "3135556",
-          song_title: "E2E notification test",
-          song_artist_name: "Recorda Test",
-          song_cover_url: "",
-          song_preview_url: null,
-          song_genre_name: "Pop",
-        },
-      );
-      await api.reportRecorda(
-        moderationData.reporters[0].access_token,
-        recordaId,
-        "E2E report for content removal notification",
-      );
+    async ({
+      api,
+      app,
+      page,
+      adminPage,
+      adminReportsPage: reports,
+      adminReportDetailPage: detail,
+      notificationsPage,
+      userProfilePage
+    }) => {
+      const target = await reportedRecorda(api, "gone");
+      const follower = await api.createUser("gone-fan");
+      await api.follow(follower, target.author);
+      expect(await api.recordaStatus(follower, target.recordaId)).toBe(200);
+      const why = reason("removal");
 
-      await openAdmin(page);
-      await openReportGroup(page, `admin-report-row-RECORDA-${recordaId}`);
-      await page.getByTestId("admin-report-remove-recorda").click();
-      const dialog = page.getByTestId("remove-recorda-dialog");
-      const reason = "Content violates the community rules";
-      await dialog.getByTestId("moderation-reason").fill(reason);
-      await dialog.getByTestId("confirm-removal-button").click();
-
-      const authorContext = await browser.newContext({
-        ...devices["Pixel 7"],
-        baseURL: env.baseURL,
-        storageState: storageStateFor(env.baseURL, author),
+      await test.step("the administrator removes the Recorda", async () => {
+        await openReportedRecorda(app, adminPage, reports, detail, target);
+        await detail.removeRecorda(why);
+        await expect(detail.historyEntries().filter({ hasText: why })).toBeVisible();
       });
-      try {
-        const authorPage = await authorContext.newPage();
-        await authorPage.goto("/");
-        await expect(authorPage.getByTestId("feed-screen")).toBeVisible();
-        await authorPage.getByTestId("feed-notifications-button").click();
 
-        const notification = authorPage
-          .getByTestId("notifications-list")
-          .getByTestId(/^notification-/)
-          .filter({ hasText: reason });
-        await expect(notification).toBeVisible();
-        await expect(
-          notification.locator('[data-testid^="notification-system-icon-"]'),
-        ).toBeVisible();
-        await expect(notification).not.toContainText(users.admin.username);
-      } finally {
-        await authorContext.close();
-      }
-    },
-  );
+      await test.step("a follower can't open it or see it on the author's profile", async () => {
+        expect(await api.recordaStatus(follower, target.recordaId)).toBe(404);
+        await app.launchAs(follower);
+        await app.goToUserProfile(target.author.user.username);
+        await expect(userProfilePage.details.gridItem(target.recordaId)).toHaveCount(0);
+      });
 
-  test(
-    "a removed Recorda is absent from content search",
-    meta({
-      description: "A removed Recorda is not returned by content search.",
-      requirement: "RF-45.4",
-      tag: "@mutates",
-    }),
-    async () => {
-      test.fixme(
-        true,
-        "The current search screen searches profiles only; Recorda search is not implemented.",
-      );
-    },
+      await test.step("the author gets a system notification with the reason", async () => {
+        await app.launchAs(target.author);
+        await app.goToNotifications();
+        const message = t("notifications.types.CONTENT_REMOVED", {
+          song: target.songTitle,
+          reason: why
+        });
+        const row = notificationsPage.list
+          .locator('[data-testid^="notification-"]')
+          .filter({ hasText: message });
+        await expect(row).toHaveCount(1);
+        await expect(row.getByTestId(/^notification-system-icon-/)).toBeVisible();
+        await expect(row).not.toContainText(users.admin.username);
+
+        await row.click();
+        await notificationsPage.expectLoaded();
+        await expect(page.getByTestId("recorda-detail-screen")).toHaveCount(0);
+        await expect
+          .poll(async () => {
+            const { items } = await api.notifications(target.author);
+            return items.find((item) => item.type === "CONTENT_REMOVED")?.is_read;
+          })
+          .toBe(true);
+      });
+    }
   );
 });
 
-test.describe("User moderation", () => {
+test.describe("Accounts", () => {
   test(
-    "an administrator searches accounts by username or name and sees their status",
+    "an administrator finds an account, suspends it with a reason and reactivates it",
     meta({
       description:
-        "Account search accepts a username or a name and shows the matching profile with its status.",
-      requirement: "RF-46.1",
-      tag: "@mutates",
+        "Searching by username shows the account as active. Suspending needs a reason of at " +
+        "most 500 characters and hides its profile and Recordas from other users; reactivating " +
+        "with a reason makes it active and visible again.",
+      requirement: ["RF-46.1", "RF-46.3", "RF-46.4", "RF-46.5"],
+      tag: "@mutates"
     }),
-    async ({ page, moderationData }) => {
-      await openAdmin(page);
-      await page.getByTestId("admin-tab-users").click();
+    async ({ api, app, adminPage, adminUsersPage: usersPage }) => {
+      const [target, viewer] = await Promise.all([
+        api.createUser("suspend"),
+        api.createUser("suspend-viewer")
+      ]);
+      const { recorda_id: recordaId } = await api.createRecorda(target, {
+        description: `Suspend ${uniqueId()}`
+      });
+      const userId = target.session.user.user_id;
+      const moderation = usersPage.moderation(userId);
 
-      const search = page.getByTestId("admin-users-search");
-      await search.fill(moderationData.target.user.username);
-      const result = page.getByTestId(
-        `admin-user-card-${moderationData.target.user.user_id}`,
-      );
-      await expect(result).toBeVisible();
-      await expect(result.getByTestId("account-status")).toHaveText(
-        /ACTIVE|ATIV[AO]/i,
-      );
-      await search.fill(moderationData.target.user.name);
-      await expect(result).toBeVisible();
-    },
-  );
-
-  test(
-    "an administrator cannot suspend another administrator",
-    meta({
-      description: "A second administrator has a disabled suspension action.",
-      requirement: "RF-46.2",
-    }),
-    async () => {
-      test.fixme(
-        true,
-        "The local seed only provides the signed-in administrator and there is no API to create a second admin.",
-      );
-    },
-  );
-
-  test(
-    "suspending an account requires a reason and records the action",
-    meta({
-      description:
-        "Suspension requires a reason of at most 500 characters and the audit log records it.",
-      requirement: ["RF-46.3", "RF-47.1", "RF-47.2"],
-      tag: "@mutates",
-    }),
-    async ({ page, moderationData }) => {
-      await openAdmin(page);
-      await openUserDetail(page, moderationData.target.user);
-      await page.getByTestId("suspend-action-trigger").click();
-
-      const dialog = page.getByTestId("suspend-user-dialog");
-      const reason = dialog.getByTestId("moderation-reason");
-      await expect(reason).toHaveAttribute("maxlength", "500");
-      await expect(
-        dialog.getByTestId("confirm-suspension-button"),
-      ).toBeDisabled();
-      await reason.fill("Repeated community guideline violations");
-      await dialog.getByTestId("confirm-suspension-button").click();
-      await expect(
-        page
-          .getByTestId("admin-user-detail-screen")
-          .getByTestId("account-status"),
-      ).toHaveText(/SUSPENDED|SUSPENSA/i);
-
-      await page.getByTestId("admin-tab-auditLog").click();
-      await expect(
-        page
-          .getByTestId(/^admin-audit-log-entry-/)
-          .first()
-          .getByTestId("audit-reason"),
-      ).toContainText("Repeated community guideline violations");
-    },
-  );
-
-  test(
-    "content from a suspended account is hidden from regular users",
-    meta({
-      description:
-        "A regular account cannot see a suspended user's Recordas, profile search result or comments.",
-      requirement: "RF-46.4",
-      tag: "@mutates",
-    }),
-    async ({ browser, page, api, moderationData }) => {
-      const recorda = moderationData.recordas[0];
-      await openAdmin(page);
-      await openUserDetail(page, moderationData.target.user);
-      await page.getByTestId("suspend-action-trigger").click();
-      const dialog = page.getByTestId("suspend-user-dialog");
-      await dialog
-        .getByTestId("moderation-reason")
-        .fill("Suspended for test isolation");
-      await dialog.getByTestId("confirm-suspension-button").click();
-      await expect(
-        page
-          .getByTestId("admin-user-detail-screen")
-          .getByTestId("account-status"),
-      ).toHaveText(/SUSPENDED|SUSPENSA/i);
-
-      const readerSession = await api.login(users.gabriel);
-      const readerContext = await browser.newContext({
-        ...devices["Pixel 7"],
-        baseURL: env.baseURL,
-        storageState: storageStateFor(env.baseURL, readerSession),
+      await test.step("search finds the account, shown as active", async () => {
+        await app.launch();
+        await adminPage.expectLoaded("reports");
+        await adminPage.tabBar("reports").select("users");
+        await usersPage.expectLoaded();
+        await usersPage.find(target.user.username);
+        await expect(usersPage.card(userId)).toContainText(`@${target.user.username}`);
+        await expect(usersPage.status(userId, "active")).toBeVisible();
       });
 
-      try {
-        const readerPage = await readerContext.newPage();
-        await readerPage.goto("/");
-        await expect(readerPage.getByTestId("feed-screen")).toBeVisible();
-        await expect(
-          readerPage.getByTestId(`feed-post-${recorda.id}`),
-        ).toHaveCount(0);
-        await readerPage.getByTestId("feed-search-button").click();
-        await readerPage
-          .getByTestId("user-search-input")
-          .fill(moderationData.target.user.username);
-        await expect(
-          readerPage.getByTestId(
-            `user-search-result-${moderationData.target.user.user_id}`,
-          ),
-        ).toHaveCount(0);
-        await expect(
-          await api.recordaStatus(readerSession.access_token, recorda.id),
-        ).toBe(404);
-        await expect(
-          await api.recordaCommentsStatus(
-            readerSession.access_token,
-            recorda.id,
-          ),
-        ).toBe(404);
-      } finally {
-        await readerContext.close();
-      }
-    },
-  );
+      await test.step("suspending needs a reason of at most 500 characters", async () => {
+        await moderation.suspendButton.click();
+        await usersPage.suspendDialog.expectOpen();
+        await expect(usersPage.suspendDialog.reason).toHaveAttribute("maxlength", "500");
+        await expect(usersPage.suspendDialog.confirmButton).toBeDisabled();
+        await usersPage.suspendDialog.confirmWith(reason("suspension"));
+        await expect(usersPage.status(userId, "suspended")).toBeVisible();
+      });
 
-  test(
-    "an administrator reactivates a suspended account with a reason",
-    meta({
-      description:
-        "Reactivation requires a reason of at most 500 characters and changes the account status back to active.",
-      requirement: ["RF-46.5", "RF-47.1", "RF-47.2"],
-      tag: "@mutates",
-    }),
-    async ({ page, moderationData }) => {
-      await openAdmin(page);
-      await openUserDetail(page, moderationData.target.user);
+      await test.step("other users no longer see the account or its Recordas", async () => {
+        await expect.poll(() => api.profileStatus(viewer, target)).toBe(404);
+        expect(await api.recordaStatus(viewer, recordaId)).toBe(404);
+      });
 
-      await page.getByTestId("suspend-action-trigger").click();
-      const suspendDialog = page.getByTestId("suspend-user-dialog");
-      await suspendDialog
-        .getByTestId("moderation-reason")
-        .fill("Prepare reactivation test");
-      await suspendDialog.getByTestId("confirm-suspension-button").click();
-      await expect(page.getByTestId("reactivate-action-trigger")).toBeVisible();
-      await page.getByTestId("reactivate-action-trigger").click();
-
-      const dialog = page.getByTestId("reactivate-user-dialog");
-      const reason = dialog.getByTestId("moderation-reason");
-      await expect(reason).toHaveAttribute("maxlength", "500");
-      await expect(
-        dialog.getByTestId("confirm-reactivation-button"),
-      ).toBeDisabled();
-      await reason.fill("Account reviewed and restored");
-      await dialog.getByTestId("confirm-reactivation-button").click();
-      await expect(
-        page
-          .getByTestId("admin-user-detail-screen")
-          .getByTestId("account-status"),
-      ).toHaveText(/ACTIVE|ATIV[AO]/i);
-
-      await page.getByTestId("admin-tab-auditLog").click();
-      await expect(
-        page
-          .getByTestId(/^admin-audit-log-entry-/)
-          .first()
-          .getByTestId("audit-reason"),
-      ).toContainText("Account reviewed and restored");
-    },
+      await test.step("reactivating with a reason makes it active and visible again", async () => {
+        await moderation.reactivateButton.click();
+        await usersPage.reactivateDialog.confirmWith(reason("reactivation"));
+        await expect(usersPage.status(userId, "active")).toBeVisible();
+        await expect.poll(() => api.profileStatus(viewer, target)).toBe(200);
+        expect(await api.recordaStatus(viewer, recordaId)).toBe(200);
+      });
+    }
   );
 });
 
 test.describe("Audit log", () => {
   test(
-    "the audit log shows chronological moderation actions with administrator, target, reason and timestamp",
+    "the audit log lists actions newest first and filters by period and administrator",
     meta({
       description:
-        "Audit entries identify the administrator, action, target, reason and timestamp and cannot be edited or deleted.",
-      requirement: ["RF-47.1", "RF-47.2"],
-      tag: "@mutates",
-    }),
-    async ({ page, moderationData }) => {
-      const first = moderationData.recordas[0];
-      const second = await moderationData.createSecondRecorda();
-      await openAdmin(page);
-      await openReportGroup(page, first.rowTestId);
-      await page.getByTestId("admin-report-status-RESOLVED").click();
-      const resolveDialog = page.getByTestId("moderation-status-dialog");
-      await resolveDialog
-        .getByTestId("moderation-reason")
-        .fill("Audit log resolve fixture");
-      await page.getByTestId("resolve-report-confirm-button").click();
-
-      await openReportGroup(page, second.rowTestId);
-      await page.getByTestId("admin-report-status-DISMISSED").click();
-      const dismissDialog = page.getByTestId("moderation-status-dialog");
-      await dismissDialog
-        .getByTestId("moderation-reason")
-        .fill("Audit log dismiss fixture");
-      await page.getByTestId("dismiss-report-confirm-button").click();
-      await page.getByTestId("admin-tab-auditLog").click();
-
-      const entries = page.getByTestId(/^admin-audit-log-entry-/);
-      const entry = entries.first();
-      await expect(entry.getByTestId("audit-administrator")).toBeVisible();
-      await expect(entry.getByTestId("audit-action")).toBeVisible();
-      await expect(entry.getByTestId("audit-target")).toBeVisible();
-      await expect(entry.getByTestId("audit-reason")).toBeVisible();
-      await expect(entry.getByTestId("audit-timestamp")).toBeVisible();
-      await expect(entry.getByTestId("edit-audit-entry")).toHaveCount(0);
-      await expect(entry.getByTestId("delete-audit-entry")).toHaveCount(0);
-      const previousEntry = entries.nth(1);
-      await expect(previousEntry).toBeVisible();
-      await expect(entry.getByTestId("audit-reason")).toContainText(
-        "Audit log dismiss fixture",
-      );
-      await expect(previousEntry.getByTestId("audit-reason")).toContainText(
-        "Audit log resolve fixture",
-      );
-    },
-  );
-
-  test(
-    "the audit history is paginated and can be filtered by administrator and period",
-    meta({
-      description:
-        "The audit panel supports chronological pagination and filters by administrator and period.",
+        "A suspension and then a reactivation show in the audit log with the reactivation " +
+        "first, and both stay listed when filtering by today, by the last month and by the " +
+        "administrator who did them.",
       requirement: "RF-47.3",
-      tag: "@mutates",
+      tag: "@mutates"
     }),
-    async ({ page, api, moderationData }) => {
-      const admin = await api.login(users.admin);
-      let status: "OPEN" | "RESOLVED" = "OPEN";
-      for (let index = 1; index <= 21; index += 1) {
-        status = status === "OPEN" ? "RESOLVED" : "OPEN";
-        await api.changeReportStatus(
-          admin.access_token,
-          moderationData.recordas[0].id,
-          status,
-          `Audit pagination fixture ${index}`,
+    async ({ api, app, adminPage, adminUsersPage: usersPage, adminAuditLogPage: audit }) => {
+      const target = await api.createUser("audit");
+      const tag = `E2E audit ${uniqueId()}`;
+      const userId = target.session.user.user_id;
+
+      await test.step("the administrator suspends and then reactivates an account", async () => {
+        await app.launch();
+        await adminPage.expectLoaded("reports");
+        await adminPage.tabBar("reports").select("users");
+        await usersPage.find(target.user.username);
+        await usersPage.moderation(userId).suspendButton.click();
+        await usersPage.suspendDialog.confirmWith(`${tag} suspension`);
+        await expect(usersPage.status(userId, "suspended")).toBeVisible();
+        await usersPage.moderation(userId).reactivateButton.click();
+        await usersPage.reactivateDialog.confirmWith(`${tag} reactivation`);
+        await expect(usersPage.status(userId, "active")).toBeVisible();
+      });
+
+      await test.step("the log lists the reactivation before the suspension", async () => {
+        await adminPage.tabBar("users").select("auditLog");
+        await audit.expectLoaded();
+        await audit.find(tag);
+        await expect(audit.entriesWith(tag)).toHaveCount(2);
+        await expect(audit.entriesWith(tag).nth(0)).toContainText(
+          t("admin.auditLog.actions.REACTIVATE_USER")
         );
+        await expect(audit.entriesWith(tag).nth(1)).toContainText(
+          t("admin.auditLog.actions.SUSPEND_USER")
+        );
+      });
+
+      for (const period of ["today", "lastMonth"] as const) {
+        await test.step(`filtering by ${period} keeps both entries`, async () => {
+          await audit.periodFilter(period).click();
+          await expect(audit.entriesWith(tag)).toHaveCount(2);
+        });
       }
 
-      await openAdmin(page);
-      await page.getByTestId("admin-tab-auditLog").click();
-      await page.getByTestId("admin-audit-period-filter-lastMonth").click();
-      await page
-        .getByTestId(`admin-audit-admin-filter-${admin.user.user_id}`)
-        .click();
-
-      const list = page.getByTestId("admin-audit-log-list");
-      await expect(page.getByText("Audit pagination fixture 21")).toBeVisible();
-      await list.evaluate((element) => {
-        element.scrollTop = element.scrollHeight;
-        element.dispatchEvent(new Event("scroll", { bubbles: true }));
+      await test.step("filtering by the administrator keeps both entries", async () => {
+        await audit.periodFilter("all").click();
+        await audit.adminFilter(users.admin.username).click();
+        await expect(audit.entriesWith(tag)).toHaveCount(2);
       });
-      await expect(page.getByText("Audit pagination fixture 1")).toBeVisible();
-    },
+    }
   );
 });
-
-test(
-  "opening a content removal notification marks it read without opening the removed Recorda",
-  meta({
-    description:
-      "Opening a CONTENT_REMOVED notification marks it read and does not open the removed Recorda.",
-    requirement: "RF-42.3",
-    tag: "@mutates",
-  }),
-  async () => {
-    test.fixme(
-      true,
-      "The notifications screen currently marks every notification read on entry; single-item read behavior is deferred.",
-    );
-  },
-);

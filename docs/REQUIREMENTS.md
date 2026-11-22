@@ -23,21 +23,21 @@ Fontes: Termo de Abertura do Projeto (2026/2) e os Épicos e User Stories das is
 
 ## Resumo
 
-226 requisitos, 199 verificáveis por esta suíte (web ou API), 28 cobertos por 23 teste(s). 8 decididos mas ainda não atendidos pelo código (⚠️).
+226 requisitos, 199 verificáveis por esta suíte (web ou API), 99 cobertos por 94 teste(s). 15 decididos mas ainda não atendidos pelo código (⚠️).
 
 | Épico | Nome | Requisitos | Web | API | Nativo | Manual | Cobertos |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| E2 | Autenticação, cadastro e onboarding | 32 | 26 | 4 | 0 | 2 | 5 |
+| E2 | Autenticação, cadastro e onboarding | 32 | 26 | 4 | 0 | 2 | 26 |
 | E3 | Criação e publicação de Recordas | 25 | 16 | 4 | 5 | 0 | 0 |
-| E4 | Feed | 26 | 18 | 2 | 6 | 0 | 0 |
-| E5 | Interações sociais | 39 | 36 | 3 | 0 | 0 | 0 |
-| E6 | Perfil e configurações | 22 | 20 | 2 | 0 | 0 | 2 |
+| E4 | Feed | 26 | 18 | 2 | 6 | 0 | 4 |
+| E5 | Interações sociais | 39 | 36 | 3 | 0 | 0 | 19 |
+| E6 | Perfil e configurações | 22 | 20 | 2 | 0 | 0 | 20 |
 | E7 | Memórias e estatísticas | 24 | 20 | 0 | 2 | 2 | 0 |
-| E8 | Compartilhamento de cards | 16 | 9 | 0 | 5 | 2 | 0 |
+| E8 | Compartilhamento de cards | 16 | 9 | 0 | 5 | 2 | 9 |
 | E9 | Denúncias | 15 | 12 | 3 | 0 | 0 | 3 |
-| E10 | Administração e moderação | 19 | 18 | 1 | 0 | 0 | 18 |
+| E10 | Administração e moderação | 19 | 18 | 1 | 0 | 0 | 17 |
 | TA | Termo de Abertura (sem User Story) | 1 | 1 | 0 | 0 | 0 | 0 |
-| NF | Requisitos não funcionais | 7 | 2 | 2 | 1 | 2 | 0 |
+| NF | Requisitos não funcionais | 7 | 2 | 2 | 1 | 2 | 1 |
 
 ## Decisões
 
@@ -63,7 +63,14 @@ até a implementação (marque-o com `test.fail()` e um comentário apontando o 
 - **RF-08.7**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
 - **RF-09.1**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
 - **RF-09.6**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
+- **RF-10.4**: No web, a captura do card (html2canvas-pro em ShareCardScreen) ignora contentFit="cover" e estica mídias que não são verticais, como o vídeo do seed.
+- **RF-11.2**: ShareCardScreen oferece quatro presets (light, mint, teal, dark); a US 11 exige exatamente três.
 - **RF-17.2**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
+- **RF-24.3**: A linha do comentário não mostra a data (CommentRow em recorda-frontend/src/features/feed/components/RecordaDetailView.tsx).
+- **RF-28.2**: Só no build web: trocar o avatar não envia nada, porque profileService.uploadAvatar (recorda-frontend/src/features/profile/services/profileService.ts) usa File do expo-file-system, sem suporte no web. No app (Expo Go) a troca funciona; remover funciona nas duas plataformas.
+- **RF-29.2**: O StreakBadge do frontend oculta o streak quando can_view_content é false; ver OPEN_QUESTIONS.
+- **RF-34.1**: A tela Minha conta ainda lê e salva pelo accountService.mock (recorda-frontend/src/features/account/services/accountAdapter.ts), embora o backend já tenha GET e PATCH /users/me/account.
+- **RF-34.2**: A tela Minha conta ainda lê e salva pelo accountService.mock (recorda-frontend/src/features/account/services/accountAdapter.ts), embora o backend já tenha GET e PATCH /users/me/account.
 - **RF-35.2**: A streak do perfil inclui Recordas excluídas (list_publication_times em recorda-backend/app/repositories/recorda_repository.py), enquanto a de Métricas já as exclui.
 
 ## Pontos em aberto
@@ -72,6 +79,7 @@ Contradições e lacunas encontradas entre o Termo, as User Stories e o código.
 decisão do time antes de virarem teste.
 
 - Duração de vídeo: a US 6 cita 60 s como proposta (RF-06.6), sem valor definido.
+- Streak em perfil privado sem aprovação (RF-29.2): a US 29 e a decisão D-06 do backend mostram o streak, mas o StreakBadge do frontend o oculta provisoriamente (recorda-frontend docs/issue-260.md).
 
 ## Fora do escopo
 
@@ -93,21 +101,21 @@ Os requisitos agrupados por jornada do usuário. Cada fluxo tem uma issue em
 
 | Fluxo | Issue | Requisitos | Web (Playwright) | Cobertos | Lacunas | Escreve dados |
 | --- | --- | --- | --- | --- | --- | --- |
-| FL-01 Abertura do app e sessão | [#1](https://github.com/Recorda-ages/recorda-test-suite/issues/1) | 9 | 9 | 4 | 1 | não |
-| FL-02 Login | [#2](https://github.com/Recorda-ages/recorda-test-suite/issues/2) | 4 | 4 | 3 | 0 | não |
-| FL-03 Cadastro e onboarding | [#3](https://github.com/Recorda-ages/recorda-test-suite/issues/3) | 11 | 11 | 0 | 0 | sim (`@mutates`) |
-| FL-04 Recuperação de senha | [#4](https://github.com/Recorda-ages/recorda-test-suite/issues/4) | 4 | 4 | 0 | 0 | sim (`@mutates`) |
+| FL-01 Abertura do app e sessão | [#1](https://github.com/Recorda-ages/recorda-test-suite/issues/1) | 9 | 9 | 9 | 1 | não |
+| FL-02 Login | [#2](https://github.com/Recorda-ages/recorda-test-suite/issues/2) | 4 | 4 | 4 | 0 | não |
+| FL-03 Cadastro e onboarding | [#3](https://github.com/Recorda-ages/recorda-test-suite/issues/3) | 11 | 11 | 11 | 0 | sim (`@mutates`) |
+| FL-04 Recuperação de senha | [#4](https://github.com/Recorda-ages/recorda-test-suite/issues/4) | 4 | 4 | 4 | 0 | sim (`@mutates`) |
 | FL-05 Criação e publicação de Recorda | [#5](https://github.com/Recorda-ages/recorda-test-suite/issues/5) | 22 | 17 | 0 | 4 | sim (`@mutates`) |
-| FL-06 Card de compartilhamento | [#6](https://github.com/Recorda-ages/recorda-test-suite/issues/6) | 14 | 9 | 0 | 0 | não |
+| FL-06 Card de compartilhamento | [#6](https://github.com/Recorda-ages/recorda-test-suite/issues/6) | 14 | 9 | 9 | 2 | não |
 | FL-07 Feed | [#7](https://github.com/Recorda-ages/recorda-test-suite/issues/7) | 20 | 15 | 0 | 0 | não |
-| FL-08 Detalhes da Recorda, curtidas e comentários | [#8](https://github.com/Recorda-ages/recorda-test-suite/issues/8) | 17 | 16 | 0 | 1 | sim (`@mutates`) |
+| FL-08 Detalhes da Recorda, curtidas e comentários | [#8](https://github.com/Recorda-ages/recorda-test-suite/issues/8) | 17 | 16 | 16 | 2 | sim (`@mutates`) |
 | FL-09 Busca, seguir e rede de seguidores | [#9](https://github.com/Recorda-ages/recorda-test-suite/issues/9) | 17 | 17 | 0 | 0 | sim (`@mutates`) |
-| FL-10 Notificações | [#10](https://github.com/Recorda-ages/recorda-test-suite/issues/10) | 7 | 7 | 0 | 0 | sim (`@mutates`) |
-| FL-11 Perfil pessoal e de terceiros | [#11](https://github.com/Recorda-ages/recorda-test-suite/issues/11) | 7 | 7 | 0 | 0 | sim (`@mutates`) |
-| FL-12 Configurações, preferências e conta | [#12](https://github.com/Recorda-ages/recorda-test-suite/issues/12) | 12 | 12 | 0 | 0 | sim (`@mutates`) |
+| FL-10 Notificações | [#10](https://github.com/Recorda-ages/recorda-test-suite/issues/10) | 7 | 7 | 7 | 0 | sim (`@mutates`) |
+| FL-11 Perfil pessoal e de terceiros | [#11](https://github.com/Recorda-ages/recorda-test-suite/issues/11) | 7 | 7 | 7 | 2 | sim (`@mutates`) |
+| FL-12 Configurações, preferências e conta | [#12](https://github.com/Recorda-ages/recorda-test-suite/issues/12) | 12 | 12 | 12 | 2 | sim (`@mutates`) |
 | FL-13 Memórias: calendário, métricas e retrospectiva | [#13](https://github.com/Recorda-ages/recorda-test-suite/issues/13) | 22 | 20 | 0 | 0 | não |
 | FL-14 Denúncias | [#14](https://github.com/Recorda-ages/recorda-test-suite/issues/14) | 9 | 9 | 0 | 0 | sim (`@mutates`) |
-| FL-15 Moderação administrativa | [#15](https://github.com/Recorda-ages/recorda-test-suite/issues/15) | 21 | 21 | 21 | 0 | sim (`@mutates`) |
+| FL-15 Moderação administrativa | [#15](https://github.com/Recorda-ages/recorda-test-suite/issues/15) | 21 | 21 | 20 | 0 | sim (`@mutates`) |
 
 Os fluxos contêm só requisitos de jornada do usuário (verificação *web* ou *nativo*).
 Ficam fora:
@@ -124,12 +132,12 @@ Ficam fora:
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
 | RF-01.1 | Exibir a Splash Screen com a identidade visual (fundo escuro, logo) conforme os protótipos do Figma. | manual | — |
-| RF-01.2 | A Splash Screen é obrigatoriamente a primeira etapa ao abrir o aplicativo. | web | — |
-| RF-01.3 | Sem sessão salva, a Splash encaminha para o Login. | web | [a signed-out user sees the login screen](../tests/auth/sign-in.spec.ts#L8) |
-| RF-01.4 | Com sessão válida de conta comum, a Splash encaminha para o Feed. | web | — |
-| RF-01.5 | Com sessão válida de administrador, a Splash encaminha para a área administrativa, sem acesso a Feed, Perfil ou Criar Recorda. | web | — |
-| RF-01.6 | Sessão inválida ou expirada é apagada e o usuário vai para o Login. | web | — |
-| RF-01.7 | Se a verificação de sessão demorar mais que 3 s, o app segue para o Login; uma resposta tardia nunca causa uma segunda navegação.<br>_Fonte: Decisão do time, 2026-11-08: 3 s é o valor correto._<br>⚠️ O código usa 5 s (SPLASH_TIMEOUT_MS em recorda-frontend/src/features/splash/screens/SplashScreen.tsx). | web | — |
+| RF-01.2 | A Splash Screen é obrigatoriamente a primeira etapa ao abrir o aplicativo. | web | [splash is the first screen and hands over to login](../tests/flows/session-startup.spec.ts#L10)<br>[a saved user session opens the feed and survives reopening](../tests/flows/session-startup.spec.ts#L33)<br>[a saved administrator session opens only the administrative area](../tests/flows/session-startup.spec.ts#L60) |
+| RF-01.3 | Sem sessão salva, a Splash encaminha para o Login. | web | [a signed-out user sees the login screen](../tests/auth/sign-in.spec.ts#L8)<br>[splash is the first screen and hands over to login](../tests/flows/session-startup.spec.ts#L10) |
+| RF-01.4 | Com sessão válida de conta comum, a Splash encaminha para o Feed. | web | [a saved user session opens the feed and survives reopening](../tests/flows/session-startup.spec.ts#L33) |
+| RF-01.5 | Com sessão válida de administrador, a Splash encaminha para a área administrativa, sem acesso a Feed, Perfil ou Criar Recorda. | web | [a saved administrator session opens only the administrative area](../tests/flows/session-startup.spec.ts#L60) |
+| RF-01.6 | Sessão inválida ou expirada é apagada e o usuário vai para o Login. | web | [an invalid session is cleared before returning to login](../tests/flows/session-startup.spec.ts#L94)<br>[an expired session is cleared before returning to login](../tests/flows/session-startup.spec.ts#L94) |
+| RF-01.7 | Se a verificação de sessão demorar mais que 3 s, o app segue para o Login; uma resposta tardia nunca causa uma segunda navegação.<br>_Fonte: Decisão do time, 2026-11-08: 3 s é o valor correto._<br>⚠️ O código usa 5 s (SPLASH_TIMEOUT_MS em recorda-frontend/src/features/splash/screens/SplashScreen.tsx). | web | [a slow session check sends the user to login after three seconds](../tests/flows/session-timeout.spec.ts#L42)<br>[a late valid session response cannot navigate away from login](../tests/flows/session-timeout.spec.ts#L69) |
 
 ### US 2 — Cadastro de Usuário
 
@@ -137,11 +145,11 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-02.1 | A tela de Cadastro tem exatamente os campos Nome, Username, Email e Senha, sem confirmação de senha nem aceite de termos. | web | — |
-| RF-02.2 | Username e email são únicos no sistema. | web | — |
-| RF-02.3 | Todos os campos são validados antes do registro, com mensagens de erro específicas por campo. | web | — |
-| RF-02.4 | A senha tem no mínimo 8 caracteres. | web | — |
-| RF-02.5 | Após o cadastro, o usuário é autenticado automaticamente e encaminhado ao Onboarding, nunca direto ao Feed. | web | — |
+| RF-02.1 | A tela de Cadastro tem exatamente os campos Nome, Username, Email e Senha, sem confirmação de senha nem aceite de termos. | web | [the sign-up form asks only for name, username, email and password](../tests/auth/sign-up-onboarding.spec.ts#L111) |
+| RF-02.2 | Username e email são únicos no sistema. | web | [a username or email already in use is rejected on its own field](../tests/auth/sign-up-onboarding.spec.ts#L131) |
+| RF-02.3 | Todos os campos são validados antes do registro, com mensagens de erro específicas por campo. | web | [each invalid field shows its own error before anything is sent](../tests/auth/sign-up-onboarding.spec.ts#L161) |
+| RF-02.4 | A senha tem no mínimo 8 caracteres. | web | [a password shorter than 8 characters is not accepted](../tests/auth/sign-up-onboarding.spec.ts#L193) |
+| RF-02.5 | Após o cadastro, o usuário é autenticado automaticamente e encaminhado ao Onboarding, nunca direto ao Feed. | web | [a new account goes through the three onboarding steps before the Feed](../tests/auth/sign-up-onboarding.spec.ts#L50) |
 | RF-02.6 | Não são coletados dados além dos necessários ao funcionamento da conta. | manual | — |
 | RF-02.7 | Contas de administrador não podem ser criadas pelo cadastro. | API | — |
 
@@ -151,13 +159,13 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-03.1 | Imediatamente após o cadastro, o app conduz o usuário ao Onboarding. | web | — |
-| RF-03.2 | O Onboarding tem três passos (artistas, gêneros e música favorita) com dados do Deezer, e o indicador de progresso reflete os três passos. | web | — |
-| RF-03.3 | Cada passo exibe um grid de opções selecionáveis (chips). | web | — |
-| RF-03.4 | É preciso selecionar no mínimo 3 artistas e 3 gêneros para prosseguir, e exatamente 1 música favorita. | web | — |
+| RF-03.1 | Imediatamente após o cadastro, o app conduz o usuário ao Onboarding. | web | [a new account goes through the three onboarding steps before the Feed](../tests/auth/sign-up-onboarding.spec.ts#L50) |
+| RF-03.2 | O Onboarding tem três passos (artistas, gêneros e música favorita) com dados do Deezer, e o indicador de progresso reflete os três passos. | web | [a new account goes through the three onboarding steps before the Feed](../tests/auth/sign-up-onboarding.spec.ts#L50) |
+| RF-03.3 | Cada passo exibe um grid de opções selecionáveis (chips). | web | [a new account goes through the three onboarding steps before the Feed](../tests/auth/sign-up-onboarding.spec.ts#L50) |
+| RF-03.4 | É preciso selecionar no mínimo 3 artistas e 3 gêneros para prosseguir, e exatamente 1 música favorita. | web | [each onboarding step needs its minimum choices to move on](../tests/auth/sign-up-onboarding.spec.ts#L222) |
 | RF-03.5 | Artistas e gêneros formam o Perfil Musical, única fonte da Afinidade Musical. | API | — |
-| RF-03.6 | A Música Favorita não participa da Afinidade Musical e aparece em destaque no cabeçalho do Perfil Pessoal. | web | — |
-| RF-03.7 | É possível voltar ao passo anterior sem perder as seleções. | web | — |
+| RF-03.6 | A Música Favorita não participa da Afinidade Musical e aparece em destaque no cabeçalho do Perfil Pessoal. | web | [a new account goes through the three onboarding steps before the Feed](../tests/auth/sign-up-onboarding.spec.ts#L50) |
+| RF-03.7 | É possível voltar ao passo anterior sem perder as seleções. | web | [going back to a previous step keeps what was selected](../tests/auth/sign-up-onboarding.spec.ts#L263) |
 
 ### US 4 — Autenticação de Usuário
 
@@ -165,12 +173,12 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-04.1 | A tela de Login tem os campos Usuário e Senha e é a mesma para usuários comuns e administradores. | web | [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L24) |
+| RF-04.1 | A tela de Login tem os campos Usuário e Senha e é a mesma para usuários comuns e administradores. | web | [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L24)<br>[an administrator signs in on the same screen and lands on the admin area](../tests/auth/sign-in.spec.ts#L39) |
 | RF-04.2 | As credenciais são validadas no backend, que retorna também o tipo de conta. | API | — |
-| RF-04.3 | Credenciais inválidas exibem uma única mensagem genérica, sem revelar qual campo está incorreto. | web | [invalid credentials show one generic error](../tests/auth/sign-in.spec.ts#L39) |
-| RF-04.4 | Administradores são roteados para a área administrativa, sem acesso à navegação do app comum. | web | — |
+| RF-04.3 | Credenciais inválidas exibem uma única mensagem genérica, sem revelar qual campo está incorreto. | web | [invalid credentials show one generic error](../tests/auth/sign-in.spec.ts#L71) |
+| RF-04.4 | Administradores são roteados para a área administrativa, sem acesso à navegação do app comum. | web | [an administrator signs in on the same screen and lands on the admin area](../tests/auth/sign-in.spec.ts#L39) |
 | RF-04.5 | Usuários comuns são roteados para o Feed. | web | [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L24) |
-| RF-04.6 | A sessão é persistida no dispositivo: reabrir o app não exige novo login. | web | [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L10) |
+| RF-04.6 | A sessão é persistida no dispositivo: reabrir o app não exige novo login. | web | [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L14)<br>[a saved user session opens the feed and survives reopening](../tests/flows/session-startup.spec.ts#L33) |
 | RF-04.7 | Não há expiração de sessão por inatividade; a sessão dura até o token expirar. | API | — |
 
 ### US 5 — Recuperação de Senha
@@ -179,10 +187,10 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-05.1 | A tela Recuperar Senha tem os campos Email, Nova Senha e Confirmar Senha e o botão Redefinir Senha. | web | — |
-| RF-05.2 | Nova Senha e Confirmar Senha devem ser idênticas e ter no mínimo 8 caracteres. | web | — |
-| RF-05.3 | A senha da conta com o email informado é substituída diretamente, sem email nem token de verificação. | web | — |
-| RF-05.4 | Email sem conta exibe o mesmo erro genérico das outras falhas, sem confirmar a existência da conta. | web | — |
+| RF-05.1 | A tela Recuperar Senha tem os campos Email, Nova Senha e Confirmar Senha e o botão Redefinir Senha. | web | [resetting a password to eight characters replaces the old credentials](../tests/auth/password-recovery.spec.ts#L24) |
+| RF-05.2 | Nova Senha e Confirmar Senha devem ser idênticas e ter no mínimo 8 caracteres. | web | [resetting a password to eight characters replaces the old credentials](../tests/auth/password-recovery.spec.ts#L24)<br>[password recovery stays blocked by matching seven-character passwords until corrected](../tests/auth/password-recovery.spec.ts#L77)<br>[password recovery stays blocked by a seven-character new password until corrected](../tests/auth/password-recovery.spec.ts#L77)<br>[password recovery stays blocked by a seven-character confirmation until corrected](../tests/auth/password-recovery.spec.ts#L77)<br>[different passwords block recovery until the confirmation matches](../tests/auth/password-recovery.spec.ts#L115) |
+| RF-05.3 | A senha da conta com o email informado é substituída diretamente, sem email nem token de verificação. | web | [resetting a password to eight characters replaces the old credentials](../tests/auth/password-recovery.spec.ts#L24) |
+| RF-05.4 | Email sem conta exibe o mesmo erro genérico das outras falhas, sem confirmar a existência da conta. | web | [an unknown recovery email shows the same generic error as a network failure](../tests/auth/password-recovery.spec.ts#L148) |
 
 ## E3 — Criação e publicação de Recordas
 
@@ -285,11 +293,11 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-17.1 | Tocar num card do feed ou numa miniatura do perfil abre a tela Detalhes da Recorda. | web | — |
-| RF-17.2 | A tela mostra mídia, avatar e username do autor, relato completo, música, Data da Memória, Local, marcações e comentários.<br>⚠️ Não implementado: o model recorda não tem Data da Memória, Local nem marcações. | web | — |
+| RF-17.1 | Tocar num card do feed ou numa miniatura do perfil abre a tela Detalhes da Recorda. | web | [a feed card and a profile thumbnail both open the Recorda details](../tests/recorda-details/recorda-details.spec.ts#L48) |
+| RF-17.2 | A tela mostra mídia, avatar e username do autor, relato completo, música, Data da Memória, Local, marcações e comentários.<br>⚠️ Não implementado: o model recorda não tem Data da Memória, Local nem marcações. | web | [the details show the whole Recorda, with memory date, place and tagged people](../tests/recorda-details/recorda-details.spec.ts#L76) |
 | RF-17.3 | A música continua tocando na transição do feed para os detalhes, sem reiniciar. | nativo | — |
-| RF-17.4 | A tela oferece curtir, comentar e compartilhar. | web | — |
-| RF-17.5 | O menu de três pontos oferece só excluir na própria Recorda e só denunciar na de outra pessoa; não há edição. | web | — |
+| RF-17.4 | A tela oferece curtir, comentar e compartilhar. | web | [the feed card and the details offer like, comment and share](../tests/recorda-details/recorda-details.spec.ts#L114) |
+| RF-17.5 | O menu de três pontos oferece só excluir na própria Recorda e só denunciar na de outra pessoa; não há edição. | web | [the three-dots menu offers only delete on your Recorda and only report on others'](../tests/recorda-details/recorda-details.spec.ts#L152) |
 
 ### US 18 — Carregamento Progressivo
 
@@ -334,7 +342,7 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-21.1 | As solicitações recebidas são acessíveis pela central de notificações. | web | — |
+| RF-21.1 | As solicitações recebidas são acessíveis pela central de notificações. | web | [follow requests are accepted or declined from the notification list](../tests/notifications/notification-center.spec.ts#L216) |
 | RF-21.2 | Ao aceitar, o solicitante passa a ver as Recordas imediatamente e é notificado da aprovação. | web | — |
 | RF-21.3 | Ao recusar, a solicitação é descartada sem notificar o solicitante. | web | — |
 | RF-21.4 | Quem enviou uma solicitação pendente pode cancelá-la. | web | — |
@@ -355,10 +363,10 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-23.1 | Os cards do feed e a tela de detalhes têm o botão de curtir. | web | — |
-| RF-23.2 | Curtir alterna entre curtido e não curtido, com resposta visual imediata e reconciliação com o servidor. | web | — |
-| RF-23.3 | A Recorda exibe a contagem de curtidas. | web | — |
-| RF-23.4 | O autor é notificado das curtidas, exceto das próprias. | web | — |
+| RF-23.1 | Os cards do feed e a tela de detalhes têm o botão de curtir. | web | [the feed card and the details offer like, comment and share](../tests/recorda-details/recorda-details.spec.ts#L114) |
+| RF-23.2 | Curtir alterna entre curtido e não curtido, com resposta visual imediata e reconciliação com o servidor. | web | [liking toggles at once, shows the count and matches the server](../tests/recorda-details/recorda-details.spec.ts#L210) |
+| RF-23.3 | A Recorda exibe a contagem de curtidas. | web | [liking toggles at once, shows the count and matches the server](../tests/recorda-details/recorda-details.spec.ts#L210) |
+| RF-23.4 | O autor é notificado das curtidas, exceto das próprias. | web | [the author is notified of other people's likes but not of their own](../tests/recorda-details/recorda-details.spec.ts#L274) |
 
 ### US 24 — Comentários
 
@@ -366,12 +374,12 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-24.1 | A tela de detalhes lista os comentários e tem um campo para escrever um novo. | web | — |
-| RF-24.2 | Os comentários são uma lista plana por data de criação, sem respostas nem curtidas. | web | — |
-| RF-24.3 | Cada comentário mostra avatar, username, texto e data. | web | — |
-| RF-24.4 | Comentários têm no máximo 500 caracteres. | web | — |
+| RF-24.1 | A tela de detalhes lista os comentários e tem um campo para escrever um novo. | web | [comments are a flat list in the order they were written](../tests/recorda-details/recorda-details.spec.ts#L317) |
+| RF-24.2 | Os comentários são uma lista plana por data de criação, sem respostas nem curtidas. | web | [comments are a flat list in the order they were written](../tests/recorda-details/recorda-details.spec.ts#L317) |
+| RF-24.3 | Cada comentário mostra avatar, username, texto e data.<br>⚠️ A linha do comentário não mostra a data (CommentRow em recorda-frontend/src/features/feed/components/RecordaDetailView.tsx). | web | [each comment shows avatar, username, text and date](../tests/recorda-details/recorda-details.spec.ts#L360) |
+| RF-24.4 | Comentários têm no máximo 500 caracteres. | web | [a comment can't be longer than 500 characters](../tests/recorda-details/recorda-details.spec.ts#L396) |
 | RF-24.5 | Só comenta quem tem permissão para ver a Recorda. | API | — |
-| RF-24.6 | O autor da Recorda é notificado de novos comentários. | web | — |
+| RF-24.6 | O autor da Recorda é notificado de novos comentários. | web | [the author is notified of new comments](../tests/recorda-details/recorda-details.spec.ts#L429) |
 
 ### US 25 — Excluir Comentário
 
@@ -379,9 +387,9 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-25.1 | O autor do comentário pode excluí-lo. | web | — |
-| RF-25.2 | O autor da Recorda pode excluir qualquer comentário dela. | web | — |
-| RF-25.3 | A exclusão pede confirmação e vale imediatamente para todos. | web | — |
+| RF-25.1 | O autor do comentário pode excluí-lo. | web | [the comment author deletes their comment after confirming](../tests/recorda-details/recorda-details.spec.ts#L457) |
+| RF-25.2 | O autor da Recorda pode excluir qualquer comentário dela. | web | [the Recorda author deletes someone else's comment for everyone](../tests/recorda-details/recorda-details.spec.ts#L510) |
+| RF-25.3 | A exclusão pede confirmação e vale imediatamente para todos. | web | [the comment author deletes their comment after confirming](../tests/recorda-details/recorda-details.spec.ts#L457)<br>[the Recorda author deletes someone else's comment for everyone](../tests/recorda-details/recorda-details.spec.ts#L510) |
 
 ### US 26 — Central de Notificações
 
@@ -389,12 +397,12 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-26.1 | O cabeçalho do Feed tem um sino que abre as notificações. | web | — |
-| RF-26.2 | A lista mostra o histórico recente, do mais novo ao mais antigo, com ícone do autor da ação, descrição e ação opcional. | web | — |
-| RF-26.3 | Geram notificação: novo seguidor, solicitação recebida, solicitação aprovada, curtida, comentário e marcação. | web | — |
-| RF-26.4 | Solicitações para seguir podem ser aceitas ou recusadas na própria lista. | web | — |
-| RF-26.5 | O sino mostra o contador de não lidas, e abrir a lista marca todas como lidas. | web | — |
-| RF-26.6 | Tocar numa notificação leva ao conteúdo relacionado. | web | — |
+| RF-26.1 | O cabeçalho do Feed tem um sino que abre as notificações. | web | [the bell shows the unread count and opening the list marks it as read](../tests/notifications/notification-center.spec.ts#L31) |
+| RF-26.2 | A lista mostra o histórico recente, do mais novo ao mais antigo, com ícone do autor da ação, descrição e ação opcional. | web | [notifications are listed newest first with who acted, what happened and the action](../tests/notifications/notification-center.spec.ts#L82) |
+| RF-26.3 | Geram notificação: novo seguidor, solicitação recebida, solicitação aprovada, curtida, comentário e marcação. | web | [follows, requests, likes, comments and mentions notify the account owner](../tests/notifications/notification-center.spec.ts#L147)<br>[an approved follow request notifies the requester](../tests/notifications/notification-center.spec.ts#L193) |
+| RF-26.4 | Solicitações para seguir podem ser aceitas ou recusadas na própria lista. | web | [follow requests are accepted or declined from the notification list](../tests/notifications/notification-center.spec.ts#L216) |
+| RF-26.5 | O sino mostra o contador de não lidas, e abrir a lista marca todas como lidas. | web | [the bell shows the unread count and opening the list marks it as read](../tests/notifications/notification-center.spec.ts#L31) |
+| RF-26.6 | Tocar numa notificação leva ao conteúdo relacionado. | web | [tapping a notification opens the related Recorda or profile](../tests/notifications/notification-center.spec.ts#L271) |
 
 ### US 27 — Sugestões por Afinidade
 
@@ -414,10 +422,10 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-28.1 | O perfil mostra nome, username, avatar, contadores, uma única streak, música favorita e chips de artistas e gêneros. | web | — |
-| RF-28.2 | É possível trocar e remover o avatar. | web | — |
-| RF-28.3 | O perfil mostra a grade paginada das próprias Recordas. | web | — |
-| RF-28.4 | O perfil mantém as abas Recordas, Métricas e Calendário. | web | — |
+| RF-28.1 | O perfil mostra nome, username, avatar, contadores, uma única streak, música favorita e chips de artistas e gêneros. | web | [the profile shows identity, avatar, counters, one streak and music](../tests/profile/own-profile.spec.ts#L19) |
+| RF-28.2 | É possível trocar e remover o avatar.<br>⚠️ Só no build web: trocar o avatar não envia nada, porque profileService.uploadAvatar (recorda-frontend/src/features/profile/services/profileService.ts) usa File do expo-file-system, sem suporte no web. No app (Expo Go) a troca funciona; remover funciona nas duas plataformas. | web | [removing the avatar brings back the default picture](../tests/profile/own-profile.spec.ts#L189)<br>[choosing a picture from the gallery sets it as the avatar](../tests/profile/own-profile.spec.ts#L223) |
+| RF-28.3 | O perfil mostra a grade paginada das próprias Recordas. | web | [the grid loads the next page of Recordas when scrolling to the end](../tests/profile/own-profile.spec.ts#L150) |
+| RF-28.4 | O perfil mantém as abas Recordas, Métricas e Calendário. | web | [the Recordas, Métricas and Calendário tabs switch the content below the header](../tests/profile/own-profile.spec.ts#L79) |
 
 ### US 29 — Perfil de terceiros
 
@@ -425,8 +433,8 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-29.1 | Perfil público, ou com follow aprovado, mostra cabeçalho, contadores e conteúdo. | web | — |
-| RF-29.2 | Perfil privado sem aprovação mostra nome, username, streak e música, oculta contadores e Recordas e mantém as três abas com aviso de restrição. | web | — |
+| RF-29.1 | Perfil público, ou com follow aprovado, mostra cabeçalho, contadores e conteúdo. | web | [a public profile shows the header, counters and Recordas](../tests/profile/third-party-profile.spec.ts#L17)<br>[a private profile with an approved follow shows the header, counters and Recordas](../tests/profile/third-party-profile.spec.ts#L17) |
+| RF-29.2 | Perfil privado sem aprovação mostra nome, username, streak e música, oculta contadores e Recordas e mantém as três abas com aviso de restrição.<br>⚠️ O StreakBadge do frontend oculta o streak quando can_view_content é false; ver OPEN_QUESTIONS. | web | [a private profile without approval hides counters and Recordas behind a notice](../tests/profile/third-party-profile.spec.ts#L57)<br>[a private profile without approval still shows the streak](../tests/profile/third-party-profile.spec.ts#L111) |
 
 ### US 31 — Editar preferências musicais
 
@@ -434,9 +442,9 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-31.1 | A edição abre com as escolhas atuais selecionadas. | web | — |
-| RF-31.2 | Salvar exige no mínimo 3 artistas e 3 gêneros e exatamente uma música. | web | — |
-| RF-31.3 | Preferências atualizadas refletem no perfil, nas sugestões e no feed. | web | — |
+| RF-31.1 | A edição abre com as escolhas atuais selecionadas. | web | [the editor opens with the current artists, genres and song selected](../tests/settings/music-preferences.spec.ts#L47) |
+| RF-31.2 | Salvar exige no mínimo 3 artistas e 3 gêneros e exatamente uma música. | web | [saving needs at least three artists, three genres and exactly one song](../tests/settings/music-preferences.spec.ts#L90) |
+| RF-31.3 | Preferências atualizadas refletem no perfil, nas sugestões e no feed. | web | [new preferences show on the profile, in suggestions and in the feed](../tests/settings/music-preferences.spec.ts#L142) |
 
 ### US 32 — Configurações e privacidade
 
@@ -444,9 +452,9 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-32.1 | É possível alternar entre conta pública e privada, com confirmação e efeito imediato. | web | — |
-| RF-32.2 | Ao tornar a conta pública, todos os pedidos pendentes são aceitos na mesma transação e cada solicitante é notificado. | web | — |
-| RF-32.3 | As Configurações dão acesso a Minha conta, preferências musicais, idioma e logout. | web | — |
+| RF-32.1 | É possível alternar entre conta pública e privada, com confirmação e efeito imediato. | web | [switching to a private account asks first and applies at once](../tests/settings/privacy.spec.ts#L7) |
+| RF-32.2 | Ao tornar a conta pública, todos os pedidos pendentes são aceitos na mesma transação e cada solicitante é notificado. | web | [going public accepts every pending follow request and notifies each requester](../tests/settings/privacy.spec.ts#L49) |
+| RF-32.3 | As Configurações dão acesso a Minha conta, preferências musicais, idioma e logout. | web | [settings lead to my account, music preferences, language and sign-out](../tests/settings/settings-menu.spec.ts#L4) |
 
 ### US 33 — Idioma da conta e do aparelho
 
@@ -454,8 +462,8 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-33.1 | Português, inglês e espanhol podem ser escolhidos com efeito imediato. | web | — |
-| RF-33.2 | Antes do login vale a preferência local; após autenticar prevalece o idioma da conta, que também é gravado no aparelho. | web | — |
+| RF-33.1 | Português, inglês e espanhol podem ser escolhidos com efeito imediato. | web | [Portuguese, English and Spanish apply immediately and stay after reopening](../tests/settings/language.spec.ts#L55) |
+| RF-33.2 | Antes do login vale a preferência local; após autenticar prevalece o idioma da conta, que também é gravado no aparelho. | web | [the device language applies before login and the account language after it](../tests/settings/language.spec.ts#L171) |
 
 ### US 34 — Gerenciar conta
 
@@ -463,9 +471,9 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-34.1 | É possível editar nome, username e email; o email muda após validar formato e unicidade, sem link de confirmação. | web | — |
-| RF-34.2 | A senha é opcional e só muda com Nova senha e Repetir nova senha preenchidas e iguais, sem pedir a senha atual. | web | — |
-| RF-34.3 | Excluir a conta pede confirmação (Cancelar/Excluir) e aplica exclusão lógica sem anonimização. | web | — |
+| RF-34.1 | É possível editar nome, username e email; o email muda após validar formato e unicidade, sem link de confirmação.<br>⚠️ A tela Minha conta ainda lê e salva pelo accountService.mock (recorda-frontend/src/features/account/services/accountAdapter.ts), embora o backend já tenha GET e PATCH /users/me/account. | web | [an invalid email is refused before saving](../tests/settings/account.spec.ts#L10)<br>[saving name, username and email updates the account](../tests/settings/account.spec.ts#L31)<br>[an email already in use is refused](../tests/settings/account.spec.ts#L63) |
+| RF-34.2 | A senha é opcional e só muda com Nova senha e Repetir nova senha preenchidas e iguais, sem pedir a senha atual.<br>⚠️ A tela Minha conta ainda lê e salva pelo accountService.mock (recorda-frontend/src/features/account/services/accountAdapter.ts), embora o backend já tenha GET e PATCH /users/me/account. | web | [a new password needs both fields filled with the same value](../tests/settings/account.spec.ts#L91)<br>[matching passwords replace the old one without asking for the current one](../tests/settings/account.spec.ts#L122) |
+| RF-34.3 | Excluir a conta pede confirmação (Cancelar/Excluir) e aplica exclusão lógica sem anonimização. | web | [deleting asks for confirmation and keeps the data without anonymizing it](../tests/settings/account.spec.ts#L151) |
 
 ### US 35 — Streak de publicações
 
@@ -475,7 +483,7 @@ Ficam fora:
 | --- | --- | --- | --- |
 | RF-35.1 | Só contam para a streak dias com pelo menos uma Recorda publicada, pela data de publicação. | API | — |
 | RF-35.2 | Curtidas, comentários e outras ações não contam. Só contam Recordas ativas: excluir a única Recorda de um dia tira esse dia da streak (regra da US 38).<br>_Fonte: Decisão do time, 2026-11-08: seguir a US 38, que substitui o critério original da US 35._<br>⚠️ A streak do perfil inclui Recordas excluídas (list_publication_times em recorda-backend/app/repositories/recorda_repository.py), enquanto a de Métricas já as exclui. | API | — |
-| RF-35.3 | O perfil mostra apenas um indicador de streak. | web | — |
+| RF-35.3 | O perfil mostra apenas um indicador de streak. | web | [the profile shows identity, avatar, counters, one streak and music](../tests/profile/own-profile.spec.ts#L19)<br>[publishing today shows a single active streak of one day](../tests/profile/own-profile.spec.ts#L125) |
 
 ### US 36 — Logout
 
@@ -483,8 +491,8 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-36.1 | Sair pede confirmação. | web | [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L10) |
-| RF-36.2 | Ao confirmar, a sessão e os dados em memória são limpos, o app vai para o Login e o idioma local do aparelho é preservado. | web | [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L10) |
+| RF-36.1 | Sair pede confirmação. | web | [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L14) |
+| RF-36.2 | Ao confirmar, a sessão e os dados em memória são limpos, o app vai para o Login e o idioma local do aparelho é preservado. | web | [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L14) |
 
 ## E7 — Memórias e estatísticas
 
@@ -541,11 +549,11 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-10.1 | A partir da tela de detalhes há a interface Compartilhar Recorda. | web | — |
-| RF-10.2 | O card é uma imagem na proporção 9:16 (Stories). | web | — |
+| RF-10.1 | A partir da tela de detalhes há a interface Compartilhar Recorda. | web | [recorda details open the sharing interface](../tests/share/share-card.spec.ts#L8) |
+| RF-10.2 | O card é uma imagem na proporção 9:16 (Stories). | web | [photo exports a portrait PNG with the light preset](../tests/share/share-card.spec.ts#L28)<br>[photo exports a portrait PNG with the mint preset](../tests/share/share-card.spec.ts#L28)<br>[photo exports a portrait PNG with the teal preset](../tests/share/share-card.spec.ts#L28)<br>[photo exports a portrait PNG with the dark preset](../tests/share/share-card.spec.ts#L28)<br>[video exports a portrait PNG with the light preset](../tests/share/share-card.spec.ts#L28)<br>[video exports a portrait PNG with the mint preset](../tests/share/share-card.spec.ts#L28)<br>[video exports a portrait PNG with the teal preset](../tests/share/share-card.spec.ts#L28)<br>[video exports a portrait PNG with the dark preset](../tests/share/share-card.spec.ts#L28) |
 | RF-10.3 | O card contém a mídia, a identidade visual do app e capa e nome da música. | manual | — |
-| RF-10.4 | Para vídeos, o card usa o primeiro quadro: o resultado é sempre uma imagem estática. | web | — |
-| RF-10.5 | A geração ocorre no dispositivo, com indicador de progresso. | web | — |
+| RF-10.4 | Para vídeos, o card usa o primeiro quadro: o resultado é sempre uma imagem estática.<br>⚠️ No web, a captura do card (html2canvas-pro em ShareCardScreen) ignora contentFit="cover" e estica mídias que não são verticais, como o vídeo do seed. | web | [video sharing displays the first frame as a static image](../tests/share/share-card.spec.ts#L70)<br>[the exported video card shows the first frame cropped, not stretched](../tests/share/share-card.spec.ts#L149) |
+| RF-10.5 | A geração ocorre no dispositivo, com indicador de progresso. | web | [video card generation shows progress and stays on the device](../tests/share/share-card.spec.ts#L269) |
 
 ### US 11 — Presets
 
@@ -553,11 +561,11 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-11.1 | Os presets aparecem como lista horizontal rolável abaixo do card. | web | — |
-| RF-11.2 | É possível alternar entre 3 presets pré-definidos. | web | — |
+| RF-11.1 | Os presets aparecem como lista horizontal rolável abaixo do card. | web | [presets form a horizontal scrollable list below the card](../tests/share/share-card.spec.ts#L340) |
+| RF-11.2 | É possível alternar entre 3 presets pré-definidos.<br>⚠️ ShareCardScreen oferece quatro presets (light, mint, teal, dark); a US 11 exige exatamente três. | web | [exactly three predefined presets are offered](../tests/share/share-card.spec.ts#L368)<br>[selecting a preset immediately changes the visible card](../tests/share/share-card.spec.ts#L385) |
 | RF-11.3 | Os presets respeitam a marca (tons de verde e fundo escuro). | manual | — |
-| RF-11.4 | O card é atualizado em tempo real conforme o preset selecionado. | web | — |
-| RF-11.5 | O card exportado é sempre vertical (9:16). | web | — |
+| RF-11.4 | O card é atualizado em tempo real conforme o preset selecionado. | web | [selecting a preset immediately changes the visible card](../tests/share/share-card.spec.ts#L385) |
+| RF-11.5 | O card exportado é sempre vertical (9:16). | web | [photo exports a portrait PNG with the light preset](../tests/share/share-card.spec.ts#L28)<br>[photo exports a portrait PNG with the mint preset](../tests/share/share-card.spec.ts#L28)<br>[photo exports a portrait PNG with the teal preset](../tests/share/share-card.spec.ts#L28)<br>[photo exports a portrait PNG with the dark preset](../tests/share/share-card.spec.ts#L28)<br>[video exports a portrait PNG with the light preset](../tests/share/share-card.spec.ts#L28)<br>[video exports a portrait PNG with the mint preset](../tests/share/share-card.spec.ts#L28)<br>[video exports a portrait PNG with the teal preset](../tests/share/share-card.spec.ts#L28)<br>[video exports a portrait PNG with the dark preset](../tests/share/share-card.spec.ts#L28) |
 
 ### US 12 — Exportação
 
@@ -565,7 +573,7 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-12.1 | A interface oferece botões de ação para compartilhamento. | web | — |
+| RF-12.1 | A interface oferece botões de ação para compartilhamento. | web | [sharing offers Instagram Stories and image download actions](../tests/share/share-card.spec.ts#L425) |
 | RF-12.2 | O compartilhamento aciona a intent específica do Instagram Stories. | nativo | — |
 | RF-12.3 | É possível baixar o card para a galeria do dispositivo. | nativo | — |
 | RF-12.4 | Sem Instagram instalado, há tratamento de erro e compartilhamento genérico do sistema. | nativo | — |
@@ -605,9 +613,9 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-42.1 | Quando a moderação remove uma Recorda, o autor recebe a notificação CONTENT_REMOVED com o motivo. | web | [the removed Recorda's author receives a system notification with the reason](../tests/admin/moderation.spec.ts#L302) |
-| RF-42.2 | A notificação aparece com ícone de sistema, sem expor o administrador. | web | [the removed Recorda's author receives a system notification with the reason](../tests/admin/moderation.spec.ts#L302) |
-| RF-42.3 | Tocar na notificação a marca como lida, sem navegar para a Recorda removida. | web | [opening a content removal notification marks it read without opening the removed Recorda](../tests/admin/moderation.spec.ts#L657) |
+| RF-42.1 | Quando a moderação remove uma Recorda, o autor recebe a notificação CONTENT_REMOVED com o motivo. | web | [a removed Recorda disappears for everyone and its author is told why](../tests/admin/moderation.spec.ts#L268) |
+| RF-42.2 | A notificação aparece com ícone de sistema, sem expor o administrador. | web | [a removed Recorda disappears for everyone and its author is told why](../tests/admin/moderation.spec.ts#L268) |
+| RF-42.3 | Tocar na notificação a marca como lida, sem navegar para a Recorda removida. | web | [a removed Recorda disappears for everyone and its author is told why](../tests/admin/moderation.spec.ts#L268) |
 | RF-42.4 | Usuários suspensos não recebem a notificação. | API | — |
 
 ## E10 — Administração e moderação
@@ -618,11 +626,11 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-44.1 | O fluxo administrativo é exclusivo de usuários com role ADMIN. | web | [administrators can open the administrative area](../tests/admin/moderation.spec.ts#L50)<br>[regular accounts cannot open administrative screens](../tests/admin/moderation.spec.ts#L37) |
-| RF-44.2 | As denúncias são listadas agrupadas por alvo, com tipo, identificador, número de denúncias abertas e data da mais recente. | web | [open reports are grouped by target with their summary](../tests/admin/moderation.spec.ts#L63) |
-| RF-44.3 | O detalhe do alvo mostra o conteúdo denunciado e o histórico de denúncias (texto, data e denunciante). | web | [a reported target shows its content and report history](../tests/admin/moderation.spec.ts#L89) |
-| RF-44.4 | O administrador pode mudar o status das denúncias para RESOLVED ou DISMISSED. | web | [an administrator can resolve or dismiss a report with a reason](../tests/admin/moderation.spec.ts#L112) |
-| RF-44.5 | Toda mudança de status exige justificativa de até 500 caracteres, registrada na auditoria. | web | [an administrator can resolve or dismiss a report with a reason](../tests/admin/moderation.spec.ts#L112) |
+| RF-44.1 | O fluxo administrativo é exclusivo de usuários com role ADMIN. | web | [only administrators can open the moderation area](../tests/admin/moderation.spec.ts#L73) |
+| RF-44.2 | As denúncias são listadas agrupadas por alvo, com tipo, identificador, número de denúncias abertas e data da mais recente. | web | [open reports are grouped by target with type, open count and latest date](../tests/admin/moderation.spec.ts#L99) |
+| RF-44.3 | O detalhe do alvo mostra o conteúdo denunciado e o histórico de denúncias (texto, data e denunciante). | web | [the detail shows the reported Recorda and every report with text, date and reporter](../tests/admin/moderation.spec.ts#L126) |
+| RF-44.4 | O administrador pode mudar o status das denúncias para RESOLVED ou DISMISSED. | web | [marking reports as resolved needs a reason and is recorded](../tests/admin/moderation.spec.ts#L151)<br>[marking reports as dismissed needs a reason and is recorded](../tests/admin/moderation.spec.ts#L151) |
+| RF-44.5 | Toda mudança de status exige justificativa de até 500 caracteres, registrada na auditoria. | web | [marking reports as resolved needs a reason and is recorded](../tests/admin/moderation.spec.ts#L151)<br>[marking reports as dismissed needs a reason and is recorded](../tests/admin/moderation.spec.ts#L151) |
 
 ### US 45 — Moderação e Remoção de Recordas
 
@@ -630,11 +638,11 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-45.1 | O administrador remove logicamente uma Recorda pela tela de moderação. | web | [an administrator removes a Recorda from its moderation detail](../tests/admin/moderation.spec.ts#L158) |
-| RF-45.2 | A remoção exige justificativa de até 500 caracteres, salva de forma imutável na auditoria. | web | [Recorda removal requires a reason and records it in the audit log](../tests/admin/moderation.spec.ts#L181) |
-| RF-45.3 | Remover a Recorda resolve automaticamente as denúncias pendentes dela. | web | [removing a Recorda resolves its open reports](../tests/admin/moderation.spec.ts#L211) |
-| RF-45.4 | A Recorda removida some imediatamente do feed, das buscas e do perfil do autor. | web | [a removed Recorda disappears from the feed and its author's profile](../tests/admin/moderation.spec.ts#L242)<br>[a removed Recorda is absent from content search](../tests/admin/moderation.spec.ts#L366) |
-| RF-45.5 | O autor da Recorda removida é notificado conforme a US 42 (RF-42.1).<br>_Fonte: Decisão do time, 2026-11-08: manter a notificação da US 42; substitui o critério original da US 45, que proibia notificar._ | web | [the removed Recorda's author receives a system notification with the reason](../tests/admin/moderation.spec.ts#L302) |
+| RF-45.1 | O administrador remove logicamente uma Recorda pela tela de moderação. | web | [removing a Recorda needs a reason, resolves its reports and is audited](../tests/admin/moderation.spec.ts#L212) |
+| RF-45.2 | A remoção exige justificativa de até 500 caracteres, salva de forma imutável na auditoria. | web | [removing a Recorda needs a reason, resolves its reports and is audited](../tests/admin/moderation.spec.ts#L212) |
+| RF-45.3 | Remover a Recorda resolve automaticamente as denúncias pendentes dela. | web | [removing a Recorda needs a reason, resolves its reports and is audited](../tests/admin/moderation.spec.ts#L212) |
+| RF-45.4 | A Recorda removida some imediatamente do feed, das buscas e do perfil do autor. | web | [a removed Recorda disappears for everyone and its author is told why](../tests/admin/moderation.spec.ts#L268) |
+| RF-45.5 | O autor da Recorda removida é notificado conforme a US 42 (RF-42.1).<br>_Fonte: Decisão do time, 2026-11-08: manter a notificação da US 42; substitui o critério original da US 45, que proibia notificar._ | web | [a removed Recorda disappears for everyone and its author is told why](../tests/admin/moderation.spec.ts#L268) |
 
 ### US 46 — Moderação de Usuários (Suspensão e Reativação)
 
@@ -642,11 +650,11 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-46.1 | O administrador busca contas por username ou nome e vê perfil e status (ACTIVE ou SUSPENDED). | web | [an administrator searches accounts by username or name and sees their status](../tests/admin/moderation.spec.ts#L383) |
-| RF-46.2 | Um administrador não pode suspender outro administrador (HTTP 403 e ação desabilitada na UI). | web | [an administrator cannot suspend another administrator](../tests/admin/moderation.spec.ts#L409) |
-| RF-46.3 | A suspensão exige motivo de até 500 caracteres, registrado na auditoria. | web | [suspending an account requires a reason and records the action](../tests/admin/moderation.spec.ts#L423) |
-| RF-46.4 | O conteúdo de usuários suspensos (Recordas, comentários e perfil) some para usuários comuns. | web | [content from a suspended account is hidden from regular users](../tests/admin/moderation.spec.ts#L460) |
-| RF-46.5 | O administrador reativa uma conta suspensa com justificativa, voltando ao status ACTIVE. | web | [an administrator reactivates a suspended account with a reason](../tests/admin/moderation.spec.ts#L522) |
+| RF-46.1 | O administrador busca contas por username ou nome e vê perfil e status (ACTIVE ou SUSPENDED). | web | [an administrator finds an account, suspends it with a reason and reactivates it](../tests/admin/moderation.spec.ts#L336) |
+| RF-46.2 | Um administrador não pode suspender outro administrador (HTTP 403 e ação desabilitada na UI). | web | — |
+| RF-46.3 | A suspensão exige motivo de até 500 caracteres, registrado na auditoria. | web | [an administrator finds an account, suspends it with a reason and reactivates it](../tests/admin/moderation.spec.ts#L336) |
+| RF-46.4 | O conteúdo de usuários suspensos (Recordas, comentários e perfil) some para usuários comuns. | web | [an administrator finds an account, suspends it with a reason and reactivates it](../tests/admin/moderation.spec.ts#L336) |
+| RF-46.5 | O administrador reativa uma conta suspensa com justificativa, voltando ao status ACTIVE. | web | [an administrator finds an account, suspends it with a reason and reactivates it](../tests/admin/moderation.spec.ts#L336) |
 
 ### US 47 — Log de Auditoria
 
@@ -654,9 +662,9 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-47.1 | Toda ação de moderação (remoção, suspensão/reativação e mudança de status de denúncia) gera um registro imutável. | web | [an administrator can resolve or dismiss a report with a reason](../tests/admin/moderation.spec.ts#L112)<br>[Recorda removal requires a reason and records it in the audit log](../tests/admin/moderation.spec.ts#L181)<br>[suspending an account requires a reason and records the action](../tests/admin/moderation.spec.ts#L423)<br>[an administrator reactivates a suspended account with a reason](../tests/admin/moderation.spec.ts#L522)<br>[the audit log shows chronological moderation actions with administrator, target, reason and timestamp](../tests/admin/moderation.spec.ts#L569) |
-| RF-47.2 | O registro guarda administrador, tipo de ação, alvo, motivo e timestamp UTC. | web | [an administrator can resolve or dismiss a report with a reason](../tests/admin/moderation.spec.ts#L112)<br>[Recorda removal requires a reason and records it in the audit log](../tests/admin/moderation.spec.ts#L181)<br>[suspending an account requires a reason and records the action](../tests/admin/moderation.spec.ts#L423)<br>[an administrator reactivates a suspended account with a reason](../tests/admin/moderation.spec.ts#L522)<br>[the audit log shows chronological moderation actions with administrator, target, reason and timestamp](../tests/admin/moderation.spec.ts#L569) |
-| RF-47.3 | O painel tem o histórico cronológico paginado, com filtros por administrador e período. | web | [the audit history is paginated and can be filtered by administrator and period](../tests/admin/moderation.spec.ts#L618) |
+| RF-47.1 | Toda ação de moderação (remoção, suspensão/reativação e mudança de status de denúncia) gera um registro imutável. | web | [marking reports as resolved needs a reason and is recorded](../tests/admin/moderation.spec.ts#L151)<br>[marking reports as dismissed needs a reason and is recorded](../tests/admin/moderation.spec.ts#L151)<br>[removing a Recorda needs a reason, resolves its reports and is audited](../tests/admin/moderation.spec.ts#L212) |
+| RF-47.2 | O registro guarda administrador, tipo de ação, alvo, motivo e timestamp UTC. | web | [marking reports as resolved needs a reason and is recorded](../tests/admin/moderation.spec.ts#L151)<br>[marking reports as dismissed needs a reason and is recorded](../tests/admin/moderation.spec.ts#L151)<br>[removing a Recorda needs a reason, resolves its reports and is audited](../tests/admin/moderation.spec.ts#L212) |
+| RF-47.3 | O painel tem o histórico cronológico paginado, com filtros por administrador e período. | web | [the audit log lists actions newest first and filters by period and administrator](../tests/admin/moderation.spec.ts#L393) |
 | RF-47.4 | A auditoria é append-only: não há endpoints de alteração ou exclusão. | API | — |
 
 ## TA — Termo de Abertura (sem User Story)
@@ -670,7 +678,7 @@ Ficam fora:
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
 | RNF-01 | O aplicativo funciona em iOS e Android.<br>_Fonte: Termo: objetivos_ | nativo | — |
-| RNF-02 | A interface está disponível em português, inglês e espanhol, sem textos fixos fora das traduções.<br>_Fonte: Termo; US 33_ | web | — |
+| RNF-02 | A interface está disponível em português, inglês e espanhol, sem textos fixos fora das traduções.<br>_Fonte: Termo; US 33_ | web | [feed and settings screens are fully translated to en](../tests/settings/language.spec.ts#L108)<br>[feed and settings screens are fully translated to es](../tests/settings/language.spec.ts#L108) |
 | RNF-03 | Não há coleta de dados comportamentais: só os dados necessários à conta e às preferências declaradas.<br>_Fonte: US 2; US 15_ | manual | — |
 | RNF-04 | Toda comunicação do app com a API usa HTTPS.<br>_Fonte: Relatório de deploy_ | API | — |
 | RNF-05 | A interface não trava esperando a rede: carregamentos mostram indicador e falhas oferecem tentar novamente.<br>_Fonte: US 1; US 18_ | web | — |
@@ -681,26 +689,97 @@ Ficam fora:
 
 | Teste | Descrição | Requisitos |
 | --- | --- | --- |
-| [administrators can open the administrative area](../tests/admin/moderation.spec.ts#L50) | The seeded administrator opens the administrative area after signing in. | RF-44.1 |
-| [opening a content removal notification marks it read without opening the removed Recorda](../tests/admin/moderation.spec.ts#L657) | Opening a CONTENT_REMOVED notification marks it read and does not open the removed Recorda. | RF-42.3 |
-| [regular accounts cannot open administrative screens](../tests/admin/moderation.spec.ts#L37) | A regular account cannot open the administrative area. | RF-44.1 |
-| [open reports are grouped by target with their summary](../tests/admin/moderation.spec.ts#L63) | Open reports are grouped by target and show target type, open count and latest report date. | RF-44.2 |
-| [a reported target shows its content and report history](../tests/admin/moderation.spec.ts#L89) | Opening a report group shows the reported Recorda and each report's text, date and reporter. | RF-44.3 |
-| [an administrator can resolve or dismiss a report with a reason](../tests/admin/moderation.spec.ts#L112) | The administrator can resolve or dismiss reports, and each status change requires a reason of at most 500 characters. | RF-44.4, RF-44.5, RF-47.1, RF-47.2 |
-| [an administrator removes a Recorda from its moderation detail](../tests/admin/moderation.spec.ts#L158) | The administrator confirms logical removal of a reported Recorda from the moderation screen. | RF-45.1 |
-| [Recorda removal requires a reason and records it in the audit log](../tests/admin/moderation.spec.ts#L181) | Removal requires a reason of at most 500 characters and the audit log records it. | RF-45.2, RF-47.1, RF-47.2 |
-| [removing a Recorda resolves its open reports](../tests/admin/moderation.spec.ts#L211) | After removal, every report for that target is shown as resolved. | RF-45.3 |
-| [a removed Recorda disappears from the feed and its author's profile](../tests/admin/moderation.spec.ts#L242) | After moderation removes a test Recorda, it is no longer visible in the feed or the author's profile. | RF-45.4 |
-| [the removed Recorda's author receives a system notification with the reason](../tests/admin/moderation.spec.ts#L302) | Removing a Recorda notifies its author with CONTENT_REMOVED and the reason, using a system icon without exposing the administrator. | RF-42.1, RF-42.2, RF-45.5 |
-| [a removed Recorda is absent from content search](../tests/admin/moderation.spec.ts#L366) | A removed Recorda is not returned by content search. | RF-45.4 |
-| [an administrator searches accounts by username or name and sees their status](../tests/admin/moderation.spec.ts#L383) | Account search accepts a username or a name and shows the matching profile with its status. | RF-46.1 |
-| [an administrator cannot suspend another administrator](../tests/admin/moderation.spec.ts#L409) | A second administrator has a disabled suspension action. | RF-46.2 |
-| [suspending an account requires a reason and records the action](../tests/admin/moderation.spec.ts#L423) | Suspension requires a reason of at most 500 characters and the audit log records it. | RF-46.3, RF-47.1, RF-47.2 |
-| [content from a suspended account is hidden from regular users](../tests/admin/moderation.spec.ts#L460) | A regular account cannot see a suspended user's Recordas, profile search result or comments. | RF-46.4 |
-| [an administrator reactivates a suspended account with a reason](../tests/admin/moderation.spec.ts#L522) | Reactivation requires a reason of at most 500 characters and changes the account status back to active. | RF-46.5, RF-47.1, RF-47.2 |
-| [the audit log shows chronological moderation actions with administrator, target, reason and timestamp](../tests/admin/moderation.spec.ts#L569) | Audit entries identify the administrator, action, target, reason and timestamp and cannot be edited or deleted. | RF-47.1, RF-47.2 |
-| [the audit history is paginated and can be filtered by administrator and period](../tests/admin/moderation.spec.ts#L618) | The audit panel supports chronological pagination and filters by administrator and period. | RF-47.3 |
+| [only administrators can open the moderation area](../tests/admin/moderation.spec.ts#L73) | A regular account opens the app on its Feed with no admin screen, and the admin API refuses it; the administrator's own call is accepted. | RF-44.1 |
+| [open reports are grouped by target with type, open count and latest date](../tests/admin/moderation.spec.ts#L99) | Two reports of the same Recorda show as one row that says it is a Recorda, pending, with 2 reports, identifies it by author and song, and shows the latest report's date. | RF-44.2 |
+| [the detail shows the reported Recorda and every report with text, date and reporter](../tests/admin/moderation.spec.ts#L126) | Opening a report group shows the reported photo and each report's description, reporter and date. | RF-44.3 |
+| [marking reports as resolved needs a reason and is recorded](../tests/admin/moderation.spec.ts#L151) | The status dialog accepts at most 500 characters and can't be confirmed empty. With a reason, the reports change status, the detail history shows the action, and the audit log records administrator, action, target, reason and time. | RF-44.4, RF-44.5, RF-47.1, RF-47.2 |
+| [marking reports as dismissed needs a reason and is recorded](../tests/admin/moderation.spec.ts#L151) | The status dialog accepts at most 500 characters and can't be confirmed empty. With a reason, the reports change status, the detail history shows the action, and the audit log records administrator, action, target, reason and time. | RF-44.4, RF-44.5, RF-47.1, RF-47.2 |
+| [removing a Recorda needs a reason, resolves its reports and is audited](../tests/admin/moderation.spec.ts#L212) | The removal dialog accepts at most 500 characters and can't be confirmed empty. Removing takes the Recorda down, resolves both open reports and adds a removal entry to the audit log. | RF-45.1, RF-45.2, RF-45.3, RF-47.1, RF-47.2 |
+| [a removed Recorda disappears for everyone and its author is told why](../tests/admin/moderation.spec.ts#L268) | After removal, a follower can no longer open the Recorda or see it on the author's profile. The author gets a system notification with the song and the reason, without naming the administrator; tapping it marks it read and opens nothing. | RF-45.4, RF-45.5, RF-42.1, RF-42.2, RF-42.3 |
+| [an administrator finds an account, suspends it with a reason and reactivates it](../tests/admin/moderation.spec.ts#L336) | Searching by username shows the account as active. Suspending needs a reason of at most 500 characters and hides its profile and Recordas from other users; reactivating with a reason makes it active and visible again. | RF-46.1, RF-46.3, RF-46.4, RF-46.5 |
+| [the audit log lists actions newest first and filters by period and administrator](../tests/admin/moderation.spec.ts#L393) | A suspension and then a reactivation show in the audit log with the reactivation first, and both stay listed when filtering by today, by the last month and by the administrator who did them. | RF-47.3 |
+| [resetting a password to eight characters replaces the old credentials](../tests/auth/password-recovery.spec.ts#L24) | A signed-out user opens Recovery from Login, resets a dedicated account with matching eight-character passwords without email verification, and signs in only with the new password. | RF-05.1, RF-05.2, RF-05.3 |
+| [password recovery stays blocked by matching seven-character passwords until corrected](../tests/auth/password-recovery.spec.ts#L77) | Recovery rejects matching seven-character passwords. Correcting both fields to the same longer password allows the user to reset the dedicated account and sign in. | RF-05.2 |
+| [password recovery stays blocked by a seven-character new password until corrected](../tests/auth/password-recovery.spec.ts#L77) | Recovery rejects a seven-character new password. Correcting both fields to the same longer password allows the user to reset the dedicated account and sign in. | RF-05.2 |
+| [password recovery stays blocked by a seven-character confirmation until corrected](../tests/auth/password-recovery.spec.ts#L77) | Recovery rejects a seven-character confirmation. Correcting both fields to the same longer password allows the user to reset the dedicated account and sign in. | RF-05.2 |
+| [different passwords block recovery until the confirmation matches](../tests/auth/password-recovery.spec.ts#L115) | Two different passwords of at least eight characters cannot reset an account. Correcting the confirmation allows recovery and a new sign-in. | RF-05.2 |
+| [an unknown recovery email shows the same generic error as a network failure](../tests/auth/password-recovery.spec.ts#L148) | An unknown email and a failed reset request for a dedicated account show exactly the same generic message. Retrying with a working connection resets the account and allows sign-in. | RF-05.4 |
 | [a signed-out user sees the login screen](../tests/auth/sign-in.spec.ts#L8) | Without a saved session the Splash hands over to Login, whose submit button stays disabled until the form is filled. | RF-01.3 |
 | [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L24) | A regular account signs in with username and password on the shared login screen and lands on the Feed. | RF-04.1, RF-04.5 |
-| [invalid credentials show one generic error](../tests/auth/sign-in.spec.ts#L39) | A wrong password and an unknown username both keep the user on Login with the same message, so the error never reveals which field is wrong. | RF-04.3 |
-| [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L10) | A saved session opens the feed without logging in again; signing out from Settings asks for confirmation, returns to Login and clears the session for the next launch. | RF-04.6, RF-36.1, RF-36.2 |
+| [an administrator signs in on the same screen and lands on the admin area](../tests/auth/sign-in.spec.ts#L39) | The admin uses the same login form and lands on Denúncias. No admin tab shows the Feed or the app's bottom bar (Feed, Câmera, Perfil). | RF-04.1, RF-04.4 |
+| [invalid credentials show one generic error](../tests/auth/sign-in.spec.ts#L71) | A wrong password and an unknown username both keep the user on Login with the same message, so the error never reveals which field is wrong. | RF-04.3 |
+| [a new account goes through the three onboarding steps before the Feed](../tests/auth/sign-up-onboarding.spec.ts#L50) | After signing up, the user is signed in and taken to onboarding instead of the Feed, picks artists, genres and one song across three numbered steps, lands on the Feed, and sees the chosen song highlighted on their profile. | RF-02.5, RF-03.1, RF-03.2, RF-03.3, RF-03.6 |
+| [the sign-up form asks only for name, username, email and password](../tests/auth/sign-up-onboarding.spec.ts#L111) | Sign Up shows exactly the Name, Username, Email and Password fields, with no password confirmation and no terms checkbox. | RF-02.1 |
+| [a username or email already in use is rejected on its own field](../tests/auth/sign-up-onboarding.spec.ts#L131) | Signing up with the username of a seeded account, or with its email, keeps the user on Sign Up and shows the error under that field only. | RF-02.2 |
+| [each invalid field shows its own error before anything is sent](../tests/auth/sign-up-onboarding.spec.ts#L161) | Submitting an empty form shows a specific message under every field, and an invalid email shows the email-format message; the user stays on Sign Up. | RF-02.3 |
+| [a password shorter than 8 characters is not accepted](../tests/auth/sign-up-onboarding.spec.ts#L193) | A 7-character password shows the minimum-length message and keeps the user on Sign Up; with 8 characters the message goes away. | RF-02.4 |
+| [each onboarding step needs its minimum choices to move on](../tests/auth/sign-up-onboarding.spec.ts#L222) | Next stays disabled until 3 artists and then 3 genres are picked, and Finish stays disabled until a favorite song is picked. | RF-03.4 |
+| [going back to a previous step keeps what was selected](../tests/auth/sign-up-onboarding.spec.ts#L263) | Returning from genres to artists, and from music to genres, shows the same number of choices already selected, so nothing has to be picked again. | RF-03.7 |
+| [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L14) | A saved session opens the feed without logging in again; signing out from Settings asks for confirmation, returns to Login and clears the session for the next launch while restoring the device language. | RF-04.6, RF-36.1, RF-36.2 |
+| [splash is the first screen and hands over to login](../tests/flows/session-startup.spec.ts#L10) | A fresh launch shows Splash before Login, without exposing authenticated screens. | RF-01.2, RF-01.3 |
+| [a saved user session opens the feed and survives reopening](../tests/flows/session-startup.spec.ts#L33) | Gabriel reaches Feed through Splash on both launch and reload, without entering credentials. | RF-01.2, RF-01.4, RF-04.6 |
+| [a saved administrator session opens only the administrative area](../tests/flows/session-startup.spec.ts#L60) | Admin reaches the moderation area after Splash, with no user navigation, including after reopening. | RF-01.2, RF-01.5 |
+| [an invalid session is cleared before returning to login](../tests/flows/session-startup.spec.ts#L94) | An invalid saved token cannot open Feed; authentication storage is cleared and reopening stays signed out. | RF-01.6 |
+| [an expired session is cleared before returning to login](../tests/flows/session-startup.spec.ts#L94) | An expired saved token cannot open Feed; authentication storage is cleared and reopening stays signed out. | RF-01.6 |
+| [a slow session check sends the user to login after three seconds](../tests/flows/session-timeout.spec.ts#L42) | When session verification exceeds the required three-second deadline, Splash must give way to Login. | RF-01.7 |
+| [a late valid session response cannot navigate away from login](../tests/flows/session-timeout.spec.ts#L69) | After the current timeout sends the user to Login, releasing a real successful session response cannot reopen Feed or admin. | RF-01.7 |
+| [the bell shows the unread count and opening the list marks it as read](../tests/notifications/notification-center.spec.ts#L31) | Two new followers show as 2 unread on the Feed bell, which opens the notification center; after opening it the count is gone, also after reopening the app. | RF-26.1, RF-26.5 |
+| [notifications are listed newest first with who acted, what happened and the action](../tests/notifications/notification-center.spec.ts#L82) | A follow, then a like, then a follow request appear in reverse order, each with the actor's avatar initial and username and a description; only the request offers Accept and Decline, and the like shows the liked Recorda. | RF-26.2 |
+| [follows, requests, likes, comments and mentions notify the account owner](../tests/notifications/notification-center.spec.ts#L147) | Following a public account, liking and commenting on its Recorda, mentioning it in a Recorda and requesting to follow it once private each add a notification for it. | RF-26.3 |
+| [an approved follow request notifies the requester](../tests/notifications/notification-center.spec.ts#L193) | When a private account accepts a follow request, the person who asked gets a notification that the request was approved. | RF-26.3 |
+| [follow requests are accepted or declined from the notification list](../tests/notifications/notification-center.spec.ts#L216) | A private account finds its follow requests in the notification center, accepts one (it becomes a new follower) and declines the other (it disappears); only the accepted person ends up following. | RF-21.1, RF-26.4 |
+| [tapping a notification opens the related Recorda or profile](../tests/notifications/notification-center.spec.ts#L271) | A like notification opens the liked Recorda, and a new-follower notification opens the follower's profile. | RF-26.6 |
+| [the profile shows identity, avatar, counters, one streak and music](../tests/profile/own-profile.spec.ts#L19) | The header shows the account's name, @username, picture, Recordas/followers/following counters, a single streak indicator, the favorite song and the first favorite artist and genre, all matching what the backend has for the account. | RF-28.1, RF-35.3 |
+| [the Recordas, Métricas and Calendário tabs switch the content below the header](../tests/profile/own-profile.spec.ts#L79) | The profile keeps three tabs in a fixed order; each shows its own content (the Recordas grid, the metrics cards, the memory calendar) and Recordas comes back. | RF-28.4 |
+| [publishing today shows a single active streak of one day](../tests/profile/own-profile.spec.ts#L125) | After a new account publishes its first Recorda, the profile shows one streak indicator, highlighted as active, reading one day. | RF-35.3 |
+| [the grid loads the next page of Recordas when scrolling to the end](../tests/profile/own-profile.spec.ts#L150) | With one Recorda more than a page, the grid first shows a full page without the oldest Recorda, and scrolling to the end loads it. | RF-28.3 |
+| [removing the avatar brings back the default picture](../tests/profile/own-profile.spec.ts#L189) | An account with a profile picture removes it from the avatar menu after confirming; the default icon replaces it and stays after reopening the app. | RF-28.2 |
+| [choosing a picture from the gallery sets it as the avatar](../tests/profile/own-profile.spec.ts#L223) | In the web build, an account without a picture picks an image from the gallery; it replaces the default icon and stays after reopening the app. | RF-28.2 |
+| [a public profile shows the header, counters and Recordas](../tests/profile/third-party-profile.spec.ts#L17) | Opened from the search, the profile shows the owner's name, @username, streak and favorite song, the Recordas/followers/following counters and the Recordas grid, with no private-account notice. | RF-29.1 |
+| [a private profile with an approved follow shows the header, counters and Recordas](../tests/profile/third-party-profile.spec.ts#L17) | Opened from the search, the profile shows the owner's name, @username, streak and favorite song, the Recordas/followers/following counters and the Recordas grid, with no private-account notice. | RF-29.1 |
+| [a private profile without approval hides counters and Recordas behind a notice](../tests/profile/third-party-profile.spec.ts#L57) | A private account whose follow request is pending shows its name, @username and favorite song, but no counters and no Recordas; each of the three tabs shows the private-account notice instead of its content. | RF-29.2 |
+| [a private profile without approval still shows the streak](../tests/profile/third-party-profile.spec.ts#L111) | A private account whose follow request is pending shows its name, favorite song and streak indicator, as RF-29.2 and backend decision D-06 say. | RF-29.2 |
+| [a feed card and a profile thumbnail both open the Recorda details](../tests/recorda-details/recorda-details.spec.ts#L48) | Tapping a Recorda card in the feed, or its thumbnail in the author's profile grid, opens the details screen of that Recorda. | RF-17.1 |
+| [the details show the whole Recorda, with memory date, place and tagged people](../tests/recorda-details/recorda-details.spec.ts#L76) | The details show media, author, full description, song and comments, plus the Memory Date, Place and tagged users decided for the Recorda. | RF-17.2 |
+| [the feed card and the details offer like, comment and share](../tests/recorda-details/recorda-details.spec.ts#L114) | Feed cards and the details screen have a like button; the details also let the user open the comments and share the Recorda. | RF-17.4, RF-23.1 |
+| [the three-dots menu offers only delete on your Recorda and only report on others'](../tests/recorda-details/recorda-details.spec.ts#L152) | On someone else's Recorda the menu reports (no delete); on your own it deletes (no report). Neither offers editing. Checked on the feed card and on the details. | RF-17.5 |
+| [liking toggles at once, shows the count and matches the server](../tests/recorda-details/recorda-details.spec.ts#L210) | The like count is shown on the card and the details. Liking updates it before the server answers, the server keeps the result, and liking again undoes it. | RF-23.2, RF-23.3 |
+| [the author is notified of other people's likes but not of their own](../tests/recorda-details/recorda-details.spec.ts#L274) | A like from someone else shows up in the author's notifications; the author liking their own Recorda does not notify them. | RF-23.4 |
+| [comments are a flat list in the order they were written](../tests/recorda-details/recorda-details.spec.ts#L317) | The details list the comments oldest first, with a field to write a new one that lands at the end; comments have no replies nor likes. | RF-24.1, RF-24.2 |
+| [each comment shows avatar, username, text and date](../tests/recorda-details/recorda-details.spec.ts#L360) | A comment row shows who wrote it (avatar and username), what they wrote and when. | RF-24.3 |
+| [a comment can't be longer than 500 characters](../tests/recorda-details/recorda-details.spec.ts#L396) | The comment field stops at 500 characters, and a 500-character comment is saved whole. | RF-24.4 |
+| [the author is notified of new comments](../tests/recorda-details/recorda-details.spec.ts#L429) | A comment written by someone else shows up in the Recorda author's notifications. | RF-24.6 |
+| [the comment author deletes their comment after confirming](../tests/recorda-details/recorda-details.spec.ts#L457) | Only your own comments show a delete button on someone else's Recorda; deleting asks for confirmation, cancelling keeps the comment and confirming removes it on the server. | RF-25.1, RF-25.3 |
+| [the Recorda author deletes someone else's comment for everyone](../tests/recorda-details/recorda-details.spec.ts#L510) | The author of a Recorda can delete any comment on it; once confirmed, the comment is gone for its writer too. | RF-25.2, RF-25.3 |
+| [an invalid email is refused before saving](../tests/settings/account.spec.ts#L10) | Saving an email without a valid format shows the format error and leaves the account's email unchanged. | RF-34.1 |
+| [saving name, username and email updates the account](../tests/settings/account.spec.ts#L31) | New name, username and email saved in Minha conta are what the account has on the server, with no confirmation link for the email. | RF-34.1 |
+| [an email already in use is refused](../tests/settings/account.spec.ts#L63) | Saving the email of another account shows that it is already in use, keeps what was typed and does not change the account. | RF-34.1 |
+| [a new password needs both fields filled with the same value](../tests/settings/account.spec.ts#L91) | Filling only Nova senha, or two different values, shows an error and keeps the old password working. | RF-34.2 |
+| [matching passwords replace the old one without asking for the current one](../tests/settings/account.spec.ts#L122) | With Nova senha and Repetir nova senha equal, saving changes the password: the new one signs in and the old one no longer does. The current password is never asked. | RF-34.2 |
+| [deleting asks for confirmation and keeps the data without anonymizing it](../tests/settings/account.spec.ts#L151) | Cancel closes the dialog and keeps the account. Excluir signs out to Login; the account can't sign in anymore, and its username and email stay taken, so the record was deleted logically rather than anonymized. | RF-34.3 |
+| [Portuguese, English and Spanish apply immediately and stay after reopening](../tests/settings/language.spec.ts#L55) | Picking English and then Spanish changes the open screen and Settings at once, saves the language on the account and keeps it after the app is reopened. | RF-33.1 |
+| [feed and settings screens are fully translated to en](../tests/settings/language.spec.ts#L108) | With the account in en, the feed, profile, Settings, language and Minha conta screens show their copy in that language, with no Portuguese text left behind. | RNF-02 |
+| [feed and settings screens are fully translated to es](../tests/settings/language.spec.ts#L108) | With the account in es, the feed, profile, Settings, language and Minha conta screens show their copy in that language, with no Portuguese text left behind. | RNF-02 |
+| [the device language applies before login and the account language after it](../tests/settings/language.spec.ts#L171) | With English chosen on the device, the login screen is in English. After signing in with an account in Portuguese, the app switches to Portuguese and saves it on the device. | RF-33.2 |
+| [the editor opens with the current artists, genres and song selected](../tests/settings/music-preferences.spec.ts#L47) | Each step of the editor starts with the account's current choices: its three artists and three genres lead the list and count as selected (unselecting each one lowers the counter), and its favorite song comes first, ready to save. | RF-31.1 |
+| [saving needs at least three artists, three genres and exactly one song](../tests/settings/music-preferences.spec.ts#L90) | With two artists or two genres the step can't move on; with three again it can. The song is a single choice, and saving stores exactly the one picked. | RF-31.2 |
+| [new preferences show on the profile, in suggestions and in the feed](../tests/settings/music-preferences.spec.ts#L142) | An account whose tastes match nobody has no suggestions and no discovery posts. After replacing its artists, genres and song with popular ones, the profile shows the new choices, and the search suggestions and the general feed start showing people and posts. | RF-31.3 |
+| [switching to a private account asks first and applies at once](../tests/settings/privacy.spec.ts#L7) | A new account starts public. Cancelling the confirmation keeps it public; confirming makes it private on the server right away, and switching back makes it public again. | RF-32.1 |
+| [going public accepts every pending follow request and notifies each requester](../tests/settings/privacy.spec.ts#L49) | Two people asked to follow a private account. Making it public accepts both requests at once, says how many were accepted, and each requester gets a FOLLOW_ACCEPTED notification. | RF-32.2 |
+| [settings lead to my account, music preferences, language and sign-out](../tests/settings/settings-menu.spec.ts#L4) | From Settings the user opens Minha conta, the music preferences editor and the language screen and comes back from each, and reaches the sign-out confirmation. | RF-32.3 |
+| [recorda details open the sharing interface](../tests/share/share-card.spec.ts#L8) | The user opens their seeded photo from Profile and reaches the sharing screen through its details. | RF-10.1 |
+| [photo exports a portrait PNG with the light preset](../tests/share/share-card.spec.ts#L28) | A real browser download contains a decoded, nonempty PNG in Stories aspect ratio after selecting a preset. | RF-10.2, RF-11.5 |
+| [photo exports a portrait PNG with the mint preset](../tests/share/share-card.spec.ts#L28) | A real browser download contains a decoded, nonempty PNG in Stories aspect ratio after selecting a preset. | RF-10.2, RF-11.5 |
+| [photo exports a portrait PNG with the teal preset](../tests/share/share-card.spec.ts#L28) | A real browser download contains a decoded, nonempty PNG in Stories aspect ratio after selecting a preset. | RF-10.2, RF-11.5 |
+| [photo exports a portrait PNG with the dark preset](../tests/share/share-card.spec.ts#L28) | A real browser download contains a decoded, nonempty PNG in Stories aspect ratio after selecting a preset. | RF-10.2, RF-11.5 |
+| [video exports a portrait PNG with the light preset](../tests/share/share-card.spec.ts#L28) | A real browser download contains a decoded, nonempty PNG in Stories aspect ratio after selecting a preset. | RF-10.2, RF-11.5 |
+| [video exports a portrait PNG with the mint preset](../tests/share/share-card.spec.ts#L28) | A real browser download contains a decoded, nonempty PNG in Stories aspect ratio after selecting a preset. | RF-10.2, RF-11.5 |
+| [video exports a portrait PNG with the teal preset](../tests/share/share-card.spec.ts#L28) | A real browser download contains a decoded, nonempty PNG in Stories aspect ratio after selecting a preset. | RF-10.2, RF-11.5 |
+| [video exports a portrait PNG with the dark preset](../tests/share/share-card.spec.ts#L28) | A real browser download contains a decoded, nonempty PNG in Stories aspect ratio after selecting a preset. | RF-10.2, RF-11.5 |
+| [video sharing displays the first frame as a static image](../tests/share/share-card.spec.ts#L70) | The preview is compared with an independently decoded first frame of the real seeded video, and the download is a still PNG, not a video. | RF-10.4 |
+| [the exported video card shows the first frame cropped, not stretched](../tests/share/share-card.spec.ts#L149) | The media region of the downloaded PNG matches the seeded video's first frame laid out like the preview (cover), and not a later frame. | RF-10.4 |
+| [video card generation shows progress and stays on the device](../tests/share/share-card.spec.ts#L269) | Both thumbnail preparation and final PNG capture show progress. The actual browser export completes without contacting the backend for processing. | RF-10.5 |
+| [presets form a horizontal scrollable list below the card](../tests/share/share-card.spec.ts#L340) | The selector is positioned below the preview and remains horizontally scrollable when a narrow viewport creates overflow. | RF-11.1 |
+| [exactly three predefined presets are offered](../tests/share/share-card.spec.ts#L368) | The selector must offer exactly three styles, as required by US 11; the current frontend offers four. | RF-11.2 |
+| [selecting a preset immediately changes the visible card](../tests/share/share-card.spec.ts#L385) | Changing styles updates both the selected radio and the rendered card without leaving the sharing screen. | RF-11.2, RF-11.4 |
+| [sharing offers Instagram Stories and image download actions](../tests/share/share-card.spec.ts#L425) | After opening the card from Recorda details, both export actions are visible and available; native integrations remain outside this suite. | RF-12.1 |

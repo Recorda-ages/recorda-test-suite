@@ -1,6 +1,6 @@
 import { expect, meta, test } from "../../src/fixtures";
 import { STORAGE_KEYS } from "../../src/support/session";
-import { LOCALE, t } from "../../src/support/i18n";
+import { LOCALE, tIn } from "../../src/support/i18n";
 
 /**
  * First end-to-end user flow: a returning user opens the app, lands on the feed with a
@@ -56,7 +56,7 @@ test.describe("Session lifecycle", () => {
         await expect(profilePage.root).toHaveCount(0);
         await expect(settingsPage.root).toHaveCount(0);
         expect(await page.evaluate(() => navigator.language)).toBe("en-US");
-        await expect(loginPage.submit).toHaveText(t("auth.signIn.submit", "en"));
+        await expect(loginPage.submit).toHaveText(tIn("en", "auth.signIn.submit"));
         expect(await page.evaluate(() => localStorage.getItem("app_language"))).toBe(LOCALE);
       });
 

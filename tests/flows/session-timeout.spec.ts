@@ -73,7 +73,7 @@ test.describe("Session verification deadline", () => {
         "After the current timeout sends the user to Login, releasing a real successful session response cannot reopen Feed or admin.",
       requirement: "RF-01.7"
     }),
-    async ({ page, loginPage, feedPage }) => {
+    async ({ page, adminPage, loginPage, feedPage }) => {
       const pending = await holdSessionResponse(page);
       try {
         await test.step("wait for Login with the session response held", async () => {
@@ -89,7 +89,7 @@ test.describe("Session verification deadline", () => {
           await page.clock.runFor(1501);
           await loginPage.expectLoaded();
           await expect(feedPage.root).toBeHidden();
-          await expect(page.getByTestId("admin-reports-screen")).toBeHidden();
+          await expect(adminPage.screen("reports")).toBeHidden();
           await expect(page.getByTestId("splash-screen-container")).toBeHidden();
         });
       } finally {

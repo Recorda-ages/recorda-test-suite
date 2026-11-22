@@ -64,13 +64,13 @@ test.describe("Opening with a saved administrator session", () => {
         "Admin reaches the moderation area after Splash, with no user navigation, including after reopening.",
       requirement: ["RF-01.2", "RF-01.5"]
     }),
-    async ({ page, feedPage, profilePage }) => {
+    async ({ page, adminPage, feedPage, profilePage }) => {
       for (const launch of ["first launch", "reopening"]) {
         await test.step(launch, async () => {
           await page.goto("/");
           await expect(page.getByTestId(splashId)).toBeVisible();
-          await expect(page.getByTestId("admin-reports-screen")).toBeVisible();
-          await expect(page.getByTestId("admin-bottom-navigation")).toBeVisible();
+          await adminPage.expectLoaded("reports");
+          await expect(adminPage.tabBar("reports").root).toBeVisible();
           await expect(feedPage.root).toBeHidden();
           await expect(profilePage.root).toBeHidden();
           for (const tab of ["feed", "profile", "camera"]) {

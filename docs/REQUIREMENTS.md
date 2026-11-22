@@ -23,7 +23,7 @@ Fontes: Termo de Abertura do Projeto (2026/2) e os Épicos e User Stories das is
 
 ## Resumo
 
-226 requisitos, 199 verificáveis por esta suíte (web ou API), 33 cobertos por 30 teste(s). 9 decididos mas ainda não atendidos pelo código (⚠️).
+226 requisitos, 199 verificáveis por esta suíte (web ou API), 42 cobertos por 46 teste(s). 11 decididos mas ainda não atendidos pelo código (⚠️).
 
 | Épico | Nome | Requisitos | Web | API | Nativo | Manual | Cobertos |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -33,7 +33,7 @@ Fontes: Termo de Abertura do Projeto (2026/2) e os Épicos e User Stories das is
 | E5 | Interações sociais | 39 | 36 | 3 | 0 | 0 | 12 |
 | E6 | Perfil e configurações | 22 | 20 | 2 | 0 | 0 | 2 |
 | E7 | Memórias e estatísticas | 24 | 20 | 0 | 2 | 2 | 0 |
-| E8 | Compartilhamento de cards | 16 | 9 | 0 | 5 | 2 | 0 |
+| E8 | Compartilhamento de cards | 16 | 9 | 0 | 5 | 2 | 9 |
 | E9 | Denúncias | 15 | 12 | 3 | 0 | 0 | 0 |
 | E10 | Administração e moderação | 19 | 18 | 1 | 0 | 0 | 0 |
 | TA | Termo de Abertura (sem User Story) | 1 | 1 | 0 | 0 | 0 | 0 |
@@ -63,6 +63,8 @@ até a implementação (marque-o com `test.fail()` e um comentário apontando o 
 - **RF-08.7**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
 - **RF-09.1**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
 - **RF-09.6**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
+- **RF-10.4**: No web, a captura do card (html2canvas-pro em ShareCardScreen) ignora contentFit="cover" e estica mídias que não são verticais, como o vídeo do seed.
+- **RF-11.2**: ShareCardScreen oferece quatro presets (light, mint, teal, dark); a US 11 exige exatamente três.
 - **RF-17.2**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
 - **RF-24.3**: A linha do comentário não mostra a data (CommentRow em recorda-frontend/src/features/feed/components/RecordaDetailView.tsx).
 - **RF-35.2**: A streak do perfil inclui Recordas excluídas (list_publication_times em recorda-backend/app/repositories/recorda_repository.py), enquanto a de Métricas já as exclui.
@@ -99,7 +101,7 @@ Os requisitos agrupados por jornada do usuário. Cada fluxo tem uma issue em
 | FL-03 Cadastro e onboarding | [#3](https://github.com/Recorda-ages/recorda-test-suite/issues/3) | 11 | 11 | 0 | 0 | sim (`@mutates`) |
 | FL-04 Recuperação de senha | [#4](https://github.com/Recorda-ages/recorda-test-suite/issues/4) | 4 | 4 | 4 | 0 | sim (`@mutates`) |
 | FL-05 Criação e publicação de Recorda | [#5](https://github.com/Recorda-ages/recorda-test-suite/issues/5) | 22 | 17 | 0 | 4 | sim (`@mutates`) |
-| FL-06 Card de compartilhamento | [#6](https://github.com/Recorda-ages/recorda-test-suite/issues/6) | 14 | 9 | 0 | 0 | não |
+| FL-06 Card de compartilhamento | [#6](https://github.com/Recorda-ages/recorda-test-suite/issues/6) | 14 | 9 | 9 | 2 | não |
 | FL-07 Feed | [#7](https://github.com/Recorda-ages/recorda-test-suite/issues/7) | 20 | 15 | 0 | 0 | não |
 | FL-08 Detalhes da Recorda, curtidas e comentários | [#8](https://github.com/Recorda-ages/recorda-test-suite/issues/8) | 17 | 16 | 16 | 2 | sim (`@mutates`) |
 | FL-09 Busca, seguir e rede de seguidores | [#9](https://github.com/Recorda-ages/recorda-test-suite/issues/9) | 17 | 17 | 0 | 0 | sim (`@mutates`) |
@@ -542,11 +544,11 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-10.1 | A partir da tela de detalhes há a interface Compartilhar Recorda. | web | — |
-| RF-10.2 | O card é uma imagem na proporção 9:16 (Stories). | web | — |
+| RF-10.1 | A partir da tela de detalhes há a interface Compartilhar Recorda. | web | [recorda details open the sharing interface](../tests/share/share-card.spec.ts#L8) |
+| RF-10.2 | O card é uma imagem na proporção 9:16 (Stories). | web | [photo exports a portrait PNG with the light preset](../tests/share/share-card.spec.ts#L28)<br>[photo exports a portrait PNG with the mint preset](../tests/share/share-card.spec.ts#L28)<br>[photo exports a portrait PNG with the teal preset](../tests/share/share-card.spec.ts#L28)<br>[photo exports a portrait PNG with the dark preset](../tests/share/share-card.spec.ts#L28)<br>[video exports a portrait PNG with the light preset](../tests/share/share-card.spec.ts#L28)<br>[video exports a portrait PNG with the mint preset](../tests/share/share-card.spec.ts#L28)<br>[video exports a portrait PNG with the teal preset](../tests/share/share-card.spec.ts#L28)<br>[video exports a portrait PNG with the dark preset](../tests/share/share-card.spec.ts#L28) |
 | RF-10.3 | O card contém a mídia, a identidade visual do app e capa e nome da música. | manual | — |
-| RF-10.4 | Para vídeos, o card usa o primeiro quadro: o resultado é sempre uma imagem estática. | web | — |
-| RF-10.5 | A geração ocorre no dispositivo, com indicador de progresso. | web | — |
+| RF-10.4 | Para vídeos, o card usa o primeiro quadro: o resultado é sempre uma imagem estática.<br>⚠️ No web, a captura do card (html2canvas-pro em ShareCardScreen) ignora contentFit="cover" e estica mídias que não são verticais, como o vídeo do seed. | web | [video sharing displays the first frame as a static image](../tests/share/share-card.spec.ts#L70)<br>[the exported video card shows the first frame cropped, not stretched](../tests/share/share-card.spec.ts#L149) |
+| RF-10.5 | A geração ocorre no dispositivo, com indicador de progresso. | web | [video card generation shows progress and stays on the device](../tests/share/share-card.spec.ts#L269) |
 
 ### US 11 — Presets
 
@@ -554,11 +556,11 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-11.1 | Os presets aparecem como lista horizontal rolável abaixo do card. | web | — |
-| RF-11.2 | É possível alternar entre 3 presets pré-definidos. | web | — |
+| RF-11.1 | Os presets aparecem como lista horizontal rolável abaixo do card. | web | [presets form a horizontal scrollable list below the card](../tests/share/share-card.spec.ts#L340) |
+| RF-11.2 | É possível alternar entre 3 presets pré-definidos.<br>⚠️ ShareCardScreen oferece quatro presets (light, mint, teal, dark); a US 11 exige exatamente três. | web | [exactly three predefined presets are offered](../tests/share/share-card.spec.ts#L368)<br>[selecting a preset immediately changes the visible card](../tests/share/share-card.spec.ts#L385) |
 | RF-11.3 | Os presets respeitam a marca (tons de verde e fundo escuro). | manual | — |
-| RF-11.4 | O card é atualizado em tempo real conforme o preset selecionado. | web | — |
-| RF-11.5 | O card exportado é sempre vertical (9:16). | web | — |
+| RF-11.4 | O card é atualizado em tempo real conforme o preset selecionado. | web | [selecting a preset immediately changes the visible card](../tests/share/share-card.spec.ts#L385) |
+| RF-11.5 | O card exportado é sempre vertical (9:16). | web | [photo exports a portrait PNG with the light preset](../tests/share/share-card.spec.ts#L28)<br>[photo exports a portrait PNG with the mint preset](../tests/share/share-card.spec.ts#L28)<br>[photo exports a portrait PNG with the teal preset](../tests/share/share-card.spec.ts#L28)<br>[photo exports a portrait PNG with the dark preset](../tests/share/share-card.spec.ts#L28)<br>[video exports a portrait PNG with the light preset](../tests/share/share-card.spec.ts#L28)<br>[video exports a portrait PNG with the mint preset](../tests/share/share-card.spec.ts#L28)<br>[video exports a portrait PNG with the teal preset](../tests/share/share-card.spec.ts#L28)<br>[video exports a portrait PNG with the dark preset](../tests/share/share-card.spec.ts#L28) |
 
 ### US 12 — Exportação
 
@@ -566,7 +568,7 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-12.1 | A interface oferece botões de ação para compartilhamento. | web | — |
+| RF-12.1 | A interface oferece botões de ação para compartilhamento. | web | [sharing offers Instagram Stories and image download actions](../tests/share/share-card.spec.ts#L425) |
 | RF-12.2 | O compartilhamento aciona a intent específica do Instagram Stories. | nativo | — |
 | RF-12.3 | É possível baixar o card para a galeria do dispositivo. | nativo | — |
 | RF-12.4 | Sem Instagram instalado, há tratamento de erro e compartilhamento genérico do sistema. | nativo | — |
@@ -712,3 +714,19 @@ Ficam fora:
 | [the author is notified of new comments](../tests/recorda-details/recorda-details.spec.ts#L429) | A comment written by someone else shows up in the Recorda author's notifications. | RF-24.6 |
 | [the comment author deletes their comment after confirming](../tests/recorda-details/recorda-details.spec.ts#L457) | Only your own comments show a delete button on someone else's Recorda; deleting asks for confirmation, cancelling keeps the comment and confirming removes it on the server. | RF-25.1, RF-25.3 |
 | [the Recorda author deletes someone else's comment for everyone](../tests/recorda-details/recorda-details.spec.ts#L510) | The author of a Recorda can delete any comment on it; once confirmed, the comment is gone for its writer too. | RF-25.2, RF-25.3 |
+| [recorda details open the sharing interface](../tests/share/share-card.spec.ts#L8) | The user opens their seeded photo from Profile and reaches the sharing screen through its details. | RF-10.1 |
+| [photo exports a portrait PNG with the light preset](../tests/share/share-card.spec.ts#L28) | A real browser download contains a decoded, nonempty PNG in Stories aspect ratio after selecting a preset. | RF-10.2, RF-11.5 |
+| [photo exports a portrait PNG with the mint preset](../tests/share/share-card.spec.ts#L28) | A real browser download contains a decoded, nonempty PNG in Stories aspect ratio after selecting a preset. | RF-10.2, RF-11.5 |
+| [photo exports a portrait PNG with the teal preset](../tests/share/share-card.spec.ts#L28) | A real browser download contains a decoded, nonempty PNG in Stories aspect ratio after selecting a preset. | RF-10.2, RF-11.5 |
+| [photo exports a portrait PNG with the dark preset](../tests/share/share-card.spec.ts#L28) | A real browser download contains a decoded, nonempty PNG in Stories aspect ratio after selecting a preset. | RF-10.2, RF-11.5 |
+| [video exports a portrait PNG with the light preset](../tests/share/share-card.spec.ts#L28) | A real browser download contains a decoded, nonempty PNG in Stories aspect ratio after selecting a preset. | RF-10.2, RF-11.5 |
+| [video exports a portrait PNG with the mint preset](../tests/share/share-card.spec.ts#L28) | A real browser download contains a decoded, nonempty PNG in Stories aspect ratio after selecting a preset. | RF-10.2, RF-11.5 |
+| [video exports a portrait PNG with the teal preset](../tests/share/share-card.spec.ts#L28) | A real browser download contains a decoded, nonempty PNG in Stories aspect ratio after selecting a preset. | RF-10.2, RF-11.5 |
+| [video exports a portrait PNG with the dark preset](../tests/share/share-card.spec.ts#L28) | A real browser download contains a decoded, nonempty PNG in Stories aspect ratio after selecting a preset. | RF-10.2, RF-11.5 |
+| [video sharing displays the first frame as a static image](../tests/share/share-card.spec.ts#L70) | The preview is compared with an independently decoded first frame of the real seeded video, and the download is a still PNG, not a video. | RF-10.4 |
+| [the exported video card shows the first frame cropped, not stretched](../tests/share/share-card.spec.ts#L149) | The media region of the downloaded PNG matches the seeded video's first frame laid out like the preview (cover), and not a later frame. | RF-10.4 |
+| [video card generation shows progress and stays on the device](../tests/share/share-card.spec.ts#L269) | Both thumbnail preparation and final PNG capture show progress. The actual browser export completes without contacting the backend for processing. | RF-10.5 |
+| [presets form a horizontal scrollable list below the card](../tests/share/share-card.spec.ts#L340) | The selector is positioned below the preview and remains horizontally scrollable when a narrow viewport creates overflow. | RF-11.1 |
+| [exactly three predefined presets are offered](../tests/share/share-card.spec.ts#L368) | The selector must offer exactly three styles, as required by US 11; the current frontend offers four. | RF-11.2 |
+| [selecting a preset immediately changes the visible card](../tests/share/share-card.spec.ts#L385) | Changing styles updates both the selected radio and the rendered card without leaving the sharing screen. | RF-11.2, RF-11.4 |
+| [sharing offers Instagram Stories and image download actions](../tests/share/share-card.spec.ts#L425) | After opening the card from Recorda details, both export actions are visible and available; native integrations remain outside this suite. | RF-12.1 |

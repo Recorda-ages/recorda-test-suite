@@ -93,6 +93,11 @@ export class RecordaDetailsPage {
     return this.commentsSheet.getByTestId(`delete-comment-${commentId}`);
   }
 
+  /** Opens the sharing card for this Recorda. */
+  async share(): Promise<void> {
+    await this.shareButton.click();
+  }
+
   async openComments(): Promise<void> {
     await this.commentButton.click();
     await expect(this.commentsSheet).toBeVisible();

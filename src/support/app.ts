@@ -1,6 +1,8 @@
 import { expect, type Page } from "@playwright/test";
 
 import type { TestUser } from "../data/users";
+import { RecordaDetailsPage } from "../pages/RecordaDetailsPage";
+import { ShareCardPage } from "../pages/ShareCardPage";
 import type {
   FeedPage,
   LoginPage,
@@ -84,6 +86,24 @@ export class App {
   async goToProfile(): Promise<void> {
     await this.pages.feedPage.tabBar.select("profile");
     await this.pages.profilePage.expectLoaded();
+  }
+
+  /** Open a stable seed Recorda through the profile, never by a deep link. */
+  async goToRecorda(id: string): Promise<RecordaDetailsPage> {
+    await this.goToProfile();
+    await this.pages.profilePage.openRecorda(id);
+    const details = new RecordaDetailsPage(this.page);
+    await details.expectLoaded();
+    return details;
+  }
+
+  /** Feed → Profile → a seed Recorda → Share. */
+  async goToShareCard(id: string): Promise<ShareCardPage> {
+    const details = await this.goToRecorda(id);
+    await details.share();
+    const share = new ShareCardPage(this.page);
+    await share.expectLoaded();
+    return share;
   }
 
   /** Feed → Profile → Settings. */

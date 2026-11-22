@@ -8,7 +8,8 @@ import {
   NotificationsPage,
   ProfilePage,
   RecordaDetailsPage,
-  SettingsPage
+  SettingsPage,
+  ShareCardPage
 } from "../pages";
 import { assertHasMetadata } from "../requirements/annotations";
 import { RecordaApi } from "../support/api";
@@ -26,6 +27,7 @@ type Fixtures = {
   recordaDetailsPage: RecordaDetailsPage;
   notificationsPage: NotificationsPage;
   adminPage: AdminPage;
+  shareCardPage: ShareCardPage;
   /** Automatic: fails any test declared without `meta()` (description + requirement). */
   requireMetadata: void;
 };
@@ -63,6 +65,7 @@ export const test = base.extend<Fixtures>({
   recordaDetailsPage: async ({ page }, use) => use(new RecordaDetailsPage(page)),
   notificationsPage: async ({ page }, use) => use(new NotificationsPage(page)),
   adminPage: async ({ page }, use) => use(new AdminPage(page)),
+  shareCardPage: async ({ page }, use) => use(new ShareCardPage(page)),
 
   app: async ({ page, loginPage, feedPage, profilePage, settingsPage, notificationsPage }, use) => {
     await use(

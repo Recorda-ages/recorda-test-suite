@@ -8,3 +8,4 @@ export { PasswordRecoveryPage } from "./PasswordRecoveryPage";
 export { ProfilePage } from "./ProfilePage";
 export { RecordaDetailsPage } from "./RecordaDetailsPage";
 export { SettingsPage } from "./SettingsPage";
+export { ShareCardPage } from "./ShareCardPage";

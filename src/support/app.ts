@@ -8,6 +8,7 @@ import type {
   ProfilePage,
   SettingsPage
 } from "../pages";
+import { PasswordRecoveryPage } from "../pages/PasswordRecoveryPage";
 import type { TestAccount } from "./api";
 import { STORAGE_KEYS } from "./session";
 
@@ -68,6 +69,15 @@ export class App {
     await this.pages.loginPage.expectLoaded();
     await this.pages.loginPage.signIn(user);
     await this.pages.feedPage.expectLoaded();
+  }
+
+  /** Login → Forgot password. Starts from the signed-out login screen. */
+  async goToPasswordRecovery(): Promise<PasswordRecoveryPage> {
+    await this.pages.loginPage.expectLoaded();
+    await this.pages.loginPage.forgotPasswordLink.click();
+    const recoveryPage = new PasswordRecoveryPage(this.page);
+    await recoveryPage.expectLoaded();
+    return recoveryPage;
   }
 
   /** Feed → Profile, through the bottom tab bar. */

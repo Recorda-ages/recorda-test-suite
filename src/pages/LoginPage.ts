@@ -17,11 +17,11 @@ export class LoginPage {
 
   constructor(page: Page) {
     this.root = page.getByTestId("login-screen");
-    this.username = page.getByTestId("input-username");
-    this.password = page.getByTestId("input-password");
-    this.submit = page.getByTestId("submit-button");
-    this.signUpLink = page.getByTestId("sign-up-link");
-    this.forgotPasswordLink = page.getByTestId("forgot-password-link");
+    this.username = this.root.getByTestId("input-username");
+    this.password = this.root.getByTestId("input-password");
+    this.submit = this.root.getByTestId("submit-button");
+    this.signUpLink = this.root.getByTestId("sign-up-link");
+    this.forgotPasswordLink = this.root.getByTestId("forgot-password-link");
     this.formError = this.root.locator('[aria-live="polite"]');
   }
 

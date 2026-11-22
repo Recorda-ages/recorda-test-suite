@@ -23,11 +23,11 @@ Fontes: Termo de Abertura do Projeto (2026/2) e os Épicos e User Stories das is
 
 ## Resumo
 
-226 requisitos, 199 verificáveis por esta suíte (web ou API), 24 cobertos por 17 teste(s). 9 decididos mas ainda não atendidos pelo código (⚠️).
+226 requisitos, 199 verificáveis por esta suíte (web ou API), 28 cobertos por 23 teste(s). 9 decididos mas ainda não atendidos pelo código (⚠️).
 
 | Épico | Nome | Requisitos | Web | API | Nativo | Manual | Cobertos |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| E2 | Autenticação, cadastro e onboarding | 32 | 26 | 4 | 0 | 2 | 6 |
+| E2 | Autenticação, cadastro e onboarding | 32 | 26 | 4 | 0 | 2 | 10 |
 | E3 | Criação e publicação de Recordas | 25 | 16 | 4 | 5 | 0 | 0 |
 | E4 | Feed | 26 | 18 | 2 | 6 | 0 | 4 |
 | E5 | Interações sociais | 39 | 36 | 3 | 0 | 0 | 12 |
@@ -97,7 +97,7 @@ Os requisitos agrupados por jornada do usuário. Cada fluxo tem uma issue em
 | FL-01 Abertura do app e sessão | [#1](https://github.com/Recorda-ages/recorda-test-suite/issues/1) | 9 | 9 | 4 | 1 | não |
 | FL-02 Login | [#2](https://github.com/Recorda-ages/recorda-test-suite/issues/2) | 4 | 4 | 4 | 0 | não |
 | FL-03 Cadastro e onboarding | [#3](https://github.com/Recorda-ages/recorda-test-suite/issues/3) | 11 | 11 | 0 | 0 | sim (`@mutates`) |
-| FL-04 Recuperação de senha | [#4](https://github.com/Recorda-ages/recorda-test-suite/issues/4) | 4 | 4 | 0 | 0 | sim (`@mutates`) |
+| FL-04 Recuperação de senha | [#4](https://github.com/Recorda-ages/recorda-test-suite/issues/4) | 4 | 4 | 4 | 0 | sim (`@mutates`) |
 | FL-05 Criação e publicação de Recorda | [#5](https://github.com/Recorda-ages/recorda-test-suite/issues/5) | 22 | 17 | 0 | 4 | sim (`@mutates`) |
 | FL-06 Card de compartilhamento | [#6](https://github.com/Recorda-ages/recorda-test-suite/issues/6) | 14 | 9 | 0 | 0 | não |
 | FL-07 Feed | [#7](https://github.com/Recorda-ages/recorda-test-suite/issues/7) | 20 | 15 | 0 | 0 | não |
@@ -180,10 +180,10 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-05.1 | A tela Recuperar Senha tem os campos Email, Nova Senha e Confirmar Senha e o botão Redefinir Senha. | web | — |
-| RF-05.2 | Nova Senha e Confirmar Senha devem ser idênticas e ter no mínimo 8 caracteres. | web | — |
-| RF-05.3 | A senha da conta com o email informado é substituída diretamente, sem email nem token de verificação. | web | — |
-| RF-05.4 | Email sem conta exibe o mesmo erro genérico das outras falhas, sem confirmar a existência da conta. | web | — |
+| RF-05.1 | A tela Recuperar Senha tem os campos Email, Nova Senha e Confirmar Senha e o botão Redefinir Senha. | web | [resetting a password to eight characters replaces the old credentials](../tests/auth/password-recovery.spec.ts#L24) |
+| RF-05.2 | Nova Senha e Confirmar Senha devem ser idênticas e ter no mínimo 8 caracteres. | web | [resetting a password to eight characters replaces the old credentials](../tests/auth/password-recovery.spec.ts#L24)<br>[password recovery stays blocked by matching seven-character passwords until corrected](../tests/auth/password-recovery.spec.ts#L77)<br>[password recovery stays blocked by a seven-character new password until corrected](../tests/auth/password-recovery.spec.ts#L77)<br>[password recovery stays blocked by a seven-character confirmation until corrected](../tests/auth/password-recovery.spec.ts#L77)<br>[different passwords block recovery until the confirmation matches](../tests/auth/password-recovery.spec.ts#L115) |
+| RF-05.3 | A senha da conta com o email informado é substituída diretamente, sem email nem token de verificação. | web | [resetting a password to eight characters replaces the old credentials](../tests/auth/password-recovery.spec.ts#L24) |
+| RF-05.4 | Email sem conta exibe o mesmo erro genérico das outras falhas, sem confirmar a existência da conta. | web | [an unknown recovery email shows the same generic error as a network failure](../tests/auth/password-recovery.spec.ts#L148) |
 
 ## E3 — Criação e publicação de Recordas
 
@@ -682,6 +682,12 @@ Ficam fora:
 
 | Teste | Descrição | Requisitos |
 | --- | --- | --- |
+| [resetting a password to eight characters replaces the old credentials](../tests/auth/password-recovery.spec.ts#L24) | A signed-out user opens Recovery from Login, resets a dedicated account with matching eight-character passwords without email verification, and signs in only with the new password. | RF-05.1, RF-05.2, RF-05.3 |
+| [password recovery stays blocked by matching seven-character passwords until corrected](../tests/auth/password-recovery.spec.ts#L77) | Recovery rejects matching seven-character passwords. Correcting both fields to the same longer password allows the user to reset the dedicated account and sign in. | RF-05.2 |
+| [password recovery stays blocked by a seven-character new password until corrected](../tests/auth/password-recovery.spec.ts#L77) | Recovery rejects a seven-character new password. Correcting both fields to the same longer password allows the user to reset the dedicated account and sign in. | RF-05.2 |
+| [password recovery stays blocked by a seven-character confirmation until corrected](../tests/auth/password-recovery.spec.ts#L77) | Recovery rejects a seven-character confirmation. Correcting both fields to the same longer password allows the user to reset the dedicated account and sign in. | RF-05.2 |
+| [different passwords block recovery until the confirmation matches](../tests/auth/password-recovery.spec.ts#L115) | Two different passwords of at least eight characters cannot reset an account. Correcting the confirmation allows recovery and a new sign-in. | RF-05.2 |
+| [an unknown recovery email shows the same generic error as a network failure](../tests/auth/password-recovery.spec.ts#L148) | An unknown email and a failed reset request for a dedicated account show exactly the same generic message. Retrying with a working connection resets the account and allows sign-in. | RF-05.4 |
 | [a signed-out user sees the login screen](../tests/auth/sign-in.spec.ts#L8) | Without a saved session the Splash hands over to Login, whose submit button stays disabled until the form is filled. | RF-01.3 |
 | [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L24) | A regular account signs in with username and password on the shared login screen and lands on the Feed. | RF-04.1, RF-04.5 |
 | [an administrator signs in on the same screen and lands on the admin area](../tests/auth/sign-in.spec.ts#L39) | The admin uses the same login form and lands on Denúncias. No admin tab shows the Feed or the app's bottom bar (Feed, Câmera, Perfil). | RF-04.1, RF-04.4 |

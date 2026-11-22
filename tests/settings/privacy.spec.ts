@@ -1,4 +1,3 @@
-import { uniquePreferences } from "../../src/data/music";
 import { expect, meta, signedInAsNewAccount, test } from "../../src/fixtures";
 import { t } from "../../src/support/i18n";
 
@@ -15,7 +14,7 @@ test.describe("Account privacy", () => {
       tag: "@mutates"
     }),
     async ({ app, api, newAccount, settingsPage }) => {
-      const isPrivate = async () => (await api.settings(newAccount.session)).is_private;
+      const isPrivate = async () => (await api.settings(newAccount)).is_private;
 
       await app.launch();
       await app.goToSettings();
@@ -58,17 +57,17 @@ test.describe("Account privacy", () => {
       tag: "@mutates"
     }),
     async ({ app, api, newAccount, settingsPage }) => {
-      const owner = newAccount.session;
+      const owner = newAccount;
       const requesters = await test.step("two people ask to follow a private account", async () => {
-        await api.updateSettings(owner, { is_private: true });
+        await api.setPrivate(owner, true);
         const created = await Promise.all([
-          api.createAccount({ preferences: uniquePreferences() }),
-          api.createAccount({ preferences: uniquePreferences() })
+          api.createUser("requester"),
+          api.createUser("requester")
         ]);
         for (const requester of created) {
-          expect(await api.follow(requester.session, owner.user.user_id)).toBe("solicitado");
+          expect(await api.follow(requester, owner)).toBe("solicitado");
         }
-        expect(await api.followers(owner, owner.user.user_id)).toEqual([]);
+        expect(await api.followers(owner)).toEqual([]);
         return created;
       });
 
@@ -81,15 +80,13 @@ test.describe("Account privacy", () => {
         await expect(
           settingsPage.root.getByText(t("settings.accepted_other", { count: 2 }))
         ).toBeVisible();
-        const followers = (await api.followers(owner, owner.user.user_id)).map(
-          (follower) => follower.username
-        );
+        const followers = await api.followers(owner);
         expect(followers.sort()).toEqual(requesters.map(({ user }) => user.username).sort());
       });
 
       await test.step("each requester is told the request was accepted", async () => {
         for (const requester of requesters) {
-          const notifications = await api.notifications(requester.session);
+          const { items: notifications } = await api.notifications(requester);
           expect(notifications).toContainEqual(
             expect.objectContaining({
               type: "FOLLOW_ACCEPTED",

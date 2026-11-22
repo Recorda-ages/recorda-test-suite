@@ -133,7 +133,7 @@ test.describe("Editing music preferences", () => {
       });
 
       await test.step("the account keeps exactly that song", async () => {
-        const { favorite_track } = await api.musicPreferences(newAccount.session);
+        const { favorite_track } = await api.musicPreferences(newAccount);
         expect(`${favorite_track.title}, ${favorite_track.artist_name}`).toBe(picked);
       });
     }
@@ -203,7 +203,7 @@ test.describe("Editing music preferences", () => {
       });
 
       const saved = await test.step("the account has the new preferences", async () => {
-        const preferences = await api.musicPreferences(newAccount.session);
+        const preferences = await api.musicPreferences(newAccount);
         expect(preferences.artists.map((artist) => artist.name).sort()).toEqual(
           [...chosen.artists].sort()
         );
@@ -219,18 +219,18 @@ test.describe("Editing music preferences", () => {
       const expectProfileShowsNewTastes = async () => {
         const song = saved.favorite_track;
         await expect(
-          profilePage.favoriteSong({ title: song.title, artistName: song.artist_name })
+          profilePage.details.song({ title: song.title, artistName: song.artist_name })
         ).toBeVisible();
         const [firstArtist, ...otherArtists] = chosen.artists.map((name) =>
-          profilePage.favoriteArtist(name)
+          profilePage.details.artist(name)
         );
         await expect(otherArtists.reduce((any, item) => any.or(item), firstArtist!)).toBeVisible();
         const [firstGenre, ...otherGenres] = chosen.genres.map((name) =>
-          profilePage.favoriteGenre(name)
+          profilePage.details.genre(name)
         );
         await expect(otherGenres.reduce((any, item) => any.or(item), firstGenre!)).toBeVisible();
         for (const name of oldArtists) {
-          await expect(profilePage.favoriteArtist(name)).toHaveCount(0);
+          await expect(profilePage.details.artist(name)).toHaveCount(0);
         }
       };
 

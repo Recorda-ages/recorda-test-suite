@@ -12,6 +12,7 @@ import { t } from "../support/i18n";
 export class MusicPreferencesPage {
   readonly artistsStep: Locator;
   readonly genresStep: Locator;
+  readonly musicStep: Locator;
   readonly backButton: Locator;
   readonly artists: Locator;
   readonly genres: Locator;
@@ -23,17 +24,14 @@ export class MusicPreferencesPage {
   constructor(page: Page) {
     this.artistsStep = page.getByTestId("onboarding-artists-screen");
     this.genresStep = page.getByTestId("onboarding-genres-screen");
+    this.musicStep = page.getByTestId("onboarding-music-screen");
     this.backButton = this.artistsStep.getByTestId("onboarding-artists-back-button");
     this.artists = this.artistsStep.getByRole("checkbox");
     this.genres = this.genresStep.getByRole("checkbox");
-    // TODO(frontend): add testID="onboarding-music-screen" to OnboardingMusicScreen and
-    // scope the song list to it. Until then this is the only list of radios on screen.
-    this.songs = page.getByRole("radio");
+    this.songs = this.musicStep.getByRole("radio");
     this.nextFromArtists = this.artistsStep.getByTestId("onboarding-artists-next-button");
-    this.nextFromGenres = this.genresStep.getByRole("button", {
-      name: t("onboarding.genres.continue")
-    });
-    this.saveButton = page.getByTestId("onboarding-music-finish-button");
+    this.nextFromGenres = this.genresStep.getByTestId("onboarding-genres-next-button");
+    this.saveButton = this.musicStep.getByTestId("onboarding-music-finish-button");
   }
 
   async expectLoaded(): Promise<void> {

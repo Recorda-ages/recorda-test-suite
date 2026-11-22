@@ -24,7 +24,7 @@ test.describe("Minha conta: personal data", () => {
       await accountPage.save();
 
       await expect(accountPage.error(t("auth.validation.emailInvalid"))).toBeVisible();
-      expect((await api.account(newAccount.session)).email).toBe(newAccount.user.email);
+      expect((await api.accountDetails(newAccount)).email).toBe(newAccount.user.email);
     }
   );
 
@@ -56,7 +56,7 @@ test.describe("Minha conta: personal data", () => {
       await accountPage.save();
 
       await expect(accountPage.toast).toHaveText(t("account.saveSuccess"));
-      expect(await api.account(newAccount.session)).toMatchObject(changes);
+      expect(await api.accountDetails(newAccount)).toMatchObject(changes);
     }
   );
 
@@ -73,7 +73,7 @@ test.describe("Minha conta: personal data", () => {
       // RF-34.1: uniqueness is checked by the backend, which Minha conta does not call yet
       // (accountService.mock). Remove test.fail() when it calls the API.
       test.fail();
-      const takenEmail = (await api.account(await api.login(users.gabriel))).email;
+      const takenEmail = (await api.accountDetails(await api.account(users.gabriel))).email;
 
       await app.launch();
       await app.goToAccount();
@@ -82,7 +82,7 @@ test.describe("Minha conta: personal data", () => {
 
       await expect(accountPage.error(t("account.emailTaken"))).toBeVisible();
       await expect(accountPage.email).toHaveValue(takenEmail);
-      expect((await api.account(newAccount.session)).email).toBe(newAccount.user.email);
+      expect((await api.accountDetails(newAccount)).email).toBe(newAccount.user.email);
     }
   );
 });

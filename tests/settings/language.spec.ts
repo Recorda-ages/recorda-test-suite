@@ -90,7 +90,7 @@ test.describe("Language chosen in Settings", () => {
         await expect(
           languagePage.root.getByText(tIn("es", "language.title"), { exact: true })
         ).toBeVisible();
-        await expect.poll(async () => (await api.settings(newAccount.session)).language).toBe("es");
+        await expect.poll(async () => (await api.settings(newAccount)).language).toBe("es");
       });
 
       await test.step("the app reopens in Spanish", async () => {
@@ -124,7 +124,7 @@ test.describe("Translated interface", () => {
         languagePage,
         accountPage
       }) => {
-        await api.updateSettings(newAccount.session, { language: locale });
+        await api.updateSettings(newAccount, { language: locale });
         await app.launch();
 
         await test.step("feed", async () => {

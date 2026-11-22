@@ -23,17 +23,17 @@ Fontes: Termo de Abertura do Projeto (2026/2) e os Épicos e User Stories das is
 
 ## Resumo
 
-226 requisitos, 199 verificáveis por esta suíte (web ou API), 34 cobertos por 23 teste(s). 9 decididos mas ainda não atendidos pelo código (⚠️).
+226 requisitos, 199 verificáveis por esta suíte (web ou API), 53 cobertos por 53 teste(s). 11 decididos mas ainda não atendidos pelo código (⚠️).
 
 | Épico | Nome | Requisitos | Web | API | Nativo | Manual | Cobertos |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| E2 | Autenticação, cadastro e onboarding | 32 | 26 | 4 | 0 | 2 | 16 |
+| E2 | Autenticação, cadastro e onboarding | 32 | 26 | 4 | 0 | 2 | 26 |
 | E3 | Criação e publicação de Recordas | 25 | 16 | 4 | 5 | 0 | 0 |
 | E4 | Feed | 26 | 18 | 2 | 6 | 0 | 4 |
 | E5 | Interações sociais | 39 | 36 | 3 | 0 | 0 | 12 |
 | E6 | Perfil e configurações | 22 | 20 | 2 | 0 | 0 | 2 |
 | E7 | Memórias e estatísticas | 24 | 20 | 0 | 2 | 2 | 0 |
-| E8 | Compartilhamento de cards | 16 | 9 | 0 | 5 | 2 | 0 |
+| E8 | Compartilhamento de cards | 16 | 9 | 0 | 5 | 2 | 9 |
 | E9 | Denúncias | 15 | 12 | 3 | 0 | 0 | 0 |
 | E10 | Administração e moderação | 19 | 18 | 1 | 0 | 0 | 0 |
 | TA | Termo de Abertura (sem User Story) | 1 | 1 | 0 | 0 | 0 | 0 |
@@ -63,6 +63,8 @@ até a implementação (marque-o com `test.fail()` e um comentário apontando o 
 - **RF-08.7**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
 - **RF-09.1**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
 - **RF-09.6**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
+- **RF-10.4**: No web, a captura do card (html2canvas-pro em ShareCardScreen) ignora contentFit="cover" e estica mídias que não são verticais, como o vídeo do seed.
+- **RF-11.2**: ShareCardScreen oferece quatro presets (light, mint, teal, dark); a US 11 exige exatamente três.
 - **RF-17.2**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
 - **RF-24.3**: A linha do comentário não mostra a data (CommentRow em recorda-frontend/src/features/feed/components/RecordaDetailView.tsx).
 - **RF-35.2**: A streak do perfil inclui Recordas excluídas (list_publication_times em recorda-backend/app/repositories/recorda_repository.py), enquanto a de Métricas já as exclui.
@@ -94,12 +96,12 @@ Os requisitos agrupados por jornada do usuário. Cada fluxo tem uma issue em
 
 | Fluxo | Issue | Requisitos | Web (Playwright) | Cobertos | Lacunas | Escreve dados |
 | --- | --- | --- | --- | --- | --- | --- |
-| FL-01 Abertura do app e sessão | [#1](https://github.com/Recorda-ages/recorda-test-suite/issues/1) | 9 | 9 | 4 | 1 | não |
-| FL-02 Login | [#2](https://github.com/Recorda-ages/recorda-test-suite/issues/2) | 4 | 4 | 3 | 0 | não |
+| FL-01 Abertura do app e sessão | [#1](https://github.com/Recorda-ages/recorda-test-suite/issues/1) | 9 | 9 | 9 | 1 | não |
+| FL-02 Login | [#2](https://github.com/Recorda-ages/recorda-test-suite/issues/2) | 4 | 4 | 4 | 0 | não |
 | FL-03 Cadastro e onboarding | [#3](https://github.com/Recorda-ages/recorda-test-suite/issues/3) | 11 | 11 | 11 | 0 | sim (`@mutates`) |
-| FL-04 Recuperação de senha | [#4](https://github.com/Recorda-ages/recorda-test-suite/issues/4) | 4 | 4 | 0 | 0 | sim (`@mutates`) |
+| FL-04 Recuperação de senha | [#4](https://github.com/Recorda-ages/recorda-test-suite/issues/4) | 4 | 4 | 4 | 0 | sim (`@mutates`) |
 | FL-05 Criação e publicação de Recorda | [#5](https://github.com/Recorda-ages/recorda-test-suite/issues/5) | 22 | 17 | 0 | 4 | sim (`@mutates`) |
-| FL-06 Card de compartilhamento | [#6](https://github.com/Recorda-ages/recorda-test-suite/issues/6) | 14 | 9 | 0 | 0 | não |
+| FL-06 Card de compartilhamento | [#6](https://github.com/Recorda-ages/recorda-test-suite/issues/6) | 14 | 9 | 9 | 2 | não |
 | FL-07 Feed | [#7](https://github.com/Recorda-ages/recorda-test-suite/issues/7) | 20 | 15 | 0 | 0 | não |
 | FL-08 Detalhes da Recorda, curtidas e comentários | [#8](https://github.com/Recorda-ages/recorda-test-suite/issues/8) | 17 | 16 | 16 | 2 | sim (`@mutates`) |
 | FL-09 Busca, seguir e rede de seguidores | [#9](https://github.com/Recorda-ages/recorda-test-suite/issues/9) | 17 | 17 | 0 | 0 | sim (`@mutates`) |
@@ -125,12 +127,12 @@ Ficam fora:
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
 | RF-01.1 | Exibir a Splash Screen com a identidade visual (fundo escuro, logo) conforme os protótipos do Figma. | manual | — |
-| RF-01.2 | A Splash Screen é obrigatoriamente a primeira etapa ao abrir o aplicativo. | web | — |
-| RF-01.3 | Sem sessão salva, a Splash encaminha para o Login. | web | [a signed-out user sees the login screen](../tests/auth/sign-in.spec.ts#L8) |
-| RF-01.4 | Com sessão válida de conta comum, a Splash encaminha para o Feed. | web | — |
-| RF-01.5 | Com sessão válida de administrador, a Splash encaminha para a área administrativa, sem acesso a Feed, Perfil ou Criar Recorda. | web | — |
-| RF-01.6 | Sessão inválida ou expirada é apagada e o usuário vai para o Login. | web | — |
-| RF-01.7 | Se a verificação de sessão demorar mais que 3 s, o app segue para o Login; uma resposta tardia nunca causa uma segunda navegação.<br>_Fonte: Decisão do time, 2026-11-08: 3 s é o valor correto._<br>⚠️ O código usa 5 s (SPLASH_TIMEOUT_MS em recorda-frontend/src/features/splash/screens/SplashScreen.tsx). | web | — |
+| RF-01.2 | A Splash Screen é obrigatoriamente a primeira etapa ao abrir o aplicativo. | web | [splash is the first screen and hands over to login](../tests/flows/session-startup.spec.ts#L10)<br>[a saved user session opens the feed and survives reopening](../tests/flows/session-startup.spec.ts#L33)<br>[a saved administrator session opens only the administrative area](../tests/flows/session-startup.spec.ts#L60) |
+| RF-01.3 | Sem sessão salva, a Splash encaminha para o Login. | web | [a signed-out user sees the login screen](../tests/auth/sign-in.spec.ts#L8)<br>[splash is the first screen and hands over to login](../tests/flows/session-startup.spec.ts#L10) |
+| RF-01.4 | Com sessão válida de conta comum, a Splash encaminha para o Feed. | web | [a saved user session opens the feed and survives reopening](../tests/flows/session-startup.spec.ts#L33) |
+| RF-01.5 | Com sessão válida de administrador, a Splash encaminha para a área administrativa, sem acesso a Feed, Perfil ou Criar Recorda. | web | [a saved administrator session opens only the administrative area](../tests/flows/session-startup.spec.ts#L60) |
+| RF-01.6 | Sessão inválida ou expirada é apagada e o usuário vai para o Login. | web | [an invalid session is cleared before returning to login](../tests/flows/session-startup.spec.ts#L94)<br>[an expired session is cleared before returning to login](../tests/flows/session-startup.spec.ts#L94) |
+| RF-01.7 | Se a verificação de sessão demorar mais que 3 s, o app segue para o Login; uma resposta tardia nunca causa uma segunda navegação.<br>_Fonte: Decisão do time, 2026-11-08: 3 s é o valor correto._<br>⚠️ O código usa 5 s (SPLASH_TIMEOUT_MS em recorda-frontend/src/features/splash/screens/SplashScreen.tsx). | web | [a slow session check sends the user to login after three seconds](../tests/flows/session-timeout.spec.ts#L42)<br>[a late valid session response cannot navigate away from login](../tests/flows/session-timeout.spec.ts#L69) |
 
 ### US 2 — Cadastro de Usuário
 
@@ -166,12 +168,12 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-04.1 | A tela de Login tem os campos Usuário e Senha e é a mesma para usuários comuns e administradores. | web | [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L24) |
+| RF-04.1 | A tela de Login tem os campos Usuário e Senha e é a mesma para usuários comuns e administradores. | web | [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L24)<br>[an administrator signs in on the same screen and lands on the admin area](../tests/auth/sign-in.spec.ts#L39) |
 | RF-04.2 | As credenciais são validadas no backend, que retorna também o tipo de conta. | API | — |
-| RF-04.3 | Credenciais inválidas exibem uma única mensagem genérica, sem revelar qual campo está incorreto. | web | [invalid credentials show one generic error](../tests/auth/sign-in.spec.ts#L39) |
-| RF-04.4 | Administradores são roteados para a área administrativa, sem acesso à navegação do app comum. | web | — |
+| RF-04.3 | Credenciais inválidas exibem uma única mensagem genérica, sem revelar qual campo está incorreto. | web | [invalid credentials show one generic error](../tests/auth/sign-in.spec.ts#L71) |
+| RF-04.4 | Administradores são roteados para a área administrativa, sem acesso à navegação do app comum. | web | [an administrator signs in on the same screen and lands on the admin area](../tests/auth/sign-in.spec.ts#L39) |
 | RF-04.5 | Usuários comuns são roteados para o Feed. | web | [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L24) |
-| RF-04.6 | A sessão é persistida no dispositivo: reabrir o app não exige novo login. | web | [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L10) |
+| RF-04.6 | A sessão é persistida no dispositivo: reabrir o app não exige novo login. | web | [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L14)<br>[a saved user session opens the feed and survives reopening](../tests/flows/session-startup.spec.ts#L33) |
 | RF-04.7 | Não há expiração de sessão por inatividade; a sessão dura até o token expirar. | API | — |
 
 ### US 5 — Recuperação de Senha
@@ -180,10 +182,10 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-05.1 | A tela Recuperar Senha tem os campos Email, Nova Senha e Confirmar Senha e o botão Redefinir Senha. | web | — |
-| RF-05.2 | Nova Senha e Confirmar Senha devem ser idênticas e ter no mínimo 8 caracteres. | web | — |
-| RF-05.3 | A senha da conta com o email informado é substituída diretamente, sem email nem token de verificação. | web | — |
-| RF-05.4 | Email sem conta exibe o mesmo erro genérico das outras falhas, sem confirmar a existência da conta. | web | — |
+| RF-05.1 | A tela Recuperar Senha tem os campos Email, Nova Senha e Confirmar Senha e o botão Redefinir Senha. | web | [resetting a password to eight characters replaces the old credentials](../tests/auth/password-recovery.spec.ts#L24) |
+| RF-05.2 | Nova Senha e Confirmar Senha devem ser idênticas e ter no mínimo 8 caracteres. | web | [resetting a password to eight characters replaces the old credentials](../tests/auth/password-recovery.spec.ts#L24)<br>[password recovery stays blocked by matching seven-character passwords until corrected](../tests/auth/password-recovery.spec.ts#L77)<br>[password recovery stays blocked by a seven-character new password until corrected](../tests/auth/password-recovery.spec.ts#L77)<br>[password recovery stays blocked by a seven-character confirmation until corrected](../tests/auth/password-recovery.spec.ts#L77)<br>[different passwords block recovery until the confirmation matches](../tests/auth/password-recovery.spec.ts#L115) |
+| RF-05.3 | A senha da conta com o email informado é substituída diretamente, sem email nem token de verificação. | web | [resetting a password to eight characters replaces the old credentials](../tests/auth/password-recovery.spec.ts#L24) |
+| RF-05.4 | Email sem conta exibe o mesmo erro genérico das outras falhas, sem confirmar a existência da conta. | web | [an unknown recovery email shows the same generic error as a network failure](../tests/auth/password-recovery.spec.ts#L148) |
 
 ## E3 — Criação e publicação de Recordas
 
@@ -484,8 +486,8 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-36.1 | Sair pede confirmação. | web | [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L10) |
-| RF-36.2 | Ao confirmar, a sessão e os dados em memória são limpos, o app vai para o Login e o idioma local do aparelho é preservado. | web | [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L10) |
+| RF-36.1 | Sair pede confirmação. | web | [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L14) |
+| RF-36.2 | Ao confirmar, a sessão e os dados em memória são limpos, o app vai para o Login e o idioma local do aparelho é preservado. | web | [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L14) |
 
 ## E7 — Memórias e estatísticas
 
@@ -542,11 +544,11 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-10.1 | A partir da tela de detalhes há a interface Compartilhar Recorda. | web | — |
-| RF-10.2 | O card é uma imagem na proporção 9:16 (Stories). | web | — |
+| RF-10.1 | A partir da tela de detalhes há a interface Compartilhar Recorda. | web | [recorda details open the sharing interface](../tests/share/share-card.spec.ts#L8) |
+| RF-10.2 | O card é uma imagem na proporção 9:16 (Stories). | web | [photo exports a portrait PNG with the light preset](../tests/share/share-card.spec.ts#L28)<br>[photo exports a portrait PNG with the mint preset](../tests/share/share-card.spec.ts#L28)<br>[photo exports a portrait PNG with the teal preset](../tests/share/share-card.spec.ts#L28)<br>[photo exports a portrait PNG with the dark preset](../tests/share/share-card.spec.ts#L28)<br>[video exports a portrait PNG with the light preset](../tests/share/share-card.spec.ts#L28)<br>[video exports a portrait PNG with the mint preset](../tests/share/share-card.spec.ts#L28)<br>[video exports a portrait PNG with the teal preset](../tests/share/share-card.spec.ts#L28)<br>[video exports a portrait PNG with the dark preset](../tests/share/share-card.spec.ts#L28) |
 | RF-10.3 | O card contém a mídia, a identidade visual do app e capa e nome da música. | manual | — |
-| RF-10.4 | Para vídeos, o card usa o primeiro quadro: o resultado é sempre uma imagem estática. | web | — |
-| RF-10.5 | A geração ocorre no dispositivo, com indicador de progresso. | web | — |
+| RF-10.4 | Para vídeos, o card usa o primeiro quadro: o resultado é sempre uma imagem estática.<br>⚠️ No web, a captura do card (html2canvas-pro em ShareCardScreen) ignora contentFit="cover" e estica mídias que não são verticais, como o vídeo do seed. | web | [video sharing displays the first frame as a static image](../tests/share/share-card.spec.ts#L70)<br>[the exported video card shows the first frame cropped, not stretched](../tests/share/share-card.spec.ts#L149) |
+| RF-10.5 | A geração ocorre no dispositivo, com indicador de progresso. | web | [video card generation shows progress and stays on the device](../tests/share/share-card.spec.ts#L269) |
 
 ### US 11 — Presets
 
@@ -554,11 +556,11 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-11.1 | Os presets aparecem como lista horizontal rolável abaixo do card. | web | — |
-| RF-11.2 | É possível alternar entre 3 presets pré-definidos. | web | — |
+| RF-11.1 | Os presets aparecem como lista horizontal rolável abaixo do card. | web | [presets form a horizontal scrollable list below the card](../tests/share/share-card.spec.ts#L340) |
+| RF-11.2 | É possível alternar entre 3 presets pré-definidos.<br>⚠️ ShareCardScreen oferece quatro presets (light, mint, teal, dark); a US 11 exige exatamente três. | web | [exactly three predefined presets are offered](../tests/share/share-card.spec.ts#L368)<br>[selecting a preset immediately changes the visible card](../tests/share/share-card.spec.ts#L385) |
 | RF-11.3 | Os presets respeitam a marca (tons de verde e fundo escuro). | manual | — |
-| RF-11.4 | O card é atualizado em tempo real conforme o preset selecionado. | web | — |
-| RF-11.5 | O card exportado é sempre vertical (9:16). | web | — |
+| RF-11.4 | O card é atualizado em tempo real conforme o preset selecionado. | web | [selecting a preset immediately changes the visible card](../tests/share/share-card.spec.ts#L385) |
+| RF-11.5 | O card exportado é sempre vertical (9:16). | web | [photo exports a portrait PNG with the light preset](../tests/share/share-card.spec.ts#L28)<br>[photo exports a portrait PNG with the mint preset](../tests/share/share-card.spec.ts#L28)<br>[photo exports a portrait PNG with the teal preset](../tests/share/share-card.spec.ts#L28)<br>[photo exports a portrait PNG with the dark preset](../tests/share/share-card.spec.ts#L28)<br>[video exports a portrait PNG with the light preset](../tests/share/share-card.spec.ts#L28)<br>[video exports a portrait PNG with the mint preset](../tests/share/share-card.spec.ts#L28)<br>[video exports a portrait PNG with the teal preset](../tests/share/share-card.spec.ts#L28)<br>[video exports a portrait PNG with the dark preset](../tests/share/share-card.spec.ts#L28) |
 
 ### US 12 — Exportação
 
@@ -566,7 +568,7 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-12.1 | A interface oferece botões de ação para compartilhamento. | web | — |
+| RF-12.1 | A interface oferece botões de ação para compartilhamento. | web | [sharing offers Instagram Stories and image download actions](../tests/share/share-card.spec.ts#L425) |
 | RF-12.2 | O compartilhamento aciona a intent específica do Instagram Stories. | nativo | — |
 | RF-12.3 | É possível baixar o card para a galeria do dispositivo. | nativo | — |
 | RF-12.4 | Sem Instagram instalado, há tratamento de erro e compartilhamento genérico do sistema. | nativo | — |
@@ -682,9 +684,16 @@ Ficam fora:
 
 | Teste | Descrição | Requisitos |
 | --- | --- | --- |
+| [resetting a password to eight characters replaces the old credentials](../tests/auth/password-recovery.spec.ts#L24) | A signed-out user opens Recovery from Login, resets a dedicated account with matching eight-character passwords without email verification, and signs in only with the new password. | RF-05.1, RF-05.2, RF-05.3 |
+| [password recovery stays blocked by matching seven-character passwords until corrected](../tests/auth/password-recovery.spec.ts#L77) | Recovery rejects matching seven-character passwords. Correcting both fields to the same longer password allows the user to reset the dedicated account and sign in. | RF-05.2 |
+| [password recovery stays blocked by a seven-character new password until corrected](../tests/auth/password-recovery.spec.ts#L77) | Recovery rejects a seven-character new password. Correcting both fields to the same longer password allows the user to reset the dedicated account and sign in. | RF-05.2 |
+| [password recovery stays blocked by a seven-character confirmation until corrected](../tests/auth/password-recovery.spec.ts#L77) | Recovery rejects a seven-character confirmation. Correcting both fields to the same longer password allows the user to reset the dedicated account and sign in. | RF-05.2 |
+| [different passwords block recovery until the confirmation matches](../tests/auth/password-recovery.spec.ts#L115) | Two different passwords of at least eight characters cannot reset an account. Correcting the confirmation allows recovery and a new sign-in. | RF-05.2 |
+| [an unknown recovery email shows the same generic error as a network failure](../tests/auth/password-recovery.spec.ts#L148) | An unknown email and a failed reset request for a dedicated account show exactly the same generic message. Retrying with a working connection resets the account and allows sign-in. | RF-05.4 |
 | [a signed-out user sees the login screen](../tests/auth/sign-in.spec.ts#L8) | Without a saved session the Splash hands over to Login, whose submit button stays disabled until the form is filled. | RF-01.3 |
 | [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L24) | A regular account signs in with username and password on the shared login screen and lands on the Feed. | RF-04.1, RF-04.5 |
-| [invalid credentials show one generic error](../tests/auth/sign-in.spec.ts#L39) | A wrong password and an unknown username both keep the user on Login with the same message, so the error never reveals which field is wrong. | RF-04.3 |
+| [an administrator signs in on the same screen and lands on the admin area](../tests/auth/sign-in.spec.ts#L39) | The admin uses the same login form and lands on Denúncias. No admin tab shows the Feed or the app's bottom bar (Feed, Câmera, Perfil). | RF-04.1, RF-04.4 |
+| [invalid credentials show one generic error](../tests/auth/sign-in.spec.ts#L71) | A wrong password and an unknown username both keep the user on Login with the same message, so the error never reveals which field is wrong. | RF-04.3 |
 | [a new account goes through the three onboarding steps before the Feed](../tests/auth/sign-up-onboarding.spec.ts#L50) | After signing up, the user is signed in and taken to onboarding instead of the Feed, picks artists, genres and one song across three numbered steps, lands on the Feed, and sees the chosen song highlighted on their profile. | RF-02.5, RF-03.1, RF-03.2, RF-03.3, RF-03.6 |
 | [the sign-up form asks only for name, username, email and password](../tests/auth/sign-up-onboarding.spec.ts#L111) | Sign Up shows exactly the Name, Username, Email and Password fields, with no password confirmation and no terms checkbox. | RF-02.1 |
 | [a username or email already in use is rejected on its own field](../tests/auth/sign-up-onboarding.spec.ts#L131) | Signing up with the username of a seeded account, or with its email, keeps the user on Sign Up and shows the error under that field only. | RF-02.2 |
@@ -692,7 +701,14 @@ Ficam fora:
 | [a password shorter than 8 characters is not accepted](../tests/auth/sign-up-onboarding.spec.ts#L193) | A 7-character password shows the minimum-length message and keeps the user on Sign Up; with 8 characters the message goes away. | RF-02.4 |
 | [each onboarding step needs its minimum choices to move on](../tests/auth/sign-up-onboarding.spec.ts#L222) | Next stays disabled until 3 artists and then 3 genres are picked, and Finish stays disabled until a favorite song is picked. | RF-03.4 |
 | [going back to a previous step keeps what was selected](../tests/auth/sign-up-onboarding.spec.ts#L263) | Returning from genres to artists, and from music to genres, shows the same number of choices already selected, so nothing has to be picked again. | RF-03.7 |
-| [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L10) | A saved session opens the feed without logging in again; signing out from Settings asks for confirmation, returns to Login and clears the session for the next launch. | RF-04.6, RF-36.1, RF-36.2 |
+| [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L14) | A saved session opens the feed without logging in again; signing out from Settings asks for confirmation, returns to Login and clears the session for the next launch while restoring the device language. | RF-04.6, RF-36.1, RF-36.2 |
+| [splash is the first screen and hands over to login](../tests/flows/session-startup.spec.ts#L10) | A fresh launch shows Splash before Login, without exposing authenticated screens. | RF-01.2, RF-01.3 |
+| [a saved user session opens the feed and survives reopening](../tests/flows/session-startup.spec.ts#L33) | Gabriel reaches Feed through Splash on both launch and reload, without entering credentials. | RF-01.2, RF-01.4, RF-04.6 |
+| [a saved administrator session opens only the administrative area](../tests/flows/session-startup.spec.ts#L60) | Admin reaches the moderation area after Splash, with no user navigation, including after reopening. | RF-01.2, RF-01.5 |
+| [an invalid session is cleared before returning to login](../tests/flows/session-startup.spec.ts#L94) | An invalid saved token cannot open Feed; authentication storage is cleared and reopening stays signed out. | RF-01.6 |
+| [an expired session is cleared before returning to login](../tests/flows/session-startup.spec.ts#L94) | An expired saved token cannot open Feed; authentication storage is cleared and reopening stays signed out. | RF-01.6 |
+| [a slow session check sends the user to login after three seconds](../tests/flows/session-timeout.spec.ts#L42) | When session verification exceeds the required three-second deadline, Splash must give way to Login. | RF-01.7 |
+| [a late valid session response cannot navigate away from login](../tests/flows/session-timeout.spec.ts#L69) | After the current timeout sends the user to Login, releasing a real successful session response cannot reopen Feed or admin. | RF-01.7 |
 | [a feed card and a profile thumbnail both open the Recorda details](../tests/recorda-details/recorda-details.spec.ts#L48) | Tapping a Recorda card in the feed, or its thumbnail in the author's profile grid, opens the details screen of that Recorda. | RF-17.1 |
 | [the details show the whole Recorda, with memory date, place and tagged people](../tests/recorda-details/recorda-details.spec.ts#L76) | The details show media, author, full description, song and comments, plus the Memory Date, Place and tagged users decided for the Recorda. | RF-17.2 |
 | [the feed card and the details offer like, comment and share](../tests/recorda-details/recorda-details.spec.ts#L114) | Feed cards and the details screen have a like button; the details also let the user open the comments and share the Recorda. | RF-17.4, RF-23.1 |
@@ -705,3 +721,19 @@ Ficam fora:
 | [the author is notified of new comments](../tests/recorda-details/recorda-details.spec.ts#L429) | A comment written by someone else shows up in the Recorda author's notifications. | RF-24.6 |
 | [the comment author deletes their comment after confirming](../tests/recorda-details/recorda-details.spec.ts#L457) | Only your own comments show a delete button on someone else's Recorda; deleting asks for confirmation, cancelling keeps the comment and confirming removes it on the server. | RF-25.1, RF-25.3 |
 | [the Recorda author deletes someone else's comment for everyone](../tests/recorda-details/recorda-details.spec.ts#L510) | The author of a Recorda can delete any comment on it; once confirmed, the comment is gone for its writer too. | RF-25.2, RF-25.3 |
+| [recorda details open the sharing interface](../tests/share/share-card.spec.ts#L8) | The user opens their seeded photo from Profile and reaches the sharing screen through its details. | RF-10.1 |
+| [photo exports a portrait PNG with the light preset](../tests/share/share-card.spec.ts#L28) | A real browser download contains a decoded, nonempty PNG in Stories aspect ratio after selecting a preset. | RF-10.2, RF-11.5 |
+| [photo exports a portrait PNG with the mint preset](../tests/share/share-card.spec.ts#L28) | A real browser download contains a decoded, nonempty PNG in Stories aspect ratio after selecting a preset. | RF-10.2, RF-11.5 |
+| [photo exports a portrait PNG with the teal preset](../tests/share/share-card.spec.ts#L28) | A real browser download contains a decoded, nonempty PNG in Stories aspect ratio after selecting a preset. | RF-10.2, RF-11.5 |
+| [photo exports a portrait PNG with the dark preset](../tests/share/share-card.spec.ts#L28) | A real browser download contains a decoded, nonempty PNG in Stories aspect ratio after selecting a preset. | RF-10.2, RF-11.5 |
+| [video exports a portrait PNG with the light preset](../tests/share/share-card.spec.ts#L28) | A real browser download contains a decoded, nonempty PNG in Stories aspect ratio after selecting a preset. | RF-10.2, RF-11.5 |
+| [video exports a portrait PNG with the mint preset](../tests/share/share-card.spec.ts#L28) | A real browser download contains a decoded, nonempty PNG in Stories aspect ratio after selecting a preset. | RF-10.2, RF-11.5 |
+| [video exports a portrait PNG with the teal preset](../tests/share/share-card.spec.ts#L28) | A real browser download contains a decoded, nonempty PNG in Stories aspect ratio after selecting a preset. | RF-10.2, RF-11.5 |
+| [video exports a portrait PNG with the dark preset](../tests/share/share-card.spec.ts#L28) | A real browser download contains a decoded, nonempty PNG in Stories aspect ratio after selecting a preset. | RF-10.2, RF-11.5 |
+| [video sharing displays the first frame as a static image](../tests/share/share-card.spec.ts#L70) | The preview is compared with an independently decoded first frame of the real seeded video, and the download is a still PNG, not a video. | RF-10.4 |
+| [the exported video card shows the first frame cropped, not stretched](../tests/share/share-card.spec.ts#L149) | The media region of the downloaded PNG matches the seeded video's first frame laid out like the preview (cover), and not a later frame. | RF-10.4 |
+| [video card generation shows progress and stays on the device](../tests/share/share-card.spec.ts#L269) | Both thumbnail preparation and final PNG capture show progress. The actual browser export completes without contacting the backend for processing. | RF-10.5 |
+| [presets form a horizontal scrollable list below the card](../tests/share/share-card.spec.ts#L340) | The selector is positioned below the preview and remains horizontally scrollable when a narrow viewport creates overflow. | RF-11.1 |
+| [exactly three predefined presets are offered](../tests/share/share-card.spec.ts#L368) | The selector must offer exactly three styles, as required by US 11; the current frontend offers four. | RF-11.2 |
+| [selecting a preset immediately changes the visible card](../tests/share/share-card.spec.ts#L385) | Changing styles updates both the selected radio and the rendered card without leaving the sharing screen. | RF-11.2, RF-11.4 |
+| [sharing offers Instagram Stories and image download actions](../tests/share/share-card.spec.ts#L425) | After opening the card from Recorda details, both export actions are visible and available; native integrations remain outside this suite. | RF-12.1 |

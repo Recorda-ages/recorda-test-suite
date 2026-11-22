@@ -1,6 +1,8 @@
 import { expect, type Page } from "@playwright/test";
 
 import type { TestUser } from "../data/users";
+import { RecordaDetailsPage } from "../pages/RecordaDetailsPage";
+import { ShareCardPage } from "../pages/ShareCardPage";
 import type {
   FeedPage,
   LoginPage,
@@ -9,6 +11,7 @@ import type {
   SettingsPage,
   SignUpPage
 } from "../pages";
+import { PasswordRecoveryPage } from "../pages/PasswordRecoveryPage";
 import type { TestAccount } from "./api";
 import { STORAGE_KEYS } from "./session";
 
@@ -40,7 +43,7 @@ export class App {
     });
   }
 
-    /** Signed out: launches the app and opens Sign Up from the Login screen. */
+  /** Signed out: launches the app and opens Sign Up from the Login screen. */
   async goToSignUp(): Promise<void> {
     await this.launch();
     await this.pages.loginPage.expectLoaded();
@@ -80,10 +83,37 @@ export class App {
     await this.pages.feedPage.expectLoaded();
   }
 
+  /** Login → Forgot password. Starts from the signed-out login screen. */
+  async goToPasswordRecovery(): Promise<PasswordRecoveryPage> {
+    await this.pages.loginPage.expectLoaded();
+    await this.pages.loginPage.forgotPasswordLink.click();
+    const recoveryPage = new PasswordRecoveryPage(this.page);
+    await recoveryPage.expectLoaded();
+    return recoveryPage;
+  }
+
   /** Feed → Profile, through the bottom tab bar. */
   async goToProfile(): Promise<void> {
     await this.pages.feedPage.tabBar.select("profile");
     await this.pages.profilePage.expectLoaded();
+  }
+
+  /** Open a stable seed Recorda through the profile, never by a deep link. */
+  async goToRecorda(id: string): Promise<RecordaDetailsPage> {
+    await this.goToProfile();
+    await this.pages.profilePage.openRecorda(id);
+    const details = new RecordaDetailsPage(this.page);
+    await details.expectLoaded();
+    return details;
+  }
+
+  /** Feed → Profile → a seed Recorda → Share. */
+  async goToShareCard(id: string): Promise<ShareCardPage> {
+    const details = await this.goToRecorda(id);
+    await details.share();
+    const share = new ShareCardPage(this.page);
+    await share.expectLoaded();
+    return share;
   }
 
   /** Feed → Profile → Settings. */

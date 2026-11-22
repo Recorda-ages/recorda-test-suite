@@ -1,7 +1,10 @@
+export { AdminPage } from "./AdminPage";
+export { AdminTabBar, type AdminTab } from "./components/AdminTabBar";
 export { BottomTabBar, type BottomTab } from "./components/BottomTabBar";
 export { FeedPage, type FeedVariant } from "./FeedPage";
 export { LoginPage } from "./LoginPage";
 export { NotificationsPage, type NotificationType } from "./NotificationsPage";
+export { PasswordRecoveryPage } from "./PasswordRecoveryPage";
 export { ProfilePage } from "./ProfilePage";
 export {
   OnboardingArtistsStep,
@@ -12,3 +15,4 @@ export {
 export { RecordaDetailsPage } from "./RecordaDetailsPage";
 export { SignUpPage, type SignUpData } from "./SignUpPage";
 export { SettingsPage } from "./SettingsPage";
+export { ShareCardPage } from "./ShareCardPage";

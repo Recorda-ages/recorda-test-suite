@@ -2,6 +2,7 @@ import { test as base } from "@playwright/test";
 
 import { env } from "../config/env";
 import {
+  AdminPage,
   FeedPage,
   LoginPage,
   NotificationsPage,
@@ -9,6 +10,7 @@ import {
   ProfilePage,
   RecordaDetailsPage,
   SettingsPage,
+  ShareCardPage,
   SignUpPage
 } from "../pages";
 import { assertHasMetadata } from "../requirements/annotations";
@@ -26,6 +28,8 @@ type Fixtures = {
   settingsPage: SettingsPage;
   recordaDetailsPage: RecordaDetailsPage;
   notificationsPage: NotificationsPage;
+  adminPage: AdminPage;
+  shareCardPage: ShareCardPage;
   signUpPage: SignUpPage;
   onboardingPage: OnboardingPage;
   /** Automatic: fails any test declared without `meta()` (description + requirement). */
@@ -64,6 +68,8 @@ export const test = base.extend<Fixtures>({
   settingsPage: async ({ page }, use) => use(new SettingsPage(page)),
   recordaDetailsPage: async ({ page }, use) => use(new RecordaDetailsPage(page)),
   notificationsPage: async ({ page }, use) => use(new NotificationsPage(page)),
+  adminPage: async ({ page }, use) => use(new AdminPage(page)),
+  shareCardPage: async ({ page }, use) => use(new ShareCardPage(page)),
   signUpPage: async ({ page }, use) => use(new SignUpPage(page)),
   onboardingPage: async ({ page }, use) => use(new OnboardingPage(page)),
 

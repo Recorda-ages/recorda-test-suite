@@ -7,7 +7,14 @@ export { LoginPage } from "./LoginPage";
 export { NotificationsPage, type NotificationType } from "./NotificationsPage";
 export { PasswordRecoveryPage } from "./PasswordRecoveryPage";
 export { ProfilePage } from "./ProfilePage";
+export {
+  OnboardingArtistsStep,
+  OnboardingGenresStep,
+  OnboardingMusicStep,
+  OnboardingPage
+} from "./OnboardingPage";
 export { RecordaDetailsPage } from "./RecordaDetailsPage";
+export { SignUpPage, type SignUpData } from "./SignUpPage";
 export { SettingsPage } from "./SettingsPage";
 export { ShareCardPage } from "./ShareCardPage";
 export { UserProfilePage } from "./UserProfilePage";

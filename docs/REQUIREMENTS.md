@@ -23,11 +23,11 @@ Fontes: Termo de Abertura do Projeto (2026/2) e os Épicos e User Stories das is
 
 ## Resumo
 
-226 requisitos, 199 verificáveis por esta suíte (web ou API), 56 cobertos por 62 teste(s). 13 decididos mas ainda não atendidos pelo código (⚠️).
+226 requisitos, 199 verificáveis por esta suíte (web ou API), 67 cobertos por 69 teste(s). 13 decididos mas ainda não atendidos pelo código (⚠️).
 
 | Épico | Nome | Requisitos | Web | API | Nativo | Manual | Cobertos |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| E2 | Autenticação, cadastro e onboarding | 32 | 26 | 4 | 0 | 2 | 15 |
+| E2 | Autenticação, cadastro e onboarding | 32 | 26 | 4 | 0 | 2 | 26 |
 | E3 | Criação e publicação de Recordas | 25 | 16 | 4 | 5 | 0 | 0 |
 | E4 | Feed | 26 | 18 | 2 | 6 | 0 | 4 |
 | E5 | Interações sociais | 39 | 36 | 3 | 0 | 0 | 19 |
@@ -101,7 +101,7 @@ Os requisitos agrupados por jornada do usuário. Cada fluxo tem uma issue em
 | --- | --- | --- | --- | --- | --- | --- |
 | FL-01 Abertura do app e sessão | [#1](https://github.com/Recorda-ages/recorda-test-suite/issues/1) | 9 | 9 | 9 | 1 | não |
 | FL-02 Login | [#2](https://github.com/Recorda-ages/recorda-test-suite/issues/2) | 4 | 4 | 4 | 0 | não |
-| FL-03 Cadastro e onboarding | [#3](https://github.com/Recorda-ages/recorda-test-suite/issues/3) | 11 | 11 | 0 | 0 | sim (`@mutates`) |
+| FL-03 Cadastro e onboarding | [#3](https://github.com/Recorda-ages/recorda-test-suite/issues/3) | 11 | 11 | 11 | 0 | sim (`@mutates`) |
 | FL-04 Recuperação de senha | [#4](https://github.com/Recorda-ages/recorda-test-suite/issues/4) | 4 | 4 | 4 | 0 | sim (`@mutates`) |
 | FL-05 Criação e publicação de Recorda | [#5](https://github.com/Recorda-ages/recorda-test-suite/issues/5) | 22 | 17 | 0 | 4 | sim (`@mutates`) |
 | FL-06 Card de compartilhamento | [#6](https://github.com/Recorda-ages/recorda-test-suite/issues/6) | 14 | 9 | 9 | 2 | não |
@@ -143,11 +143,11 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-02.1 | A tela de Cadastro tem exatamente os campos Nome, Username, Email e Senha, sem confirmação de senha nem aceite de termos. | web | — |
-| RF-02.2 | Username e email são únicos no sistema. | web | — |
-| RF-02.3 | Todos os campos são validados antes do registro, com mensagens de erro específicas por campo. | web | — |
-| RF-02.4 | A senha tem no mínimo 8 caracteres. | web | — |
-| RF-02.5 | Após o cadastro, o usuário é autenticado automaticamente e encaminhado ao Onboarding, nunca direto ao Feed. | web | — |
+| RF-02.1 | A tela de Cadastro tem exatamente os campos Nome, Username, Email e Senha, sem confirmação de senha nem aceite de termos. | web | [the sign-up form asks only for name, username, email and password](../tests/auth/sign-up-onboarding.spec.ts#L111) |
+| RF-02.2 | Username e email são únicos no sistema. | web | [a username or email already in use is rejected on its own field](../tests/auth/sign-up-onboarding.spec.ts#L131) |
+| RF-02.3 | Todos os campos são validados antes do registro, com mensagens de erro específicas por campo. | web | [each invalid field shows its own error before anything is sent](../tests/auth/sign-up-onboarding.spec.ts#L161) |
+| RF-02.4 | A senha tem no mínimo 8 caracteres. | web | [a password shorter than 8 characters is not accepted](../tests/auth/sign-up-onboarding.spec.ts#L193) |
+| RF-02.5 | Após o cadastro, o usuário é autenticado automaticamente e encaminhado ao Onboarding, nunca direto ao Feed. | web | [a new account goes through the three onboarding steps before the Feed](../tests/auth/sign-up-onboarding.spec.ts#L50) |
 | RF-02.6 | Não são coletados dados além dos necessários ao funcionamento da conta. | manual | — |
 | RF-02.7 | Contas de administrador não podem ser criadas pelo cadastro. | API | — |
 
@@ -157,13 +157,13 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-03.1 | Imediatamente após o cadastro, o app conduz o usuário ao Onboarding. | web | — |
-| RF-03.2 | O Onboarding tem três passos (artistas, gêneros e música favorita) com dados do Deezer, e o indicador de progresso reflete os três passos. | web | — |
-| RF-03.3 | Cada passo exibe um grid de opções selecionáveis (chips). | web | — |
-| RF-03.4 | É preciso selecionar no mínimo 3 artistas e 3 gêneros para prosseguir, e exatamente 1 música favorita. | web | — |
+| RF-03.1 | Imediatamente após o cadastro, o app conduz o usuário ao Onboarding. | web | [a new account goes through the three onboarding steps before the Feed](../tests/auth/sign-up-onboarding.spec.ts#L50) |
+| RF-03.2 | O Onboarding tem três passos (artistas, gêneros e música favorita) com dados do Deezer, e o indicador de progresso reflete os três passos. | web | [a new account goes through the three onboarding steps before the Feed](../tests/auth/sign-up-onboarding.spec.ts#L50) |
+| RF-03.3 | Cada passo exibe um grid de opções selecionáveis (chips). | web | [a new account goes through the three onboarding steps before the Feed](../tests/auth/sign-up-onboarding.spec.ts#L50) |
+| RF-03.4 | É preciso selecionar no mínimo 3 artistas e 3 gêneros para prosseguir, e exatamente 1 música favorita. | web | [each onboarding step needs its minimum choices to move on](../tests/auth/sign-up-onboarding.spec.ts#L222) |
 | RF-03.5 | Artistas e gêneros formam o Perfil Musical, única fonte da Afinidade Musical. | API | — |
-| RF-03.6 | A Música Favorita não participa da Afinidade Musical e aparece em destaque no cabeçalho do Perfil Pessoal. | web | — |
-| RF-03.7 | É possível voltar ao passo anterior sem perder as seleções. | web | — |
+| RF-03.6 | A Música Favorita não participa da Afinidade Musical e aparece em destaque no cabeçalho do Perfil Pessoal. | web | [a new account goes through the three onboarding steps before the Feed](../tests/auth/sign-up-onboarding.spec.ts#L50) |
+| RF-03.7 | É possível voltar ao passo anterior sem perder as seleções. | web | [going back to a previous step keeps what was selected](../tests/auth/sign-up-onboarding.spec.ts#L263) |
 
 ### US 4 — Autenticação de Usuário
 
@@ -697,6 +697,13 @@ Ficam fora:
 | [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L24) | A regular account signs in with username and password on the shared login screen and lands on the Feed. | RF-04.1, RF-04.5 |
 | [an administrator signs in on the same screen and lands on the admin area](../tests/auth/sign-in.spec.ts#L39) | The admin uses the same login form and lands on Denúncias. No admin tab shows the Feed or the app's bottom bar (Feed, Câmera, Perfil). | RF-04.1, RF-04.4 |
 | [invalid credentials show one generic error](../tests/auth/sign-in.spec.ts#L71) | A wrong password and an unknown username both keep the user on Login with the same message, so the error never reveals which field is wrong. | RF-04.3 |
+| [a new account goes through the three onboarding steps before the Feed](../tests/auth/sign-up-onboarding.spec.ts#L50) | After signing up, the user is signed in and taken to onboarding instead of the Feed, picks artists, genres and one song across three numbered steps, lands on the Feed, and sees the chosen song highlighted on their profile. | RF-02.5, RF-03.1, RF-03.2, RF-03.3, RF-03.6 |
+| [the sign-up form asks only for name, username, email and password](../tests/auth/sign-up-onboarding.spec.ts#L111) | Sign Up shows exactly the Name, Username, Email and Password fields, with no password confirmation and no terms checkbox. | RF-02.1 |
+| [a username or email already in use is rejected on its own field](../tests/auth/sign-up-onboarding.spec.ts#L131) | Signing up with the username of a seeded account, or with its email, keeps the user on Sign Up and shows the error under that field only. | RF-02.2 |
+| [each invalid field shows its own error before anything is sent](../tests/auth/sign-up-onboarding.spec.ts#L161) | Submitting an empty form shows a specific message under every field, and an invalid email shows the email-format message; the user stays on Sign Up. | RF-02.3 |
+| [a password shorter than 8 characters is not accepted](../tests/auth/sign-up-onboarding.spec.ts#L193) | A 7-character password shows the minimum-length message and keeps the user on Sign Up; with 8 characters the message goes away. | RF-02.4 |
+| [each onboarding step needs its minimum choices to move on](../tests/auth/sign-up-onboarding.spec.ts#L222) | Next stays disabled until 3 artists and then 3 genres are picked, and Finish stays disabled until a favorite song is picked. | RF-03.4 |
+| [going back to a previous step keeps what was selected](../tests/auth/sign-up-onboarding.spec.ts#L263) | Returning from genres to artists, and from music to genres, shows the same number of choices already selected, so nothing has to be picked again. | RF-03.7 |
 | [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L14) | A saved session opens the feed without logging in again; signing out from Settings asks for confirmation, returns to Login and clears the session for the next launch while restoring the device language. | RF-04.6, RF-36.1, RF-36.2 |
 | [splash is the first screen and hands over to login](../tests/flows/session-startup.spec.ts#L10) | A fresh launch shows Splash before Login, without exposing authenticated screens. | RF-01.2, RF-01.3 |
 | [a saved user session opens the feed and survives reopening](../tests/flows/session-startup.spec.ts#L33) | Gabriel reaches Feed through Splash on both launch and reload, without entering credentials. | RF-01.2, RF-01.4, RF-04.6 |

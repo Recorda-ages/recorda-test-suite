@@ -243,3 +243,8 @@ Fixing these makes tests simpler. Remove an item when it lands.
   `profileService.uploadAvatar` builds the upload with `File` from `expo-file-system`,
   which has no web support ("expo-file-system is not supported on web"), so no request is
   sent. The web test for `RF-28.2` has a `test.fail()` until the web build supports it.
+- Onboarding chips (artists, genres) and songs use `accessibilityState.checked`, which
+  react-native-web 0.21 does not output as `aria-checked`, so the selected state can't be
+  asserted. Tests check the "N selecionados" counter and the enabled Finish button instead.
+  Fix: add `aria-checked` next to `accessibilityState` in `ArtistChip`,
+  `OnboardingGenresScreen` and `OnboardingMusicScreen`.

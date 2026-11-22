@@ -6,10 +6,12 @@ import {
   FeedPage,
   LoginPage,
   NotificationsPage,
+  OnboardingPage,
   ProfilePage,
   RecordaDetailsPage,
   SettingsPage,
   ShareCardPage,
+  SignUpPage,
   UserProfilePage,
   UserSearchPage
 } from "../pages";
@@ -32,6 +34,8 @@ type Fixtures = {
   shareCardPage: ShareCardPage;
   userProfilePage: UserProfilePage;
   userSearchPage: UserSearchPage;
+  signUpPage: SignUpPage;
+  onboardingPage: OnboardingPage;
   /** Automatic: fails any test declared without `meta()` (description + requirement). */
   requireMetadata: void;
 };
@@ -72,6 +76,8 @@ export const test = base.extend<Fixtures>({
   shareCardPage: async ({ page }, use) => use(new ShareCardPage(page)),
   userProfilePage: async ({ page }, use) => use(new UserProfilePage(page)),
   userSearchPage: async ({ page }, use) => use(new UserSearchPage(page)),
+  signUpPage: async ({ page }, use) => use(new SignUpPage(page)),
+  onboardingPage: async ({ page }, use) => use(new OnboardingPage(page)),
 
   app: async (
     {
@@ -82,7 +88,8 @@ export const test = base.extend<Fixtures>({
       settingsPage,
       notificationsPage,
       userProfilePage,
-      userSearchPage
+      userSearchPage,
+      signUpPage
     },
     use
   ) => {
@@ -94,7 +101,8 @@ export const test = base.extend<Fixtures>({
         settingsPage,
         notificationsPage,
         userProfilePage,
-        userSearchPage
+        userSearchPage,
+        signUpPage
       })
     );
   }

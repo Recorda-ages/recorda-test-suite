@@ -44,13 +44,17 @@ export class App {
     }
   ) {}
 
-  /** Loads the app and waits for the Splash to hand over to Login or Feed. */
+  /**
+   * Loads the app and waits for the Splash to hand over to Login, the Feed, or (for an
+   * administrator) the admin area.
+   */
   async launch(): Promise<void> {
     await this.page.goto("/");
+    const adminHome = this.page.getByTestId("admin-reports-screen");
     // Splash min duration (1.5 s) + session check; generous for a cold Metro bundle.
-    await expect(this.pages.loginPage.root.or(this.pages.feedPage.root)).toBeVisible({
-      timeout: 30_000
-    });
+    await expect(
+      this.pages.loginPage.root.or(this.pages.feedPage.root).or(adminHome)
+    ).toBeVisible({ timeout: 30_000 });
   }
 
   /** Signed out: launches the app and opens Sign Up from the Login screen. */

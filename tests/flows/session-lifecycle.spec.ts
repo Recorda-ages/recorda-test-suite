@@ -49,7 +49,8 @@ test.describe("Session lifecycle", () => {
       await test.step("confirming sign-out returns to login", async () => {
         await settingsPage.signOut();
         await loginPage.expectLoaded();
-        for (const key of Object.values(STORAGE_KEYS)) {
+        // The session is token + role; the app language is kept on purpose (RF-36.2).
+        for (const key of [STORAGE_KEYS.token, STORAGE_KEYS.role]) {
           expect(await page.evaluate((key) => localStorage.getItem(key), key)).toBeNull();
         }
         await expect(feedPage.root).toHaveCount(0);
@@ -57,7 +58,9 @@ test.describe("Session lifecycle", () => {
         await expect(settingsPage.root).toHaveCount(0);
         expect(await page.evaluate(() => navigator.language)).toBe("en-US");
         await expect(loginPage.submit).toHaveText(tIn("en", "auth.signIn.submit"));
-        expect(await page.evaluate(() => localStorage.getItem("app_language"))).toBe(LOCALE);
+        expect(
+          await page.evaluate((key) => localStorage.getItem(key), STORAGE_KEYS.language)
+        ).toBe(LOCALE);
       });
 
       await test.step("the session is gone after reopening the app", async () => {

@@ -60,15 +60,17 @@ type JsonSuite = {
 };
 
 function listTests(): ListedTest[] {
-  // Through node rather than node_modules/.bin, whose shim on Windows is a .cmd file.
-  const cli = path.join(ROOT, "node_modules/@playwright/test/cli.js");
-  const output = execFileSync(process.execPath, [cli, "test", "--list", "--reporter=json"], {
-    cwd: ROOT,
-    encoding: "utf8",
-    maxBuffer: 64 * 1024 * 1024,
-    // Listing doesn't touch any backend; the local URL just skips the deployed-password check.
-    env: { ...process.env, E2E_API_URL: "http://localhost:8000", E2E_SKIP_WEB_SERVER: "1" }
-  });
+  const output = execFileSync(
+    process.execPath,
+    [path.join(ROOT, "node_modules/@playwright/test/cli.js"), "test", "--list", "--reporter=json"],
+    {
+      cwd: ROOT,
+      encoding: "utf8",
+      maxBuffer: 64 * 1024 * 1024,
+      // Listing doesn't touch any backend; the local URL just skips the deployed-password check.
+      env: { ...process.env, E2E_API_URL: "http://localhost:8000", E2E_SKIP_WEB_SERVER: "1" }
+    }
+  );
   const report = JSON.parse(output) as { suites: JsonSuite[]; errors?: { message: string }[] };
   if (report.errors?.length) {
     throw new Error(report.errors.map((error) => error.message).join("\n"));

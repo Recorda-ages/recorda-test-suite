@@ -3,7 +3,11 @@ import { test as base } from "@playwright/test";
 import { env } from "../config/env";
 import {
   AccountPage,
+  AdminAuditLogPage,
   AdminPage,
+  AdminReportDetailPage,
+  AdminReportsPage,
+  AdminUsersPage,
   FeedPage,
   LanguagePage,
   LoginPage,
@@ -41,6 +45,10 @@ type Fixtures = {
   recordaDetailsPage: RecordaDetailsPage;
   notificationsPage: NotificationsPage;
   adminPage: AdminPage;
+  adminReportsPage: AdminReportsPage;
+  adminReportDetailPage: AdminReportDetailPage;
+  adminUsersPage: AdminUsersPage;
+  adminAuditLogPage: AdminAuditLogPage;
   shareCardPage: ShareCardPage;
   userProfilePage: UserProfilePage;
   userSearchPage: UserSearchPage;
@@ -90,6 +98,10 @@ export const test = base.extend<Fixtures>({
   recordaDetailsPage: async ({ page }, use) => use(new RecordaDetailsPage(page)),
   notificationsPage: async ({ page }, use) => use(new NotificationsPage(page)),
   adminPage: async ({ page }, use) => use(new AdminPage(page)),
+  adminReportsPage: async ({ page }, use) => use(new AdminReportsPage(page)),
+  adminReportDetailPage: async ({ page }, use) => use(new AdminReportDetailPage(page)),
+  adminUsersPage: async ({ page }, use) => use(new AdminUsersPage(page)),
+  adminAuditLogPage: async ({ page }, use) => use(new AdminAuditLogPage(page)),
   shareCardPage: async ({ page }, use) => use(new ShareCardPage(page)),
   userProfilePage: async ({ page }, use) => use(new UserProfilePage(page)),
   userSearchPage: async ({ page }, use) => use(new UserSearchPage(page)),

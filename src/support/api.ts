@@ -87,6 +87,9 @@ export type NotificationList = {
     follow_id: string | null;
     recorda_id: string | null;
     sender: { user_id: string; username: string } | null;
+    /** CONTENT_REMOVED only. */
+    removal_reason?: string | null;
+    recorda_song_title?: string | null;
   }[];
   unread_count: number;
 };
@@ -354,6 +357,40 @@ export class RecordaApi {
     });
     expect(response, `Could not read the music preferences of ${account.user.username}`).toBeOK();
     return (await response.json()) as MusicPreferences;
+  }
+
+  /** `reporter` reports a Recorda; returns the report id. */
+  async reportRecorda(reporter: TestAccount, recordaId: string, description: string): Promise<string> {
+    const response = await this.request.post(`/api/v1/recordas/${recordaId}/reports`, {
+      headers: this.auth(reporter.session),
+      data: { description }
+    });
+    expect(response, `${reporter.user.username} could not report ${recordaId}`).toBeOK();
+    return ((await response.json()) as { report_id: string }).report_id;
+  }
+
+  /** HTTP status of opening a Recorda as `viewer` (404 once it is removed or hidden). */
+  async recordaStatus(viewer: TestAccount, recordaId: string): Promise<number> {
+    const response = await this.request.get(`/api/v1/recordas/${recordaId}`, {
+      headers: this.auth(viewer.session)
+    });
+    return response.status();
+  }
+
+  /** HTTP status of opening `of`'s profile as `viewer` (404 once the account is suspended). */
+  async profileStatus(viewer: TestAccount, of: TestAccount): Promise<number> {
+    const response = await this.request.get(`/api/v1/users/${of.session.user.user_id}/profile`, {
+      headers: this.auth(viewer.session)
+    });
+    return response.status();
+  }
+
+  /** HTTP status of an admin endpoint called as `account`, to check who may use it. */
+  async adminReportsStatus(account: TestAccount): Promise<number> {
+    const response = await this.request.get("/api/v1/admin/reports", {
+      headers: this.auth(account.session)
+    });
+    return response.status();
   }
 
   async health(): Promise<void> {

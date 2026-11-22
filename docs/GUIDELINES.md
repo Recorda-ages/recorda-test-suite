@@ -93,7 +93,7 @@ Destructure only what you use; fixtures are lazy.
 | Fixture                     | Use it for                                                    |
 | --------------------------- | ------------------------------------------------------------- |
 | `app`                       | `launch()`, `launchAs(account)`, `signInThroughUi(user)`, `goToProfile()`, `goToUserProfile(username)`, `goToSettings()`, `goToNotifications()` |
-| `loginPage`, `feedPage`, `notificationsPage`, `profilePage`, `userProfilePage`, `userSearchPage`, `recordaDetailsPage`, `settingsPage`, `adminPage`, `shareCardPage` | Locators and actions of one screen |
+| `loginPage`, `feedPage`, `notificationsPage`, `profilePage`, `userProfilePage`, `userSearchPage`, `recordaDetailsPage`, `settingsPage`, `adminPage`, `adminReportsPage`, `adminReportDetailPage`, `adminUsersPage`, `adminAuditLogPage`, `shareCardPage` | Locators and actions of one screen |
 | `api`                       | Arrange data and check side effects through the backend       |
 | `page`                      | Raw Playwright access, when nothing above fits                |
 

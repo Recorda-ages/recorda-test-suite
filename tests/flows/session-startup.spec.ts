@@ -111,7 +111,8 @@ test.describe("Opening with an unusable session", () => {
         await test.step("the rejected session returns to Login and clears authentication", async () => {
           await page.goto("/");
           await loginPage.expectLoaded();
-          for (const key of Object.values(STORAGE_KEYS)) {
+          // The session is token + role; the app language is kept on purpose (RF-36.2).
+          for (const key of [STORAGE_KEYS.token, STORAGE_KEYS.role]) {
             expect(await page.evaluate((key) => localStorage.getItem(key), key)).toBeNull();
           }
           await expect(feedPage.root).toBeHidden();

@@ -2,9 +2,12 @@ import { test as base } from "@playwright/test";
 
 import { env } from "../config/env";
 import {
+  AccountPage,
   AdminPage,
   FeedPage,
+  LanguagePage,
   LoginPage,
+  MusicPreferencesPage,
   NotificationsPage,
   OnboardingPage,
   ProfilePage,
@@ -16,14 +19,21 @@ import {
   UserSearchPage
 } from "../pages";
 import { assertHasMetadata } from "../requirements/annotations";
-import { RecordaApi } from "../support/api";
+import { RecordaApi, type NewAccount } from "../support/api";
 import { App } from "../support/app";
+import { storageStateFor } from "../support/session";
 
 type Fixtures = {
   /** Backend client for arranging data and checking side effects. */
   api: RecordaApi;
   /** Multi-screen navigation (launch, sign in, go to settings…). */
   app: App;
+  /**
+   * A brand-new account with the onboarding answered, for tests that change the account.
+   * It writes to the backend: use it only in `@mutates` tests. To open the app signed in as
+   * it, add `test.use(signedInAsNewAccount)` to the file or describe.
+   */
+  newAccount: NewAccount;
   loginPage: LoginPage;
   feedPage: FeedPage;
   profilePage: ProfilePage;
@@ -34,6 +44,9 @@ type Fixtures = {
   shareCardPage: ShareCardPage;
   userProfilePage: UserProfilePage;
   userSearchPage: UserSearchPage;
+  accountPage: AccountPage;
+  languagePage: LanguagePage;
+  musicPreferencesPage: MusicPreferencesPage;
   signUpPage: SignUpPage;
   onboardingPage: OnboardingPage;
   /** Automatic: fails any test declared without `meta()` (description + requirement). */
@@ -66,6 +79,10 @@ export const test = base.extend<Fixtures>({
     await request.dispose();
   },
 
+  newAccount: async ({ api }, use) => {
+    await use(await api.createUser("account"));
+  },
+
   loginPage: async ({ page }, use) => use(new LoginPage(page)),
   feedPage: async ({ page }, use) => use(new FeedPage(page)),
   profilePage: async ({ page }, use) => use(new ProfilePage(page)),
@@ -76,6 +93,9 @@ export const test = base.extend<Fixtures>({
   shareCardPage: async ({ page }, use) => use(new ShareCardPage(page)),
   userProfilePage: async ({ page }, use) => use(new UserProfilePage(page)),
   userSearchPage: async ({ page }, use) => use(new UserSearchPage(page)),
+  accountPage: async ({ page }, use) => use(new AccountPage(page)),
+  languagePage: async ({ page }, use) => use(new LanguagePage(page)),
+  musicPreferencesPage: async ({ page }, use) => use(new MusicPreferencesPage(page)),
   signUpPage: async ({ page }, use) => use(new SignUpPage(page)),
   onboardingPage: async ({ page }, use) => use(new OnboardingPage(page)),
 
@@ -89,6 +109,9 @@ export const test = base.extend<Fixtures>({
       notificationsPage,
       userProfilePage,
       userSearchPage,
+      accountPage,
+      languagePage,
+      musicPreferencesPage,
       signUpPage
     },
     use
@@ -102,11 +125,21 @@ export const test = base.extend<Fixtures>({
         notificationsPage,
         userProfilePage,
         userSearchPage,
+        accountPage,
+        languagePage,
+        musicPreferencesPage,
         signUpPage
       })
     );
   }
 });
+
+/** `test.use(signedInAsNewAccount)`: the app opens signed in as the test's `newAccount`. */
+export const signedInAsNewAccount: Parameters<typeof test.use>[0] = {
+  storageState: async ({ newAccount }, use) => {
+    await use(storageStateFor(env.baseURL, newAccount.session));
+  }
+};
 
 export { meta } from "../requirements/annotations";
 export { expect } from "@playwright/test";

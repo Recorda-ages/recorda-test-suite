@@ -22,6 +22,35 @@ export type TestAccount = {
   session: LoginResponse;
 };
 
+export type Language = "pt-BR" | "en" | "es";
+
+export type MusicItem = { deezer_id: number; name: string; picture_url?: string | null };
+
+export type FavoriteTrack = {
+  deezer_id: number;
+  title: string;
+  artist_name: string;
+  cover_url?: string;
+  preview_url?: string | null;
+};
+
+export type MusicPreferences = {
+  genres: MusicItem[];
+  artists: MusicItem[];
+  favorite_track: FavoriteTrack;
+};
+
+/** What `createUser` returns: the account plus what it was created with. */
+export type NewAccount = {
+  user: TestUser & { name: string; email: string };
+  session: LoginResponse;
+  preferences: MusicPreferences;
+};
+
+export type Settings = { is_private: boolean; language: Language };
+
+export type AccountDetails = { user_id: string; name: string; username: string; email: string };
+
 export type CreatedRecorda = {
   recorda_id: string;
   user_id: string;
@@ -76,11 +105,6 @@ export type Profile = {
   can_view_content: boolean;
 };
 
-/** Favorite artists and genres, in the order the profile shows them. */
-export type MusicTastes = {
-  artists: { deezer_id: number; name: string }[];
-  genres: { deezer_id: number; name: string }[];
-};
 
 // 1×1 PNG: the smallest media the upload endpoint accepts.
 const PIXEL_PNG = Buffer.from(
@@ -112,36 +136,79 @@ export class RecordaApi {
   }
 
   /**
-   * Registers a user that has finished onboarding, so the app opens on the Feed. Its music
-   * tastes are unique, so it has no musical affinity with anyone and its "Para Você" feed
-   * only shows its own Recordas and those of the people it follows.
+   * Registers a user that has finished onboarding, so the app opens on the Feed. Unless
+   * `preferences` are given, its music tastes are unique, so it has no musical affinity with
+   * anyone and its "Para Você" feed only shows its own Recordas and those it follows.
    */
-  async createUser(label: string): Promise<TestAccount> {
+  async createUser(
+    label: string,
+    options: { language?: Language; preferences?: MusicPreferences } = {}
+  ): Promise<NewAccount> {
     const username = `e2e-${label}-${uniqueId()}`;
-    const user: TestUser = { username, password: env.userPassword, role: "USER" };
-    const session = await this.register({
-      name: `E2E ${label}`,
+    const user = {
       username,
-      email: `${username}@e2e.recorda.test`,
+      password: env.userPassword,
+      role: "USER" as const,
+      name: `E2E ${label}`,
+      email: `${username}@e2e.recorda.test`
+    };
+    const session = await this.register({
+      name: user.name,
+      username,
+      email: user.email,
       password: user.password,
-      language: "pt-BR"
+      language: options.language ?? "pt-BR"
     });
     const items = (kind: string) =>
       [1, 2, 3].map((n) => ({ deezer_id: uniqueDeezerId(), name: `${username} ${kind} ${n}` }));
-    const response = await this.request.post("/api/v1/users/me/music-preferences", {
-      headers: this.auth(session),
-      data: {
-        genres: items("genre"),
-        artists: items("artist"),
-        favorite_track: {
-          deezer_id: uniqueDeezerId(),
-          title: `${username} song`,
-          artist_name: `${username} artist`
-        }
+    const preferences = options.preferences ?? {
+      genres: items("genre"),
+      artists: items("artist"),
+      favorite_track: {
+        deezer_id: uniqueDeezerId(),
+        title: `${username} song`,
+        artist_name: `${username} artist`
       }
+    };
+    await this.saveMusicPreferences({ user, session }, preferences);
+    return {
+      user,
+      session: { ...session, user: { ...session.user, onboarding_completed: true } },
+      preferences
+    };
+  }
+
+  async saveMusicPreferences(account: TestAccount, preferences: MusicPreferences): Promise<void> {
+    const response = await this.request.post("/api/v1/users/me/music-preferences", {
+      headers: this.auth(account.session),
+      data: preferences
     });
-    expect(response, `Could not finish onboarding for "${username}"`).toBeOK();
-    return { user, session: { ...session, user: { ...session.user, onboarding_completed: true } } };
+    expect(response, `Could not save the music preferences of ${account.user.username}`).toBeOK();
+  }
+
+  async settings(account: TestAccount): Promise<Settings> {
+    const response = await this.request.get("/api/v1/users/me/settings", {
+      headers: this.auth(account.session)
+    });
+    expect(response, `Could not read the settings of ${account.user.username}`).toBeOK();
+    return (await response.json()) as Settings;
+  }
+
+  async updateSettings(account: TestAccount, settings: Partial<Settings>): Promise<void> {
+    const response = await this.request.patch("/api/v1/users/me/settings", {
+      headers: this.auth(account.session),
+      data: settings
+    });
+    expect(response, `Could not update the settings of ${account.user.username}`).toBeOK();
+  }
+
+  /** Name, username and email as "Minha conta" stores them on the server. */
+  async accountDetails(account: TestAccount): Promise<AccountDetails> {
+    const response = await this.request.get("/api/v1/users/me/account", {
+      headers: this.auth(account.session)
+    });
+    expect(response, `Could not read the account of ${account.user.username}`).toBeOK();
+    return (await response.json()) as AccountDetails;
   }
 
   /** Publishes a photo Recorda as `author`, without calling Deezer. */
@@ -192,12 +259,9 @@ export class RecordaApi {
   }
 
   async setPrivate(account: TestAccount, isPrivate: boolean): Promise<void> {
-    const response = await this.request.patch("/api/v1/users/me/settings", {
-      headers: this.auth(account.session),
-      data: { is_private: isPrivate }
-    });
-    expect(response, `Could not change the privacy of ${account.user.username}`).toBeOK();
+    await this.updateSettings(account, { is_private: isPrivate });
   }
+
 
   async respondToFollowRequest(
     account: TestAccount,
@@ -283,13 +347,13 @@ export class RecordaApi {
     return (await response.json()) as Profile;
   }
 
-  /** `account`'s favorite artists and genres. Read-only, safe on any backend. */
-  async musicPreferences(account: TestAccount): Promise<MusicTastes> {
+  /** `account`'s favorite artists, genres and song. Read-only, safe on any backend. */
+  async musicPreferences(account: TestAccount): Promise<MusicPreferences> {
     const response = await this.request.get("/api/v1/users/me/music-preferences", {
       headers: this.auth(account.session)
     });
     expect(response, `Could not read the music preferences of ${account.user.username}`).toBeOK();
-    return (await response.json()) as MusicTastes;
+    return (await response.json()) as MusicPreferences;
   }
 
   async health(): Promise<void> {
@@ -310,22 +374,45 @@ export class RecordaApi {
     return { user, session: await this.login(user) };
   }
 
+  /** HTTP status of a login attempt, for checking that one is refused. */
+  async loginStatus(user: Pick<TestUser, "username" | "password">): Promise<number> {
+    const response = await this.request.post("/api/v1/auth/login", {
+      data: { username: user.username, password: user.password }
+    });
+    return response.status();
+  }
+
+  /** HTTP status of a sign-up attempt, for checking that one is refused. */
+  async registerStatus(data: {
+    name: string;
+    username: string;
+    email: string;
+    password: string;
+  }): Promise<number> {
+    this.assertLocal("registerStatus()");
+    return (await this.request.post("/api/v1/auth/register", { data })).status();
+  }
+
   /** Creates a brand-new account. Use for tests that mutate the user. */
   async register(data: {
     name: string;
     username: string;
     email: string;
     password: string;
-    language?: "pt-BR" | "en" | "es";
+    language?: Language;
   }): Promise<LoginResponse> {
-    if (!env.isLocalApi) {
-      throw new Error(
-        "register() would create a user on the shared deployed backend. Tag the test " +
-          "`@mutates` so it only runs against the local stack."
-      );
-    }
+    this.assertLocal("register()");
     const response = await this.request.post("/api/v1/auth/register", { data });
     expect(response, `Could not register "${data.username}"`).toBeOK();
     return (await response.json()) as LoginResponse;
+  }
+
+  private assertLocal(method: string): void {
+    if (!env.isLocalApi) {
+      throw new Error(
+        `${method} would create a user on the shared deployed backend. Tag the test ` +
+          "`@mutates` so it only runs against the local stack."
+      );
+    }
   }
 }

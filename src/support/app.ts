@@ -4,8 +4,11 @@ import type { TestUser } from "../data/users";
 import { RecordaDetailsPage } from "../pages/RecordaDetailsPage";
 import { ShareCardPage } from "../pages/ShareCardPage";
 import type {
+  AccountPage,
   FeedPage,
+  LanguagePage,
   LoginPage,
+  MusicPreferencesPage,
   NotificationsPage,
   ProfilePage,
   SettingsPage,
@@ -34,6 +37,9 @@ export class App {
       notificationsPage: NotificationsPage;
       userProfilePage: UserProfilePage;
       userSearchPage: UserSearchPage;
+      accountPage: AccountPage;
+      languagePage: LanguagePage;
+      musicPreferencesPage: MusicPreferencesPage;
       signUpPage: SignUpPage;
     }
   ) {}
@@ -133,5 +139,26 @@ export class App {
     await this.goToProfile();
     await this.pages.profilePage.openSettings();
     await this.pages.settingsPage.expectLoaded();
+  }
+
+  /** Feed → Profile → Settings → Minha conta. */
+  async goToAccount(): Promise<void> {
+    await this.goToSettings();
+    await this.pages.settingsPage.accountButton.click();
+    await this.pages.accountPage.expectLoaded();
+  }
+
+  /** Feed → Profile → Settings → Idioma. */
+  async goToLanguage(): Promise<void> {
+    await this.goToSettings();
+    await this.pages.settingsPage.languageButton.click();
+    await this.pages.languagePage.expectLoaded();
+  }
+
+  /** Feed → Profile → Settings → Preferências musicais (first step: artists). */
+  async goToMusicPreferences(): Promise<void> {
+    await this.goToSettings();
+    await this.pages.settingsPage.musicPreferencesButton.click();
+    await this.pages.musicPreferencesPage.expectLoaded();
   }
 }

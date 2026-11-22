@@ -87,6 +87,24 @@ export class ProfileDetails {
     return this.counts.getByLabel(`${value} ${label}`, { exact: true });
   }
 
+  /** The favorite song, by what it is ("<title>, <artist>"). */
+  song(song: { title: string; artistName: string }): Locator {
+    return this.screen.getByLabel(
+      t("profile.favoriteSongA11y", { title: song.title, artist: song.artistName }),
+      { exact: true }
+    );
+  }
+
+  /** A favorite-artist chip by name. */
+  artist(name: string): Locator {
+    return this.screen.getByLabel(t("profile.favoriteArtistA11y", { name }), { exact: true });
+  }
+
+  /** A favorite-genre chip by name. */
+  genre(name: string): Locator {
+    return this.screen.getByLabel(t("profile.favoriteGenreA11y", { name }), { exact: true });
+  }
+
   tab(name: ProfileTab): Locator {
     return this.screen.getByTestId(`profile-tab-${name}`);
   }

@@ -2,10 +2,14 @@ import { test as base } from "@playwright/test";
 
 import { env } from "../config/env";
 import {
+  AdminPage,
   FeedPage,
   LoginPage,
+  NotificationsPage,
   ProfilePage,
+  RecordaDetailsPage,
   SettingsPage,
+  ShareCardPage,
   UserProfilePage,
   UserSearchPage
 } from "../pages";
@@ -22,6 +26,10 @@ type Fixtures = {
   feedPage: FeedPage;
   profilePage: ProfilePage;
   settingsPage: SettingsPage;
+  recordaDetailsPage: RecordaDetailsPage;
+  notificationsPage: NotificationsPage;
+  adminPage: AdminPage;
+  shareCardPage: ShareCardPage;
   userProfilePage: UserProfilePage;
   userSearchPage: UserSearchPage;
   /** Automatic: fails any test declared without `meta()` (description + requirement). */
@@ -58,11 +66,24 @@ export const test = base.extend<Fixtures>({
   feedPage: async ({ page }, use) => use(new FeedPage(page)),
   profilePage: async ({ page }, use) => use(new ProfilePage(page)),
   settingsPage: async ({ page }, use) => use(new SettingsPage(page)),
+  recordaDetailsPage: async ({ page }, use) => use(new RecordaDetailsPage(page)),
+  notificationsPage: async ({ page }, use) => use(new NotificationsPage(page)),
+  adminPage: async ({ page }, use) => use(new AdminPage(page)),
+  shareCardPage: async ({ page }, use) => use(new ShareCardPage(page)),
   userProfilePage: async ({ page }, use) => use(new UserProfilePage(page)),
   userSearchPage: async ({ page }, use) => use(new UserSearchPage(page)),
 
   app: async (
-    { page, loginPage, feedPage, profilePage, settingsPage, userProfilePage, userSearchPage },
+    {
+      page,
+      loginPage,
+      feedPage,
+      profilePage,
+      settingsPage,
+      notificationsPage,
+      userProfilePage,
+      userSearchPage
+    },
     use
   ) => {
     await use(
@@ -71,6 +92,7 @@ export const test = base.extend<Fixtures>({
         feedPage,
         profilePage,
         settingsPage,
+        notificationsPage,
         userProfilePage,
         userSearchPage
       })

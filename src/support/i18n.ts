@@ -9,42 +9,55 @@ import { env } from "../config/env";
  */
 export const LOCALE = "pt-BR";
 
+/** Languages the app offers (language codes as the frontend stores them). */
+export const LOCALES = ["pt-BR", "en", "es"] as const;
+export type Locale = (typeof LOCALES)[number];
+
 type Messages = { [key: string]: string | Messages };
 
-const messages = JSON.parse(
-  readFileSync(path.join(env.frontendDir, "src/i18n/locales", `${LOCALE}.json`), "utf8")
-) as Messages;
+const catalogs = Object.fromEntries(
+  LOCALES.map((locale) => [
+    locale,
+    JSON.parse(
+      readFileSync(path.join(env.frontendDir, "src/i18n/locales", `${locale}.json`), "utf8")
+    ) as Messages
+  ])
+) as Record<Locale, Messages>;
 
-/** Plural category of a count in the locale, as i18next picks `key_one` / `key_other`. */
-const pluralRules = new Intl.PluralRules(LOCALE);
-
-function lookup(key: string): string | undefined {
-  const value = key
+function lookup(locale: Locale, key: string): string | Messages | undefined {
+  return key
     .split(".")
     .reduce<string | Messages | undefined>(
       (node, part) => (typeof node === "object" ? node[part] : undefined),
-      messages
+      catalogs[locale]
     );
-  return typeof value === "string" ? value : undefined;
 }
 
 /**
- * `t("settings.signOut")` → "Sair". Throws on unknown keys so typos fail loudly.
- * `{{name}}` placeholders are filled from `params`, as i18next does in the app. With a
- * numeric `count`, plural keys resolve too: `t("profile.streak.days", { count: 1 })` reads
- * `profile.streak.days_one`.
+ * `tIn("en", "settings.title")` → "Settings". Throws on unknown keys so typos fail loudly.
+ *
+ * Like i18next, `{{name}}` placeholders are filled from `values`, and a numeric `count`
+ * picks the plural key (`_zero` for 0 when it exists, then `_one` / `_other`).
  */
-export function t(key: string, params: Record<string, string | number> = {}): string {
-  const { count } = params;
-  const value =
-    lookup(key) ??
-    (typeof count === "number"
-      ? (lookup(`${key}_${pluralRules.select(count)}`) ?? lookup(`${key}_other`))
-      : undefined);
-  if (value === undefined) {
-    throw new Error(`Missing ${LOCALE} translation for "${key}"`);
+export function tIn(
+  locale: Locale,
+  key: string,
+  values: Record<string, string | number> = {}
+): string {
+  let value = lookup(locale, key);
+  if (value === undefined && typeof values.count === "number") {
+    const zero = values.count === 0 ? lookup(locale, `${key}_zero`) : undefined;
+    value = zero ?? lookup(locale, `${key}_${new Intl.PluralRules(locale).select(values.count)}`);
   }
-  return value.replace(/\{\{(\w+)\}\}/g, (placeholder, name: string) =>
-    name in params ? String(params[name]) : placeholder
+  if (typeof value !== "string") {
+    throw new Error(`Missing ${locale} translation for "${key}"`);
+  }
+  return value.replace(/\{\{\s*(\w+)\s*\}\}/g, (placeholder, name: string) =>
+    name in values ? String(values[name]) : placeholder
   );
+}
+
+/** `t("settings.signOut")` → "Sair". The pt-BR copy, the language of the seeded accounts. */
+export function t(key: string, values: Record<string, string | number> = {}): string {
+  return tIn(LOCALE, key, values);
 }

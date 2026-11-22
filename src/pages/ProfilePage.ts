@@ -36,6 +36,15 @@ export class ProfilePage {
     await expect(this.root).toBeVisible();
   }
 
+  async openRecorda(id: string): Promise<void> {
+    await this.gridItem(id).click();
+  }
+
+  /** Thumbnail of a Recorda in the profile grid. */
+  gridItem(recordaId: string): Locator {
+    return this.root.getByTestId(`recorda-grid-item-${recordaId}`);
+  }
+
   async openSettings(): Promise<void> {
     await this.settingsButton.click();
   }
@@ -43,16 +52,29 @@ export class ProfilePage {
   /**
    * Opens the avatar menu.
    *
-   * The only fixed wait in the suite (team decision, see docs/GUIDELINES.md "Known frontend
-   * gaps"): on web, a press within ~0.5 s of the profile mounting leaves the menu unopenable
-   * until the app reloads. react-native-paper's Menu `show()` awaits a measurement of its
-   * portal content that never resolves, so `visible` stays true and later presses change
-   * nothing. No DOM, network, font or idle signal marks the end of that window, and a
-   * retry can't recover once it has happened.
-   * TODO(frontend): remove the wait once AvatarPickerMenu opens reliably right away.
+   * On web, react-native-paper's Menu measures its anchor when it opens; pressing while the
+   * profile header is still laying out (avatar, counters and music arriving) leaves the menu
+   * unopenable until the app reloads. So wait until the avatar button stops moving: the
+   * same box on consecutive animation frames.
    */
   async openAvatarMenu(): Promise<void> {
-    await this.root.page().waitForTimeout(1_000);
+    await expect(this.editAvatarButton).toBeVisible();
+    await this.editAvatarButton.evaluate(
+      (element) =>
+        new Promise<void>((resolve) => {
+          let previous = "";
+          let stableFrames = 0;
+          const check = () => {
+            const { x, y, width, height } = element.getBoundingClientRect();
+            const current = `${x},${y},${width},${height}`;
+            stableFrames = current === previous ? stableFrames + 1 : 0;
+            previous = current;
+            if (stableFrames >= 10) resolve();
+            else requestAnimationFrame(check);
+          };
+          requestAnimationFrame(check);
+        })
+    );
     await this.editAvatarButton.click();
     await expect(this.avatarMenuGallery).toBeVisible();
   }

@@ -3,7 +3,6 @@ import path from "node:path";
 
 import { signedOut, users } from "../../src/data/users";
 import { expect, meta, test } from "../../src/fixtures";
-import type { LoginResponse, RecordaApi } from "../../src/support/api";
 import { t } from "../../src/support/i18n";
 
 /**
@@ -16,20 +15,6 @@ const AVATAR_FIXTURE = path.join(__dirname, "../fixtures/avatar.png");
 /** Page size of the profile grid (backend default of `GET /users/{id}/recordas`). */
 const GRID_PAGE_SIZE = 24;
 
-/** A new account that skipped nothing: onboarding done, so it boots into the Feed. */
-async function newUser(api: RecordaApi, role: string): Promise<LoginResponse> {
-  const username = `e2e-${role}-${randomUUID().slice(0, 8)}`;
-  const session = await api.register({
-    name: `E2E ${role}`,
-    username,
-    email: `${username}@e2e.recorda.test`,
-    password: "E2e-Password1",
-    language: "pt-BR"
-  });
-  await api.completeOnboarding(session);
-  return session;
-}
-
 test.describe("Own profile", () => {
   test(
     "the profile shows identity, avatar, counters, one streak and music",
@@ -41,7 +26,7 @@ test.describe("Own profile", () => {
       requirement: ["RF-28.1", "RF-35.3"]
     }),
     async ({ api, app, profilePage }) => {
-      const gabriel = await api.login(users.gabriel);
+      const gabriel = await api.account(users.gabriel);
       const profile = await api.profile(gabriel);
       const tastes = await api.musicPreferences(gabriel);
       const details = profilePage.details;
@@ -147,7 +132,7 @@ test.describe("Own profile", () => {
         tag: "@mutates"
       }),
       async ({ api, app, profilePage }) => {
-        const user = await newUser(api, "streak");
+        const user = await api.createUser("streak");
         await api.createRecorda(user, { description: `RF-35.3 ${randomUUID()}` });
 
         await app.launchAs(user);
@@ -172,10 +157,11 @@ test.describe("Own profile", () => {
         tag: "@mutates"
       }),
       async ({ api, app, profilePage }) => {
-        const user = await newUser(api, "grid");
+        const user = await api.createUser("grid");
         const recordaIds: string[] = [];
         for (let i = 0; i <= GRID_PAGE_SIZE; i++) {
-          recordaIds.push(await api.createRecorda(user, { description: `RF-28.3 #${i}` }));
+          const { recorda_id } = await api.createRecorda(user, { description: `RF-28.3 #${i}` });
+          recordaIds.push(recorda_id);
         }
         const [oldest] = recordaIds;
         const details = profilePage.details;
@@ -210,7 +196,7 @@ test.describe("Own profile", () => {
         tag: "@mutates"
       }),
       async ({ api, app, profilePage }) => {
-        const user = await newUser(api, "noavatar");
+        const user = await api.createUser("noavatar");
         await api.setAvatar(user);
         const details = profilePage.details;
 
@@ -249,7 +235,7 @@ test.describe("Own profile", () => {
         // (console: "expo-file-system is not supported on web"); no PUT /users/me/avatar is
         // made and the default icon stays.
         test.fail();
-        const user = await newUser(api, "avatar");
+        const user = await api.createUser("avatar");
         const details = profilePage.details;
 
         await app.launchAs(user);

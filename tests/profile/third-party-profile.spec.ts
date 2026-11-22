@@ -24,9 +24,8 @@ test.describe("Someone else's profile", () => {
         requirement: "RF-29.1"
       }),
       async ({ api, app, userProfilePage }) => {
-        const gabriel = await api.login(users.gabriel);
-        const { user_id } = (await api.login(owner)).user;
-        const profile = await api.profile(gabriel, user_id);
+        const gabriel = await api.account(users.gabriel);
+        const profile = await api.profile(gabriel, await api.account(owner));
         expect(profile.can_view_content, "seed: gabriel can see this profile").toBe(true);
         const details = userProfilePage.details;
 
@@ -65,9 +64,8 @@ test.describe("Someone else's profile", () => {
       requirement: "RF-29.2"
     }),
     async ({ api, app, userProfilePage }) => {
-      const gabriel = await api.login(users.gabriel);
-      const { user_id } = (await api.login(users.camila)).user;
-      const profile = await api.profile(gabriel, user_id);
+      const gabriel = await api.account(users.gabriel);
+      const profile = await api.profile(gabriel, await api.account(users.camila));
       expect(profile.can_view_content, "seed: gabriel's request is pending").toBe(false);
       const details = userProfilePage.details;
 
@@ -111,21 +109,23 @@ test.describe("Someone else's profile", () => {
   );
 
   test(
-    "a private profile without approval hides the streak",
+    "a private profile without approval still shows the streak",
     meta({
       description:
-        "A private account whose follow request is pending shows its name and favorite " +
-        "song but no streak indicator, as the team decided.",
+        "A private account whose follow request is pending shows its name, favorite song " +
+        "and streak indicator, as RF-29.2 and backend decision D-06 say.",
       requirement: "RF-29.2"
     }),
     async ({ app, userProfilePage }) => {
-      // Team decision: the streak stays hidden until the follow is approved (frontend
-      // StreakBadge, docs/issue-260.md). RF-29.2 in the catalog still says the streak is
-      // shown; that wording is to be corrected by whoever owns the requirements.
+      // RF-29.2 (gap): the frontend StreakBadge hides the streak when can_view_content is
+      // false, provisionally (recorda-frontend docs/issue-260.md), while the requirement and
+      // the backend (D-06) show it. Open question in the catalog until the team decides.
+      test.fail();
       await app.launch();
       await app.goToUserProfile(users.camila.username);
       await expect(userProfilePage.details.favoriteSong).toBeVisible();
-      await expect(userProfilePage.details.streakIndicators).toHaveCount(0);
+      await expect(userProfilePage.details.streakIndicators).toHaveCount(1);
     }
   );
+
 });

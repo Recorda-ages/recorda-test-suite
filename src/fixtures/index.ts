@@ -2,12 +2,14 @@ import { test as base } from "@playwright/test";
 
 import { env } from "../config/env";
 import {
+  AdminPage,
   FeedPage,
   LoginPage,
   NotificationsPage,
   ProfilePage,
-  RecordaDetailPage,
+  RecordaDetailsPage,
   SettingsPage,
+  ShareCardPage,
   UserProfilePage
 } from "../pages";
 import { assertHasMetadata } from "../requirements/annotations";
@@ -21,10 +23,12 @@ type Fixtures = {
   app: App;
   loginPage: LoginPage;
   feedPage: FeedPage;
-  notificationsPage: NotificationsPage;
   profilePage: ProfilePage;
-  recordaDetailPage: RecordaDetailPage;
   settingsPage: SettingsPage;
+  recordaDetailsPage: RecordaDetailsPage;
+  notificationsPage: NotificationsPage;
+  adminPage: AdminPage;
+  shareCardPage: ShareCardPage;
   userProfilePage: UserProfilePage;
   /** Automatic: fails any test declared without `meta()` (description + requirement). */
   requireMetadata: void;
@@ -58,14 +62,18 @@ export const test = base.extend<Fixtures>({
 
   loginPage: async ({ page }, use) => use(new LoginPage(page)),
   feedPage: async ({ page }, use) => use(new FeedPage(page)),
-  notificationsPage: async ({ page }, use) => use(new NotificationsPage(page)),
   profilePage: async ({ page }, use) => use(new ProfilePage(page)),
-  recordaDetailPage: async ({ page }, use) => use(new RecordaDetailPage(page)),
   settingsPage: async ({ page }, use) => use(new SettingsPage(page)),
+  recordaDetailsPage: async ({ page }, use) => use(new RecordaDetailsPage(page)),
+  notificationsPage: async ({ page }, use) => use(new NotificationsPage(page)),
+  adminPage: async ({ page }, use) => use(new AdminPage(page)),
+  shareCardPage: async ({ page }, use) => use(new ShareCardPage(page)),
   userProfilePage: async ({ page }, use) => use(new UserProfilePage(page)),
 
-  app: async ({ page, loginPage, feedPage, notificationsPage, profilePage, settingsPage }, use) => {
-    await use(new App(page, { loginPage, feedPage, notificationsPage, profilePage, settingsPage }));
+  app: async ({ page, loginPage, feedPage, profilePage, settingsPage, notificationsPage }, use) => {
+    await use(
+      new App(page, { loginPage, feedPage, profilePage, settingsPage, notificationsPage })
+    );
   }
 });
 

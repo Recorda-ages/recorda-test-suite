@@ -204,10 +204,10 @@ export const REQUIREMENTS = [
   req("RF-10.1", 10, "A partir da tela de detalhes há a interface Compartilhar Recorda.", "web"),
   req("RF-10.2", 10, "O card é uma imagem na proporção 9:16 (Stories).", "web"),
   req("RF-10.3", 10, "O card contém a mídia, a identidade visual do app e capa e nome da música.", "manual"),
-  req("RF-10.4", 10, "Para vídeos, o card usa o primeiro quadro: o resultado é sempre uma imagem estática.", "web"),
+  req("RF-10.4", 10, "Para vídeos, o card usa o primeiro quadro: o resultado é sempre uma imagem estática.", "web", { gap: "No web, a captura do card (html2canvas-pro em ShareCardScreen) ignora contentFit=\"cover\" e estica mídias que não são verticais, como o vídeo do seed." }),
   req("RF-10.5", 10, "A geração ocorre no dispositivo, com indicador de progresso.", "web"),
   req("RF-11.1", 11, "Os presets aparecem como lista horizontal rolável abaixo do card.", "web"),
-  req("RF-11.2", 11, "É possível alternar entre 3 presets pré-definidos.", "web"),
+  req("RF-11.2", 11, "É possível alternar entre 3 presets pré-definidos.", "web", { gap: "ShareCardScreen oferece quatro presets (light, mint, teal, dark); a US 11 exige exatamente três." }),
   req("RF-11.3", 11, "Os presets respeitam a marca (tons de verde e fundo escuro).", "manual"),
   req("RF-11.4", 11, "O card é atualizado em tempo real conforme o preset selecionado.", "web"),
   req("RF-11.5", 11, "O card exportado é sempre vertical (9:16).", "web"),
@@ -288,7 +288,9 @@ export const REQUIREMENTS = [
   // ── E5 · US 24 — Comentários ─────────────────────────────────────────────────────────────
   req("RF-24.1", 24, "A tela de detalhes lista os comentários e tem um campo para escrever um novo.", "web"),
   req("RF-24.2", 24, "Os comentários são uma lista plana por data de criação, sem respostas nem curtidas.", "web"),
-  req("RF-24.3", 24, "Cada comentário mostra avatar, username, texto e data.", "web"),
+  req("RF-24.3", 24, "Cada comentário mostra avatar, username, texto e data.", "web", {
+    gap: "A linha do comentário não mostra a data (CommentRow em recorda-frontend/src/features/feed/components/RecordaDetailView.tsx)."
+  }),
   req("RF-24.4", 24, "Comentários têm no máximo 500 caracteres.", "web"),
   req("RF-24.5", 24, "Só comenta quem tem permissão para ver a Recorda.", "api"),
   req("RF-24.6", 24, "O autor da Recorda é notificado de novos comentários.", "web"),

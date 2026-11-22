@@ -16,6 +16,30 @@ export type LoginResponse = {
   };
 };
 
+/** An account created by a test, with its password and a ready-to-use session. */
+export type TestAccount = {
+  user: TestUser;
+  session: LoginResponse;
+};
+
+export type CreatedRecorda = {
+  recorda_id: string;
+  user_id: string;
+  description: string | null;
+  song_title: string;
+  song_artist_name: string;
+};
+
+export type RecordaComment = {
+  comment_id: string;
+  user_id: string;
+  username: string;
+  content: string;
+  created_at: string;
+};
+
+export type RecordaLikeState = { likes_count: number; is_liked: boolean };
+
 /** Notification kinds, as `GET /api/v1/notifications` returns them. */
 export type NotificationType =
   | "COMMENT"
@@ -26,7 +50,7 @@ export type NotificationType =
   | "MENTION"
   | "NEW_FOLLOWER";
 
-export type NotificationPage = {
+export type NotificationList = {
   items: {
     notification_id: string;
     type: NotificationType;
@@ -38,21 +62,190 @@ export type NotificationPage = {
   unread_count: number;
 };
 
-/** Smallest valid PNG (1×1), enough for the backend's media upload. */
+export type FollowStatus = "seguindo" | "solicitado";
+
+// 1×1 PNG: the smallest media the upload endpoint accepts.
 const PIXEL_PNG = Buffer.from(
-  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
   "base64"
 );
+
+let uniqueSeq = 0;
+/** Unique across parallel workers and repeated runs: time + pid + per-process counter. */
+export function uniqueId(): string {
+  uniqueSeq += 1;
+  return `${Date.now().toString(36)}${process.pid.toString(36)}${uniqueSeq.toString(36)}`;
+}
+
+/** A positive integer no seeded or other test user shares (Deezer ids are much smaller). */
+function uniqueDeezerId(): number {
+  return 2_000_000_000 + Math.floor(Math.random() * 100_000_000);
+}
 
 /**
  * Thin client for the Recorda backend, used to arrange state and to verify side effects
  * without going through the UI. Keep it to what tests need; it is not an SDK.
- *
- * Calls made on behalf of a user take that user's `LoginResponse` (from `login` or
- * `register`) as the first argument.
  */
 export class RecordaApi {
   constructor(private readonly request: APIRequestContext) {}
+
+  private auth(session: LoginResponse) {
+    return { Authorization: `Bearer ${session.access_token}` };
+  }
+
+  /**
+   * Registers a user that has finished onboarding, so the app opens on the Feed. Its music
+   * tastes are unique, so it has no musical affinity with anyone and its "Para Você" feed
+   * only shows its own Recordas and those of the people it follows.
+   */
+  async createUser(label: string): Promise<TestAccount> {
+    const username = `e2e-${label}-${uniqueId()}`;
+    const user: TestUser = { username, password: env.userPassword, role: "USER" };
+    const session = await this.register({
+      name: `E2E ${label}`,
+      username,
+      email: `${username}@e2e.recorda.test`,
+      password: user.password,
+      language: "pt-BR"
+    });
+    const items = (kind: string) =>
+      [1, 2, 3].map((n) => ({ deezer_id: uniqueDeezerId(), name: `${username} ${kind} ${n}` }));
+    const response = await this.request.post("/api/v1/users/me/music-preferences", {
+      headers: this.auth(session),
+      data: {
+        genres: items("genre"),
+        artists: items("artist"),
+        favorite_track: {
+          deezer_id: uniqueDeezerId(),
+          title: `${username} song`,
+          artist_name: `${username} artist`
+        }
+      }
+    });
+    expect(response, `Could not finish onboarding for "${username}"`).toBeOK();
+    return { user, session: { ...session, user: { ...session.user, onboarding_completed: true } } };
+  }
+
+  /** Publishes a photo Recorda as `author`, without calling Deezer. */
+  async createRecorda(
+    author: TestAccount,
+    data: {
+      description: string;
+      songTitle?: string;
+      songArtist?: string;
+      /** People to mark in the Recorda; the author must follow them. */
+      mentioned?: TestAccount[];
+    }
+  ): Promise<CreatedRecorda> {
+    const upload = await this.request.post("/api/v1/recordas/media", {
+      headers: this.auth(author.session),
+      multipart: { file: { name: "pixel.png", mimeType: "image/png", buffer: PIXEL_PNG } }
+    });
+    expect(upload, "Could not upload the Recorda media").toBeOK();
+    const { url } = (await upload.json()) as { url: string };
+    const response = await this.request.post("/api/v1/recordas", {
+      headers: this.auth(author.session),
+      data: {
+        media_url: url,
+        media_type: "PHOTO",
+        description: data.description,
+        deezer_track_id: String(uniqueDeezerId()),
+        song_title: data.songTitle ?? "E2E Song",
+        song_artist_name: data.songArtist ?? "E2E Artist",
+        song_genre_name: "Pop",
+        mentioned_user_ids: (data.mentioned ?? []).map((account) => account.session.user.user_id)
+      }
+    });
+    expect(response, "Could not create the Recorda").toBeOK();
+    return (await response.json()) as CreatedRecorda;
+  }
+
+  /**
+   * `follower` follows `target`: accepted at once for a public account ("seguindo"), a
+   * follow request for a private one ("solicitado").
+   */
+  async follow(follower: TestAccount, target: TestAccount): Promise<FollowStatus> {
+    const response = await this.request.post(
+      `/api/v1/users/${target.session.user.user_id}/follow`,
+      { headers: this.auth(follower.session) }
+    );
+    expect(response, `${follower.user.username} could not follow ${target.user.username}`).toBeOK();
+    return ((await response.json()) as { follow_status: FollowStatus }).follow_status;
+  }
+
+  async setPrivate(account: TestAccount, isPrivate: boolean): Promise<void> {
+    const response = await this.request.patch("/api/v1/users/me/settings", {
+      headers: this.auth(account.session),
+      data: { is_private: isPrivate }
+    });
+    expect(response, `Could not change the privacy of ${account.user.username}`).toBeOK();
+  }
+
+  async respondToFollowRequest(
+    account: TestAccount,
+    followId: string,
+    action: "accept" | "decline"
+  ): Promise<void> {
+    const response = await this.request.patch(`/api/v1/follow-requests/${followId}`, {
+      headers: this.auth(account.session),
+      data: { action }
+    });
+    expect(response, `Could not ${action} follow request ${followId}`).toBeOK();
+  }
+
+  /** Usernames of `of`'s accepted followers, as `viewer` sees them. */
+  async followers(viewer: TestAccount, of: TestAccount = viewer): Promise<string[]> {
+    const response = await this.request.get(
+      `/api/v1/users/${of.session.user.user_id}/followers`,
+      { headers: this.auth(viewer.session) }
+    );
+    expect(response, `Could not list the followers of ${of.user.username}`).toBeOK();
+    return ((await response.json()) as { username: string }[]).map((user) => user.username);
+  }
+
+  /** First page of `account`'s notifications, newest first. Reading doesn't mark them read. */
+  async notifications(account: TestAccount): Promise<NotificationList> {
+    const response = await this.request.get("/api/v1/notifications?limit=50", {
+      headers: this.auth(account.session)
+    });
+    expect(response, `Could not list the notifications of ${account.user.username}`).toBeOK();
+    return (await response.json()) as NotificationList;
+  }
+
+  async like(account: TestAccount, recordaId: string): Promise<RecordaLikeState> {
+    const response = await this.request.post(`/api/v1/recordas/${recordaId}/likes`, {
+      headers: this.auth(account.session)
+    });
+    expect(response, "Could not like the Recorda").toBeOK();
+    return (await response.json()) as RecordaLikeState;
+  }
+
+  /** Like count and whether `account` liked the Recorda, as the server sees them. */
+  async likeState(account: TestAccount, recordaId: string): Promise<RecordaLikeState> {
+    const response = await this.request.get(`/api/v1/recordas/${recordaId}`, {
+      headers: this.auth(account.session)
+    });
+    expect(response, "Could not read the Recorda").toBeOK();
+    const { likes_count, is_liked } = (await response.json()) as RecordaLikeState;
+    return { likes_count, is_liked };
+  }
+
+  async comment(account: TestAccount, recordaId: string, content: string): Promise<RecordaComment> {
+    const response = await this.request.post(`/api/v1/recordas/${recordaId}/comments`, {
+      headers: this.auth(account.session),
+      data: { content }
+    });
+    expect(response, "Could not comment on the Recorda").toBeOK();
+    return (await response.json()) as RecordaComment;
+  }
+
+  async comments(account: TestAccount, recordaId: string): Promise<RecordaComment[]> {
+    const response = await this.request.get(`/api/v1/recordas/${recordaId}/comments`, {
+      headers: this.auth(account.session)
+    });
+    expect(response, "Could not list the comments").toBeOK();
+    return (await response.json()) as RecordaComment[];
+  }
 
   async health(): Promise<void> {
     const response = await this.request.get("/api/v1/health");
@@ -75,135 +268,14 @@ export class RecordaApi {
     password: string;
     language?: "pt-BR" | "en" | "es";
   }): Promise<LoginResponse> {
-    this.assertLocal("register()", "create a user");
-    const response = await this.request.post("/api/v1/auth/register", { data });
-    expect(response, `Could not register "${data.username}"`).toBeOK();
-    return (await response.json()) as LoginResponse;
-  }
-
-  /** Saves a minimal music selection, so the account lands on the Feed instead of onboarding. */
-  async completeOnboarding(as: LoginResponse): Promise<void> {
-    this.assertLocal("completeOnboarding()", "change a user");
-    const items = (names: string[]) => names.map((name, i) => ({ deezer_id: i + 1, name }));
-    const response = await this.request.post("/api/v1/users/me/music-preferences", {
-      headers: this.auth(as),
-      data: {
-        genres: items(["Pop", "Rock", "Jazz"]),
-        artists: items(["Artist A", "Artist B", "Artist C"]),
-        favorite_track: { deezer_id: 1, title: "Song", artist_name: "Artist A" }
-      }
-    });
-    expect(response, `Could not complete onboarding of "${as.user.username}"`).toBeOK();
-  }
-
-  async setPrivate(as: LoginResponse, isPrivate: boolean): Promise<void> {
-    this.assertLocal("setPrivate()", "change a user");
-    const response = await this.request.patch("/api/v1/users/me/settings", {
-      headers: this.auth(as),
-      data: { is_private: isPrivate }
-    });
-    expect(response, `Could not change privacy of "${as.user.username}"`).toBeOK();
-  }
-
-  /** Follows `userId`; a private account gets a request instead ("solicitado"). */
-  async follow(as: LoginResponse, userId: string): Promise<"seguindo" | "solicitado"> {
-    this.assertLocal("follow()", "create a follow");
-    const response = await this.request.post(`/api/v1/users/${userId}/follow`, {
-      headers: this.auth(as)
-    });
-    expect(response, `"${as.user.username}" could not follow ${userId}`).toBeOK();
-    return ((await response.json()) as { follow_status: "seguindo" | "solicitado" }).follow_status;
-  }
-
-  async respondToFollowRequest(
-    as: LoginResponse,
-    followId: string,
-    action: "accept" | "decline"
-  ): Promise<void> {
-    this.assertLocal("respondToFollowRequest()", "change a follow");
-    const response = await this.request.patch(`/api/v1/follow-requests/${followId}`, {
-      headers: this.auth(as),
-      data: { action }
-    });
-    expect(response, `Could not ${action} follow request ${followId}`).toBeOK();
-  }
-
-  /** Usernames of the accepted followers of `userId`, as seen by `as`. */
-  async followers(as: LoginResponse, userId: string): Promise<string[]> {
-    const response = await this.request.get(`/api/v1/users/${userId}/followers`, {
-      headers: this.auth(as)
-    });
-    expect(response, `Could not list followers of ${userId}`).toBeOK();
-    return ((await response.json()) as { username: string }[]).map((user) => user.username);
-  }
-
-  /** Publishes a photo Recorda (1×1 PNG, fixed song) and returns its id. */
-  async createRecorda(
-    as: LoginResponse,
-    data: { description: string; mentionedUserIds?: string[] }
-  ): Promise<string> {
-    this.assertLocal("createRecorda()", "publish a Recorda");
-    const upload = await this.request.post("/api/v1/recordas/media", {
-      headers: this.auth(as),
-      multipart: { file: { name: "pixel.png", mimeType: "image/png", buffer: PIXEL_PNG } }
-    });
-    expect(upload, "Could not upload the Recorda media").toBeOK();
-    const { url } = (await upload.json()) as { url: string };
-
-    const response = await this.request.post("/api/v1/recordas", {
-      headers: this.auth(as),
-      data: {
-        media_url: url,
-        media_type: "PHOTO",
-        description: data.description,
-        deezer_track_id: "3135556",
-        song_title: "Harder, Better, Faster, Stronger",
-        song_artist_name: "Daft Punk",
-        // Given, so the backend doesn't look the genre up on Deezer.
-        song_genre_name: "Electro",
-        mentioned_user_ids: data.mentionedUserIds ?? []
-      }
-    });
-    expect(response, `"${as.user.username}" could not publish a Recorda`).toBeOK();
-    return ((await response.json()) as { recorda_id: string }).recorda_id;
-  }
-
-  async like(as: LoginResponse, recordaId: string): Promise<void> {
-    this.assertLocal("like()", "like a Recorda");
-    const response = await this.request.post(`/api/v1/recordas/${recordaId}/likes`, {
-      headers: this.auth(as)
-    });
-    expect(response, `"${as.user.username}" could not like ${recordaId}`).toBeOK();
-  }
-
-  async comment(as: LoginResponse, recordaId: string, content: string): Promise<void> {
-    this.assertLocal("comment()", "comment on a Recorda");
-    const response = await this.request.post(`/api/v1/recordas/${recordaId}/comments`, {
-      headers: this.auth(as),
-      data: { content }
-    });
-    expect(response, `"${as.user.username}" could not comment on ${recordaId}`).toBeOK();
-  }
-
-  /** First page of the user's notifications, newest first. Reading does not mark them read. */
-  async notifications(as: LoginResponse): Promise<NotificationPage> {
-    const response = await this.request.get("/api/v1/notifications?limit=50", {
-      headers: this.auth(as)
-    });
-    expect(response, `Could not list notifications of "${as.user.username}"`).toBeOK();
-    return (await response.json()) as NotificationPage;
-  }
-
-  private auth(as: LoginResponse): Record<string, string> {
-    return { Authorization: `Bearer ${as.access_token}` };
-  }
-
-  private assertLocal(method: string, action: string): void {
     if (!env.isLocalApi) {
       throw new Error(
-        `${method} would ${action} on the shared deployed backend. Tag the test ` +
+        "register() would create a user on the shared deployed backend. Tag the test " +
           "`@mutates` so it only runs against the local stack."
       );
     }
+    const response = await this.request.post("/api/v1/auth/register", { data });
+    expect(response, `Could not register "${data.username}"`).toBeOK();
+    return (await response.json()) as LoginResponse;
   }
 }

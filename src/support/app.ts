@@ -1,8 +1,17 @@
 import { expect, type Page } from "@playwright/test";
 
 import type { TestUser } from "../data/users";
-import type { FeedPage, LoginPage, NotificationsPage, ProfilePage, SettingsPage } from "../pages";
-import type { LoginResponse } from "./api";
+import { RecordaDetailsPage } from "../pages/RecordaDetailsPage";
+import { ShareCardPage } from "../pages/ShareCardPage";
+import type {
+  FeedPage,
+  LoginPage,
+  NotificationsPage,
+  ProfilePage,
+  SettingsPage
+} from "../pages";
+import { PasswordRecoveryPage } from "../pages/PasswordRecoveryPage";
+import type { TestAccount } from "./api";
 import { STORAGE_KEYS } from "./session";
 
 /**
@@ -17,9 +26,9 @@ export class App {
     private readonly pages: {
       loginPage: LoginPage;
       feedPage: FeedPage;
-      notificationsPage: NotificationsPage;
       profilePage: ProfilePage;
       settingsPage: SettingsPage;
+      notificationsPage: NotificationsPage;
     }
   ) {}
 
@@ -33,19 +42,27 @@ export class App {
   }
 
   /**
-   * Launches the app signed in as an account the test created (seeded accounts use saved
-   * sessions instead, see docs/GUIDELINES.md §3). The session is written to localStorage
-   * before the app boots, on this and every later launch of the page.
+   * Reopens the app signed in as an account created by the test (no saved session file).
+   * Replaces whatever session the page had, like another person picking up the phone.
    */
-  async launchAs(session: LoginResponse): Promise<void> {
-    await this.page.addInitScript(
-      ({ keys, token, role }) => {
+  async launchAs(account: TestAccount): Promise<void> {
+    await this.page.goto("/");
+    await this.page.evaluate(
+      ([keys, token, role]) => {
+        localStorage.clear();
         localStorage.setItem(keys.token, token);
         localStorage.setItem(keys.role, role);
       },
-      { keys: STORAGE_KEYS, token: session.access_token, role: session.user.role }
+      [STORAGE_KEYS, account.session.access_token, account.session.user.role] as const
     );
     await this.launch();
+    await this.pages.feedPage.expectLoaded();
+  }
+
+  /** Feed → Notifications, through the bell in the feed header. */
+  async goToNotifications(): Promise<void> {
+    await this.pages.feedPage.notificationsButton.click();
+    await this.pages.notificationsPage.expectLoaded();
   }
 
   /** Launches the app and signs in through the login form. Lands on the Feed. */
@@ -56,16 +73,37 @@ export class App {
     await this.pages.feedPage.expectLoaded();
   }
 
+  /** Login → Forgot password. Starts from the signed-out login screen. */
+  async goToPasswordRecovery(): Promise<PasswordRecoveryPage> {
+    await this.pages.loginPage.expectLoaded();
+    await this.pages.loginPage.forgotPasswordLink.click();
+    const recoveryPage = new PasswordRecoveryPage(this.page);
+    await recoveryPage.expectLoaded();
+    return recoveryPage;
+  }
+
   /** Feed → Profile, through the bottom tab bar. */
   async goToProfile(): Promise<void> {
     await this.pages.feedPage.tabBar.select("profile");
     await this.pages.profilePage.expectLoaded();
   }
 
-  /** Feed → Notifications, through the bell in the Feed header. */
-  async goToNotifications(): Promise<void> {
-    await this.pages.feedPage.notificationsButton.click();
-    await this.pages.notificationsPage.expectLoaded();
+  /** Open a stable seed Recorda through the profile, never by a deep link. */
+  async goToRecorda(id: string): Promise<RecordaDetailsPage> {
+    await this.goToProfile();
+    await this.pages.profilePage.openRecorda(id);
+    const details = new RecordaDetailsPage(this.page);
+    await details.expectLoaded();
+    return details;
+  }
+
+  /** Feed → Profile → a seed Recorda → Share. */
+  async goToShareCard(id: string): Promise<ShareCardPage> {
+    const details = await this.goToRecorda(id);
+    await details.share();
+    const share = new ShareCardPage(this.page);
+    await share.expectLoaded();
+    return share;
   }
 
   /** Feed → Profile → Settings. */

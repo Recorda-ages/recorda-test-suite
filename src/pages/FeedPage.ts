@@ -44,6 +44,21 @@ export class FeedPage {
     return this.panel(variant).locator('[data-testid^="feed-post-"]');
   }
 
+  /** One Recorda card of a feed tab. */
+  post(variant: FeedVariant, recordaId: string): Locator {
+    return this.panel(variant).getByTestId(`feed-post-${recordaId}`);
+  }
+
+  /** Like button of a card (`like-button-<recorda_id>`). */
+  likeButton(variant: FeedVariant, recordaId: string): Locator {
+    return this.post(variant, recordaId).getByTestId(`like-button-${recordaId}`);
+  }
+
+  /** Three-dots menu of a card (a Modal, outside the screen root). */
+  cardMenu(): Locator {
+    return this.root.page().getByTestId("recorda-card-menu");
+  }
+
   emptyState(variant: FeedVariant): Locator {
     return this.root.getByTestId(`feed-${variant}-empty-state`);
   }

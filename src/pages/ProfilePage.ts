@@ -22,4 +22,9 @@ export class ProfilePage {
   async openSettings(): Promise<void> {
     await this.settingsButton.click();
   }
+
+  /** Thumbnail of a Recorda in the profile grid. */
+  gridItem(recordaId: string): Locator {
+    return this.root.getByTestId(`recorda-grid-item-${recordaId}`);
+  }
 }

@@ -8,7 +8,9 @@ import type {
   LoginPage,
   NotificationsPage,
   ProfilePage,
-  SettingsPage
+  SettingsPage,
+  UserProfilePage,
+  UserSearchPage
 } from "../pages";
 import { PasswordRecoveryPage } from "../pages/PasswordRecoveryPage";
 import type { TestAccount } from "./api";
@@ -29,6 +31,8 @@ export class App {
       profilePage: ProfilePage;
       settingsPage: SettingsPage;
       notificationsPage: NotificationsPage;
+      userProfilePage: UserProfilePage;
+      userSearchPage: UserSearchPage;
     }
   ) {}
 
@@ -63,6 +67,14 @@ export class App {
   async goToNotifications(): Promise<void> {
     await this.pages.feedPage.notificationsButton.click();
     await this.pages.notificationsPage.expectLoaded();
+  }
+
+  /** Feed → search → `username`'s profile. */
+  async goToUserProfile(username: string): Promise<void> {
+    await this.pages.feedPage.searchButton.click();
+    await this.pages.userSearchPage.expectLoaded();
+    await this.pages.userSearchPage.openProfile(username);
+    await this.pages.userProfilePage.expectLoaded();
   }
 
   /** Launches the app and signs in through the login form. Lands on the Feed. */

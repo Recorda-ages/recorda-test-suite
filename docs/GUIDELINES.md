@@ -92,8 +92,8 @@ Destructure only what you use; fixtures are lazy.
 
 | Fixture                     | Use it for                                                    |
 | --------------------------- | ------------------------------------------------------------- |
-| `app`                       | `launch()`, `launchAs(account)`, `signInThroughUi(user)`, `goToProfile()`, `goToSettings()`, `goToNotifications()` |
-| `loginPage`, `feedPage`, `notificationsPage`, `profilePage`, `userProfilePage`, `recordaDetailsPage`, `settingsPage`, `adminPage`, `shareCardPage` | Locators and actions of one screen |
+| `app`                       | `launch()`, `launchAs(account)`, `signInThroughUi(user)`, `goToProfile()`, `goToUserProfile(username)`, `goToSettings()`, `goToNotifications()` |
+| `loginPage`, `feedPage`, `notificationsPage`, `profilePage`, `userProfilePage`, `userSearchPage`, `recordaDetailsPage`, `settingsPage`, `adminPage`, `shareCardPage` | Locators and actions of one screen |
 | `api`                       | Arrange data and check side effects through the backend       |
 | `page`                      | Raw Playwright access, when nothing above fits                |
 
@@ -235,3 +235,11 @@ Fixing these makes tests simpler. Remove an item when it lands.
   output as `aria-selected`, so the active tab can't be asserted. This is an accessibility
   bug too: screen readers on web don't announce the active tab.
 - No React Navigation `linking` config, so screens can't be opened directly by URL.
+- On web, pressing the profile avatar while the profile header is still laying out leaves
+  the avatar menu unopenable until the app reloads (react-native-paper's `Menu.show()` waits
+  on a measurement of its anchor that never resolves). `ProfilePage.openAvatarMenu()` waits
+  until the avatar button keeps the same box for 10 animation frames before pressing.
+- Changing the avatar doesn't work in the **web build only** (it works in Expo Go):
+  `profileService.uploadAvatar` builds the upload with `File` from `expo-file-system`,
+  which has no web support ("expo-file-system is not supported on web"), so no request is
+  sent. The web test for `RF-28.2` has a `test.fail()` until the web build supports it.

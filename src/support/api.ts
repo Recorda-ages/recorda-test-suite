@@ -64,6 +64,24 @@ export type NotificationList = {
 
 export type FollowStatus = "seguindo" | "solicitado";
 
+/** A profile header as `GET /api/v1/users/{id}/profile` returns it (fields tests read). */
+export type Profile = {
+  user_id: string;
+  name: string;
+  username: string;
+  profile_picture_url: string | null;
+  counts: { recordas: number; followers: number; following: number } | null;
+  favorite_song: { title: string; artist_name: string };
+  streak: { current_days: number; published_today: boolean } | null;
+  can_view_content: boolean;
+};
+
+/** Favorite artists and genres, in the order the profile shows them. */
+export type MusicTastes = {
+  artists: { deezer_id: number; name: string }[];
+  genres: { deezer_id: number; name: string }[];
+};
+
 // 1×1 PNG: the smallest media the upload endpoint accepts.
 const PIXEL_PNG = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
@@ -247,6 +265,33 @@ export class RecordaApi {
     return (await response.json()) as RecordaComment[];
   }
 
+  /** Sets the avatar through the API (1×1 PNG), as arrangement for tests that remove it. */
+  async setAvatar(account: TestAccount): Promise<void> {
+    const response = await this.request.put("/api/v1/users/me/avatar", {
+      headers: this.auth(account.session),
+      multipart: { file: { name: "avatar.png", mimeType: "image/png", buffer: PIXEL_PNG } }
+    });
+    expect(response, `Could not set the avatar of ${account.user.username}`).toBeOK();
+  }
+
+  /** `of`'s profile as `viewer` sees it. Read-only, safe on any backend. */
+  async profile(viewer: TestAccount, of: TestAccount = viewer): Promise<Profile> {
+    const response = await this.request.get(`/api/v1/users/${of.session.user.user_id}/profile`, {
+      headers: this.auth(viewer.session)
+    });
+    expect(response, `Could not read the profile of ${of.user.username}`).toBeOK();
+    return (await response.json()) as Profile;
+  }
+
+  /** `account`'s favorite artists and genres. Read-only, safe on any backend. */
+  async musicPreferences(account: TestAccount): Promise<MusicTastes> {
+    const response = await this.request.get("/api/v1/users/me/music-preferences", {
+      headers: this.auth(account.session)
+    });
+    expect(response, `Could not read the music preferences of ${account.user.username}`).toBeOK();
+    return (await response.json()) as MusicTastes;
+  }
+
   async health(): Promise<void> {
     const response = await this.request.get("/api/v1/health");
     expect(response, "Backend health check failed").toBeOK();
@@ -258,6 +303,11 @@ export class RecordaApi {
     });
     expect(response, `Login failed for "${user.username}". Did you run the seed?`).toBeOK();
     return (await response.json()) as LoginResponse;
+  }
+
+  /** A seeded account with a fresh session, to use with the helpers above. Read-only. */
+  async account(user: TestUser): Promise<TestAccount> {
+    return { user, session: await this.login(user) };
   }
 
   /** Creates a brand-new account. Use for tests that mutate the user. */

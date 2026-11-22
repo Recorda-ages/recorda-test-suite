@@ -315,13 +315,15 @@ export const REQUIREMENTS = [
 
   // ── E6 · US 28 — Perfil pessoal ──────────────────────────────────────────────────────────
   req("RF-28.1", 28, "O perfil mostra nome, username, avatar, contadores, uma única streak, música favorita e chips de artistas e gêneros.", "web"),
-  req("RF-28.2", 28, "É possível trocar e remover o avatar.", "web"),
+  req("RF-28.2", 28, "É possível trocar e remover o avatar.", "web", {
+    gap: "Só no build web: trocar o avatar não envia nada, porque profileService.uploadAvatar (recorda-frontend/src/features/profile/services/profileService.ts) usa File do expo-file-system, sem suporte no web. No app (Expo Go) a troca funciona; remover funciona nas duas plataformas."
+  }),
   req("RF-28.3", 28, "O perfil mostra a grade paginada das próprias Recordas.", "web"),
   req("RF-28.4", 28, "O perfil mantém as abas Recordas, Métricas e Calendário.", "web"),
 
   // ── E6 · US 29 — Perfil de terceiros ─────────────────────────────────────────────────────
   req("RF-29.1", 29, "Perfil público, ou com follow aprovado, mostra cabeçalho, contadores e conteúdo.", "web"),
-  req("RF-29.2", 29, "Perfil privado sem aprovação mostra nome, username, streak e música, oculta contadores e Recordas e mantém as três abas com aviso de restrição.", "web"),
+  req("RF-29.2", 29, "Perfil privado sem aprovação mostra nome, username, streak e música, oculta contadores e Recordas e mantém as três abas com aviso de restrição.", "web", { gap: "O StreakBadge do frontend oculta o streak quando can_view_content é false; ver OPEN_QUESTIONS." }),
 
   // ── E6 · US 31 — Editar preferências musicais ────────────────────────────────────────────
   req("RF-31.1", 31, "A edição abre com as escolhas atuais selecionadas.", "web"),
@@ -451,7 +453,8 @@ export const REQUIREMENTS_BY_ID = new Map<string, Requirement>(
 
 /** Contradictions and gaps still waiting for a team decision. */
 export const OPEN_QUESTIONS = [
-  "Duração de vídeo: a US 6 cita 60 s como proposta (RF-06.6), sem valor definido."
+  "Duração de vídeo: a US 6 cita 60 s como proposta (RF-06.6), sem valor definido.",
+  "Streak em perfil privado sem aprovação (RF-29.2): a US 29 e a decisão D-06 do backend mostram o streak, mas o StreakBadge do frontend o oculta provisoriamente (recorda-frontend docs/issue-260.md)."
 ] as const;
 
 /**

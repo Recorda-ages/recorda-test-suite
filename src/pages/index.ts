@@ -1,6 +1,7 @@
 export { AdminPage } from "./AdminPage";
 export { AdminTabBar, type AdminTab } from "./components/AdminTabBar";
 export { BottomTabBar, type BottomTab } from "./components/BottomTabBar";
+export { ProfileDetails } from "./components/ProfileDetails";
 export { FeedPage, type FeedVariant } from "./FeedPage";
 export { LoginPage } from "./LoginPage";
 export { NotificationsPage, type NotificationType } from "./NotificationsPage";
@@ -10,3 +11,4 @@ export { RecordaDetailsPage } from "./RecordaDetailsPage";
 export { SettingsPage } from "./SettingsPage";
 export { ShareCardPage } from "./ShareCardPage";
 export { UserProfilePage } from "./UserProfilePage";
+export { UserSearchPage } from "./UserSearchPage";

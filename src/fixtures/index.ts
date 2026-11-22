@@ -2,6 +2,7 @@ import { test as base } from "@playwright/test";
 
 import { env } from "../config/env";
 import {
+  AdminPage,
   FeedPage,
   LoginPage,
   NotificationsPage,
@@ -24,6 +25,7 @@ type Fixtures = {
   settingsPage: SettingsPage;
   recordaDetailsPage: RecordaDetailsPage;
   notificationsPage: NotificationsPage;
+  adminPage: AdminPage;
   /** Automatic: fails any test declared without `meta()` (description + requirement). */
   requireMetadata: void;
 };
@@ -60,6 +62,7 @@ export const test = base.extend<Fixtures>({
   settingsPage: async ({ page }, use) => use(new SettingsPage(page)),
   recordaDetailsPage: async ({ page }, use) => use(new RecordaDetailsPage(page)),
   notificationsPage: async ({ page }, use) => use(new NotificationsPage(page)),
+  adminPage: async ({ page }, use) => use(new AdminPage(page)),
 
   app: async ({ page, loginPage, feedPage, profilePage, settingsPage, notificationsPage }, use) => {
     await use(

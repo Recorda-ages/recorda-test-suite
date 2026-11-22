@@ -37,6 +37,38 @@ test.describe("Sign in", () => {
   );
 
   test(
+    "an administrator signs in on the same screen and lands on the admin area",
+    meta({
+      description:
+        "The admin uses the same login form and lands on Denúncias. No admin tab shows the " +
+        "Feed or the app's bottom bar (Feed, Câmera, Perfil).",
+      requirement: ["RF-04.1", "RF-04.4"]
+    }),
+    async ({ app, loginPage, adminPage, feedPage, page }) => {
+      await app.launch();
+      await loginPage.signIn(users.admin);
+
+      await test.step("lands on Denúncias", async () => {
+        await adminPage.expectLoaded("reports");
+        await expect(adminPage.tabBar("reports").tab("reports")).toBeVisible();
+      });
+
+      const tabs = ["reports", "users", "auditLog"] as const;
+      for (const [index, tab] of tabs.entries()) {
+        await test.step(`${tab} has no way into the regular app`, async () => {
+          if (index > 0) {
+            await adminPage.tabBar(tabs[index - 1]).select(tab);
+            await adminPage.expectLoaded(tab);
+          }
+          await expect(adminPage.tabBar(tab).root).toBeVisible();
+          await expect(feedPage.root).toHaveCount(0);
+          await expect(page.getByTestId(/^tab-bar-/)).toHaveCount(0);
+        });
+      }
+    }
+  );
+
+  test(
     "invalid credentials show one generic error",
     meta({
       description:

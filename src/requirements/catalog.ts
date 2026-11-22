@@ -288,7 +288,9 @@ export const REQUIREMENTS = [
   // ── E5 · US 24 — Comentários ─────────────────────────────────────────────────────────────
   req("RF-24.1", 24, "A tela de detalhes lista os comentários e tem um campo para escrever um novo.", "web"),
   req("RF-24.2", 24, "Os comentários são uma lista plana por data de criação, sem respostas nem curtidas.", "web"),
-  req("RF-24.3", 24, "Cada comentário mostra avatar, username, texto e data.", "web"),
+  req("RF-24.3", 24, "Cada comentário mostra avatar, username, texto e data.", "web", {
+    gap: "A linha do comentário não mostra a data (CommentRow em recorda-frontend/src/features/feed/components/RecordaDetailView.tsx)."
+  }),
   req("RF-24.4", 24, "Comentários têm no máximo 500 caracteres.", "web"),
   req("RF-24.5", 24, "Só comenta quem tem permissão para ver a Recorda.", "api"),
   req("RF-24.6", 24, "O autor da Recorda é notificado de novos comentários.", "web"),

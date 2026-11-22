@@ -23,14 +23,14 @@ Fontes: Termo de Abertura do Projeto (2026/2) e os Épicos e User Stories das is
 
 ## Resumo
 
-226 requisitos, 199 verificáveis por esta suíte (web ou API), 11 cobertos por 10 teste(s). 8 decididos mas ainda não atendidos pelo código (⚠️).
+226 requisitos, 199 verificáveis por esta suíte (web ou API), 28 cobertos por 23 teste(s). 9 decididos mas ainda não atendidos pelo código (⚠️).
 
 | Épico | Nome | Requisitos | Web | API | Nativo | Manual | Cobertos |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| E2 | Autenticação, cadastro e onboarding | 32 | 26 | 4 | 0 | 2 | 9 |
+| E2 | Autenticação, cadastro e onboarding | 32 | 26 | 4 | 0 | 2 | 10 |
 | E3 | Criação e publicação de Recordas | 25 | 16 | 4 | 5 | 0 | 0 |
-| E4 | Feed | 26 | 18 | 2 | 6 | 0 | 0 |
-| E5 | Interações sociais | 39 | 36 | 3 | 0 | 0 | 0 |
+| E4 | Feed | 26 | 18 | 2 | 6 | 0 | 4 |
+| E5 | Interações sociais | 39 | 36 | 3 | 0 | 0 | 12 |
 | E6 | Perfil e configurações | 22 | 20 | 2 | 0 | 0 | 2 |
 | E7 | Memórias e estatísticas | 24 | 20 | 0 | 2 | 2 | 0 |
 | E8 | Compartilhamento de cards | 16 | 9 | 0 | 5 | 2 | 0 |
@@ -64,6 +64,7 @@ até a implementação (marque-o com `test.fail()` e um comentário apontando o 
 - **RF-09.1**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
 - **RF-09.6**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
 - **RF-17.2**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
+- **RF-24.3**: A linha do comentário não mostra a data (CommentRow em recorda-frontend/src/features/feed/components/RecordaDetailView.tsx).
 - **RF-35.2**: A streak do perfil inclui Recordas excluídas (list_publication_times em recorda-backend/app/repositories/recorda_repository.py), enquanto a de Métricas já as exclui.
 
 ## Pontos em aberto
@@ -94,13 +95,13 @@ Os requisitos agrupados por jornada do usuário. Cada fluxo tem uma issue em
 | Fluxo | Issue | Requisitos | Web (Playwright) | Cobertos | Lacunas | Escreve dados |
 | --- | --- | --- | --- | --- | --- | --- |
 | FL-01 Abertura do app e sessão | [#1](https://github.com/Recorda-ages/recorda-test-suite/issues/1) | 9 | 9 | 4 | 1 | não |
-| FL-02 Login | [#2](https://github.com/Recorda-ages/recorda-test-suite/issues/2) | 4 | 4 | 3 | 0 | não |
+| FL-02 Login | [#2](https://github.com/Recorda-ages/recorda-test-suite/issues/2) | 4 | 4 | 4 | 0 | não |
 | FL-03 Cadastro e onboarding | [#3](https://github.com/Recorda-ages/recorda-test-suite/issues/3) | 11 | 11 | 0 | 0 | sim (`@mutates`) |
 | FL-04 Recuperação de senha | [#4](https://github.com/Recorda-ages/recorda-test-suite/issues/4) | 4 | 4 | 4 | 0 | sim (`@mutates`) |
 | FL-05 Criação e publicação de Recorda | [#5](https://github.com/Recorda-ages/recorda-test-suite/issues/5) | 22 | 17 | 0 | 4 | sim (`@mutates`) |
 | FL-06 Card de compartilhamento | [#6](https://github.com/Recorda-ages/recorda-test-suite/issues/6) | 14 | 9 | 0 | 0 | não |
 | FL-07 Feed | [#7](https://github.com/Recorda-ages/recorda-test-suite/issues/7) | 20 | 15 | 0 | 0 | não |
-| FL-08 Detalhes da Recorda, curtidas e comentários | [#8](https://github.com/Recorda-ages/recorda-test-suite/issues/8) | 17 | 16 | 0 | 1 | sim (`@mutates`) |
+| FL-08 Detalhes da Recorda, curtidas e comentários | [#8](https://github.com/Recorda-ages/recorda-test-suite/issues/8) | 17 | 16 | 16 | 2 | sim (`@mutates`) |
 | FL-09 Busca, seguir e rede de seguidores | [#9](https://github.com/Recorda-ages/recorda-test-suite/issues/9) | 17 | 17 | 0 | 0 | sim (`@mutates`) |
 | FL-10 Notificações | [#10](https://github.com/Recorda-ages/recorda-test-suite/issues/10) | 7 | 7 | 0 | 0 | sim (`@mutates`) |
 | FL-11 Perfil pessoal e de terceiros | [#11](https://github.com/Recorda-ages/recorda-test-suite/issues/11) | 7 | 7 | 0 | 0 | sim (`@mutates`) |
@@ -165,10 +166,10 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-04.1 | A tela de Login tem os campos Usuário e Senha e é a mesma para usuários comuns e administradores. | web | [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L24) |
+| RF-04.1 | A tela de Login tem os campos Usuário e Senha e é a mesma para usuários comuns e administradores. | web | [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L24)<br>[an administrator signs in on the same screen and lands on the admin area](../tests/auth/sign-in.spec.ts#L39) |
 | RF-04.2 | As credenciais são validadas no backend, que retorna também o tipo de conta. | API | — |
-| RF-04.3 | Credenciais inválidas exibem uma única mensagem genérica, sem revelar qual campo está incorreto. | web | [invalid credentials show one generic error](../tests/auth/sign-in.spec.ts#L39) |
-| RF-04.4 | Administradores são roteados para a área administrativa, sem acesso à navegação do app comum. | web | — |
+| RF-04.3 | Credenciais inválidas exibem uma única mensagem genérica, sem revelar qual campo está incorreto. | web | [invalid credentials show one generic error](../tests/auth/sign-in.spec.ts#L71) |
+| RF-04.4 | Administradores são roteados para a área administrativa, sem acesso à navegação do app comum. | web | [an administrator signs in on the same screen and lands on the admin area](../tests/auth/sign-in.spec.ts#L39) |
 | RF-04.5 | Usuários comuns são roteados para o Feed. | web | [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L24) |
 | RF-04.6 | A sessão é persistida no dispositivo: reabrir o app não exige novo login. | web | [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L10) |
 | RF-04.7 | Não há expiração de sessão por inatividade; a sessão dura até o token expirar. | API | — |
@@ -285,11 +286,11 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-17.1 | Tocar num card do feed ou numa miniatura do perfil abre a tela Detalhes da Recorda. | web | — |
-| RF-17.2 | A tela mostra mídia, avatar e username do autor, relato completo, música, Data da Memória, Local, marcações e comentários.<br>⚠️ Não implementado: o model recorda não tem Data da Memória, Local nem marcações. | web | — |
+| RF-17.1 | Tocar num card do feed ou numa miniatura do perfil abre a tela Detalhes da Recorda. | web | [a feed card and a profile thumbnail both open the Recorda details](../tests/recorda-details/recorda-details.spec.ts#L48) |
+| RF-17.2 | A tela mostra mídia, avatar e username do autor, relato completo, música, Data da Memória, Local, marcações e comentários.<br>⚠️ Não implementado: o model recorda não tem Data da Memória, Local nem marcações. | web | [the details show the whole Recorda, with memory date, place and tagged people](../tests/recorda-details/recorda-details.spec.ts#L76) |
 | RF-17.3 | A música continua tocando na transição do feed para os detalhes, sem reiniciar. | nativo | — |
-| RF-17.4 | A tela oferece curtir, comentar e compartilhar. | web | — |
-| RF-17.5 | O menu de três pontos oferece só excluir na própria Recorda e só denunciar na de outra pessoa; não há edição. | web | — |
+| RF-17.4 | A tela oferece curtir, comentar e compartilhar. | web | [the feed card and the details offer like, comment and share](../tests/recorda-details/recorda-details.spec.ts#L114) |
+| RF-17.5 | O menu de três pontos oferece só excluir na própria Recorda e só denunciar na de outra pessoa; não há edição. | web | [the three-dots menu offers only delete on your Recorda and only report on others'](../tests/recorda-details/recorda-details.spec.ts#L152) |
 
 ### US 18 — Carregamento Progressivo
 
@@ -355,10 +356,10 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-23.1 | Os cards do feed e a tela de detalhes têm o botão de curtir. | web | — |
-| RF-23.2 | Curtir alterna entre curtido e não curtido, com resposta visual imediata e reconciliação com o servidor. | web | — |
-| RF-23.3 | A Recorda exibe a contagem de curtidas. | web | — |
-| RF-23.4 | O autor é notificado das curtidas, exceto das próprias. | web | — |
+| RF-23.1 | Os cards do feed e a tela de detalhes têm o botão de curtir. | web | [the feed card and the details offer like, comment and share](../tests/recorda-details/recorda-details.spec.ts#L114) |
+| RF-23.2 | Curtir alterna entre curtido e não curtido, com resposta visual imediata e reconciliação com o servidor. | web | [liking toggles at once, shows the count and matches the server](../tests/recorda-details/recorda-details.spec.ts#L210) |
+| RF-23.3 | A Recorda exibe a contagem de curtidas. | web | [liking toggles at once, shows the count and matches the server](../tests/recorda-details/recorda-details.spec.ts#L210) |
+| RF-23.4 | O autor é notificado das curtidas, exceto das próprias. | web | [the author is notified of other people's likes but not of their own](../tests/recorda-details/recorda-details.spec.ts#L274) |
 
 ### US 24 — Comentários
 
@@ -366,12 +367,12 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-24.1 | A tela de detalhes lista os comentários e tem um campo para escrever um novo. | web | — |
-| RF-24.2 | Os comentários são uma lista plana por data de criação, sem respostas nem curtidas. | web | — |
-| RF-24.3 | Cada comentário mostra avatar, username, texto e data. | web | — |
-| RF-24.4 | Comentários têm no máximo 500 caracteres. | web | — |
+| RF-24.1 | A tela de detalhes lista os comentários e tem um campo para escrever um novo. | web | [comments are a flat list in the order they were written](../tests/recorda-details/recorda-details.spec.ts#L317) |
+| RF-24.2 | Os comentários são uma lista plana por data de criação, sem respostas nem curtidas. | web | [comments are a flat list in the order they were written](../tests/recorda-details/recorda-details.spec.ts#L317) |
+| RF-24.3 | Cada comentário mostra avatar, username, texto e data.<br>⚠️ A linha do comentário não mostra a data (CommentRow em recorda-frontend/src/features/feed/components/RecordaDetailView.tsx). | web | [each comment shows avatar, username, text and date](../tests/recorda-details/recorda-details.spec.ts#L360) |
+| RF-24.4 | Comentários têm no máximo 500 caracteres. | web | [a comment can't be longer than 500 characters](../tests/recorda-details/recorda-details.spec.ts#L396) |
 | RF-24.5 | Só comenta quem tem permissão para ver a Recorda. | API | — |
-| RF-24.6 | O autor da Recorda é notificado de novos comentários. | web | — |
+| RF-24.6 | O autor da Recorda é notificado de novos comentários. | web | [the author is notified of new comments](../tests/recorda-details/recorda-details.spec.ts#L429) |
 
 ### US 25 — Excluir Comentário
 
@@ -379,9 +380,9 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-25.1 | O autor do comentário pode excluí-lo. | web | — |
-| RF-25.2 | O autor da Recorda pode excluir qualquer comentário dela. | web | — |
-| RF-25.3 | A exclusão pede confirmação e vale imediatamente para todos. | web | — |
+| RF-25.1 | O autor do comentário pode excluí-lo. | web | [the comment author deletes their comment after confirming](../tests/recorda-details/recorda-details.spec.ts#L457) |
+| RF-25.2 | O autor da Recorda pode excluir qualquer comentário dela. | web | [the Recorda author deletes someone else's comment for everyone](../tests/recorda-details/recorda-details.spec.ts#L510) |
+| RF-25.3 | A exclusão pede confirmação e vale imediatamente para todos. | web | [the comment author deletes their comment after confirming](../tests/recorda-details/recorda-details.spec.ts#L457)<br>[the Recorda author deletes someone else's comment for everyone](../tests/recorda-details/recorda-details.spec.ts#L510) |
 
 ### US 26 — Central de Notificações
 
@@ -689,5 +690,18 @@ Ficam fora:
 | [an unknown recovery email shows the same generic error as a network failure](../tests/auth/password-recovery.spec.ts#L148) | An unknown email and a failed reset request for a dedicated account show exactly the same generic message. Retrying with a working connection resets the account and allows sign-in. | RF-05.4 |
 | [a signed-out user sees the login screen](../tests/auth/sign-in.spec.ts#L8) | Without a saved session the Splash hands over to Login, whose submit button stays disabled until the form is filled. | RF-01.3 |
 | [signing in with valid credentials opens the feed](../tests/auth/sign-in.spec.ts#L24) | A regular account signs in with username and password on the shared login screen and lands on the Feed. | RF-04.1, RF-04.5 |
-| [invalid credentials show one generic error](../tests/auth/sign-in.spec.ts#L39) | A wrong password and an unknown username both keep the user on Login with the same message, so the error never reveals which field is wrong. | RF-04.3 |
+| [an administrator signs in on the same screen and lands on the admin area](../tests/auth/sign-in.spec.ts#L39) | The admin uses the same login form and lands on Denúncias. No admin tab shows the Feed or the app's bottom bar (Feed, Câmera, Perfil). | RF-04.1, RF-04.4 |
+| [invalid credentials show one generic error](../tests/auth/sign-in.spec.ts#L71) | A wrong password and an unknown username both keep the user on Login with the same message, so the error never reveals which field is wrong. | RF-04.3 |
 | [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L10) | A saved session opens the feed without logging in again; signing out from Settings asks for confirmation, returns to Login and clears the session for the next launch. | RF-04.6, RF-36.1, RF-36.2 |
+| [a feed card and a profile thumbnail both open the Recorda details](../tests/recorda-details/recorda-details.spec.ts#L48) | Tapping a Recorda card in the feed, or its thumbnail in the author's profile grid, opens the details screen of that Recorda. | RF-17.1 |
+| [the details show the whole Recorda, with memory date, place and tagged people](../tests/recorda-details/recorda-details.spec.ts#L76) | The details show media, author, full description, song and comments, plus the Memory Date, Place and tagged users decided for the Recorda. | RF-17.2 |
+| [the feed card and the details offer like, comment and share](../tests/recorda-details/recorda-details.spec.ts#L114) | Feed cards and the details screen have a like button; the details also let the user open the comments and share the Recorda. | RF-17.4, RF-23.1 |
+| [the three-dots menu offers only delete on your Recorda and only report on others'](../tests/recorda-details/recorda-details.spec.ts#L152) | On someone else's Recorda the menu reports (no delete); on your own it deletes (no report). Neither offers editing. Checked on the feed card and on the details. | RF-17.5 |
+| [liking toggles at once, shows the count and matches the server](../tests/recorda-details/recorda-details.spec.ts#L210) | The like count is shown on the card and the details. Liking updates it before the server answers, the server keeps the result, and liking again undoes it. | RF-23.2, RF-23.3 |
+| [the author is notified of other people's likes but not of their own](../tests/recorda-details/recorda-details.spec.ts#L274) | A like from someone else shows up in the author's notifications; the author liking their own Recorda does not notify them. | RF-23.4 |
+| [comments are a flat list in the order they were written](../tests/recorda-details/recorda-details.spec.ts#L317) | The details list the comments oldest first, with a field to write a new one that lands at the end; comments have no replies nor likes. | RF-24.1, RF-24.2 |
+| [each comment shows avatar, username, text and date](../tests/recorda-details/recorda-details.spec.ts#L360) | A comment row shows who wrote it (avatar and username), what they wrote and when. | RF-24.3 |
+| [a comment can't be longer than 500 characters](../tests/recorda-details/recorda-details.spec.ts#L396) | The comment field stops at 500 characters, and a 500-character comment is saved whole. | RF-24.4 |
+| [the author is notified of new comments](../tests/recorda-details/recorda-details.spec.ts#L429) | A comment written by someone else shows up in the Recorda author's notifications. | RF-24.6 |
+| [the comment author deletes their comment after confirming](../tests/recorda-details/recorda-details.spec.ts#L457) | Only your own comments show a delete button on someone else's Recorda; deleting asks for confirmation, cancelling keeps the comment and confirming removes it on the server. | RF-25.1, RF-25.3 |
+| [the Recorda author deletes someone else's comment for everyone](../tests/recorda-details/recorda-details.spec.ts#L510) | The author of a Recorda can delete any comment on it; once confirmed, the comment is gone for its writer too. | RF-25.2, RF-25.3 |

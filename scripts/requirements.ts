@@ -60,7 +60,9 @@ type JsonSuite = {
 };
 
 function listTests(): ListedTest[] {
-  const output = execFileSync(path.join(ROOT, "node_modules/.bin/playwright"), ["test", "--list", "--reporter=json"], {
+  // Through node rather than node_modules/.bin, whose shim on Windows is a .cmd file.
+  const cli = path.join(ROOT, "node_modules/@playwright/test/cli.js");
+  const output = execFileSync(process.execPath, [cli, "test", "--list", "--reporter=json"], {
     cwd: ROOT,
     encoding: "utf8",
     maxBuffer: 64 * 1024 * 1024,

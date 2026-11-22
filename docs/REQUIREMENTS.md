@@ -23,15 +23,15 @@ Fontes: Termo de Abertura do Projeto (2026/2) e os Épicos e User Stories das is
 
 ## Resumo
 
-226 requisitos, 199 verificáveis por esta suíte (web ou API), 53 cobertos por 53 teste(s). 11 decididos mas ainda não atendidos pelo código (⚠️).
+226 requisitos, 199 verificáveis por esta suíte (web ou API), 67 cobertos por 69 teste(s). 13 decididos mas ainda não atendidos pelo código (⚠️).
 
 | Épico | Nome | Requisitos | Web | API | Nativo | Manual | Cobertos |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | E2 | Autenticação, cadastro e onboarding | 32 | 26 | 4 | 0 | 2 | 26 |
 | E3 | Criação e publicação de Recordas | 25 | 16 | 4 | 5 | 0 | 0 |
 | E4 | Feed | 26 | 18 | 2 | 6 | 0 | 4 |
-| E5 | Interações sociais | 39 | 36 | 3 | 0 | 0 | 12 |
-| E6 | Perfil e configurações | 22 | 20 | 2 | 0 | 0 | 2 |
+| E5 | Interações sociais | 39 | 36 | 3 | 0 | 0 | 19 |
+| E6 | Perfil e configurações | 22 | 20 | 2 | 0 | 0 | 9 |
 | E7 | Memórias e estatísticas | 24 | 20 | 0 | 2 | 2 | 0 |
 | E8 | Compartilhamento de cards | 16 | 9 | 0 | 5 | 2 | 9 |
 | E9 | Denúncias | 15 | 12 | 3 | 0 | 0 | 0 |
@@ -67,6 +67,8 @@ até a implementação (marque-o com `test.fail()` e um comentário apontando o 
 - **RF-11.2**: ShareCardScreen oferece quatro presets (light, mint, teal, dark); a US 11 exige exatamente três.
 - **RF-17.2**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
 - **RF-24.3**: A linha do comentário não mostra a data (CommentRow em recorda-frontend/src/features/feed/components/RecordaDetailView.tsx).
+- **RF-28.2**: Só no build web: trocar o avatar não envia nada, porque profileService.uploadAvatar (recorda-frontend/src/features/profile/services/profileService.ts) usa File do expo-file-system, sem suporte no web. No app (Expo Go) a troca funciona; remover funciona nas duas plataformas.
+- **RF-29.2**: O StreakBadge do frontend oculta o streak quando can_view_content é false; ver OPEN_QUESTIONS.
 - **RF-35.2**: A streak do perfil inclui Recordas excluídas (list_publication_times em recorda-backend/app/repositories/recorda_repository.py), enquanto a de Métricas já as exclui.
 
 ## Pontos em aberto
@@ -75,6 +77,7 @@ Contradições e lacunas encontradas entre o Termo, as User Stories e o código.
 decisão do time antes de virarem teste.
 
 - Duração de vídeo: a US 6 cita 60 s como proposta (RF-06.6), sem valor definido.
+- Streak em perfil privado sem aprovação (RF-29.2): a US 29 e a decisão D-06 do backend mostram o streak, mas o StreakBadge do frontend o oculta provisoriamente (recorda-frontend docs/issue-260.md).
 
 ## Fora do escopo
 
@@ -105,8 +108,8 @@ Os requisitos agrupados por jornada do usuário. Cada fluxo tem uma issue em
 | FL-07 Feed | [#7](https://github.com/Recorda-ages/recorda-test-suite/issues/7) | 20 | 15 | 0 | 0 | não |
 | FL-08 Detalhes da Recorda, curtidas e comentários | [#8](https://github.com/Recorda-ages/recorda-test-suite/issues/8) | 17 | 16 | 16 | 2 | sim (`@mutates`) |
 | FL-09 Busca, seguir e rede de seguidores | [#9](https://github.com/Recorda-ages/recorda-test-suite/issues/9) | 17 | 17 | 0 | 0 | sim (`@mutates`) |
-| FL-10 Notificações | [#10](https://github.com/Recorda-ages/recorda-test-suite/issues/10) | 7 | 7 | 0 | 0 | sim (`@mutates`) |
-| FL-11 Perfil pessoal e de terceiros | [#11](https://github.com/Recorda-ages/recorda-test-suite/issues/11) | 7 | 7 | 0 | 0 | sim (`@mutates`) |
+| FL-10 Notificações | [#10](https://github.com/Recorda-ages/recorda-test-suite/issues/10) | 7 | 7 | 7 | 0 | sim (`@mutates`) |
+| FL-11 Perfil pessoal e de terceiros | [#11](https://github.com/Recorda-ages/recorda-test-suite/issues/11) | 7 | 7 | 7 | 2 | sim (`@mutates`) |
 | FL-12 Configurações, preferências e conta | [#12](https://github.com/Recorda-ages/recorda-test-suite/issues/12) | 12 | 12 | 0 | 0 | sim (`@mutates`) |
 | FL-13 Memórias: calendário, métricas e retrospectiva | [#13](https://github.com/Recorda-ages/recorda-test-suite/issues/13) | 22 | 20 | 0 | 0 | não |
 | FL-14 Denúncias | [#14](https://github.com/Recorda-ages/recorda-test-suite/issues/14) | 9 | 9 | 0 | 0 | sim (`@mutates`) |
@@ -337,7 +340,7 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-21.1 | As solicitações recebidas são acessíveis pela central de notificações. | web | — |
+| RF-21.1 | As solicitações recebidas são acessíveis pela central de notificações. | web | [follow requests are accepted or declined from the notification list](../tests/notifications/notification-center.spec.ts#L216) |
 | RF-21.2 | Ao aceitar, o solicitante passa a ver as Recordas imediatamente e é notificado da aprovação. | web | — |
 | RF-21.3 | Ao recusar, a solicitação é descartada sem notificar o solicitante. | web | — |
 | RF-21.4 | Quem enviou uma solicitação pendente pode cancelá-la. | web | — |
@@ -392,12 +395,12 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-26.1 | O cabeçalho do Feed tem um sino que abre as notificações. | web | — |
-| RF-26.2 | A lista mostra o histórico recente, do mais novo ao mais antigo, com ícone do autor da ação, descrição e ação opcional. | web | — |
-| RF-26.3 | Geram notificação: novo seguidor, solicitação recebida, solicitação aprovada, curtida, comentário e marcação. | web | — |
-| RF-26.4 | Solicitações para seguir podem ser aceitas ou recusadas na própria lista. | web | — |
-| RF-26.5 | O sino mostra o contador de não lidas, e abrir a lista marca todas como lidas. | web | — |
-| RF-26.6 | Tocar numa notificação leva ao conteúdo relacionado. | web | — |
+| RF-26.1 | O cabeçalho do Feed tem um sino que abre as notificações. | web | [the bell shows the unread count and opening the list marks it as read](../tests/notifications/notification-center.spec.ts#L31) |
+| RF-26.2 | A lista mostra o histórico recente, do mais novo ao mais antigo, com ícone do autor da ação, descrição e ação opcional. | web | [notifications are listed newest first with who acted, what happened and the action](../tests/notifications/notification-center.spec.ts#L82) |
+| RF-26.3 | Geram notificação: novo seguidor, solicitação recebida, solicitação aprovada, curtida, comentário e marcação. | web | [follows, requests, likes, comments and mentions notify the account owner](../tests/notifications/notification-center.spec.ts#L147)<br>[an approved follow request notifies the requester](../tests/notifications/notification-center.spec.ts#L193) |
+| RF-26.4 | Solicitações para seguir podem ser aceitas ou recusadas na própria lista. | web | [follow requests are accepted or declined from the notification list](../tests/notifications/notification-center.spec.ts#L216) |
+| RF-26.5 | O sino mostra o contador de não lidas, e abrir a lista marca todas como lidas. | web | [the bell shows the unread count and opening the list marks it as read](../tests/notifications/notification-center.spec.ts#L31) |
+| RF-26.6 | Tocar numa notificação leva ao conteúdo relacionado. | web | [tapping a notification opens the related Recorda or profile](../tests/notifications/notification-center.spec.ts#L271) |
 
 ### US 27 — Sugestões por Afinidade
 
@@ -417,10 +420,10 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-28.1 | O perfil mostra nome, username, avatar, contadores, uma única streak, música favorita e chips de artistas e gêneros. | web | — |
-| RF-28.2 | É possível trocar e remover o avatar. | web | — |
-| RF-28.3 | O perfil mostra a grade paginada das próprias Recordas. | web | — |
-| RF-28.4 | O perfil mantém as abas Recordas, Métricas e Calendário. | web | — |
+| RF-28.1 | O perfil mostra nome, username, avatar, contadores, uma única streak, música favorita e chips de artistas e gêneros. | web | [the profile shows identity, avatar, counters, one streak and music](../tests/profile/own-profile.spec.ts#L19) |
+| RF-28.2 | É possível trocar e remover o avatar.<br>⚠️ Só no build web: trocar o avatar não envia nada, porque profileService.uploadAvatar (recorda-frontend/src/features/profile/services/profileService.ts) usa File do expo-file-system, sem suporte no web. No app (Expo Go) a troca funciona; remover funciona nas duas plataformas. | web | [removing the avatar brings back the default picture](../tests/profile/own-profile.spec.ts#L189)<br>[choosing a picture from the gallery sets it as the avatar](../tests/profile/own-profile.spec.ts#L223) |
+| RF-28.3 | O perfil mostra a grade paginada das próprias Recordas. | web | [the grid loads the next page of Recordas when scrolling to the end](../tests/profile/own-profile.spec.ts#L150) |
+| RF-28.4 | O perfil mantém as abas Recordas, Métricas e Calendário. | web | [the Recordas, Métricas and Calendário tabs switch the content below the header](../tests/profile/own-profile.spec.ts#L79) |
 
 ### US 29 — Perfil de terceiros
 
@@ -428,8 +431,8 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-29.1 | Perfil público, ou com follow aprovado, mostra cabeçalho, contadores e conteúdo. | web | — |
-| RF-29.2 | Perfil privado sem aprovação mostra nome, username, streak e música, oculta contadores e Recordas e mantém as três abas com aviso de restrição. | web | — |
+| RF-29.1 | Perfil público, ou com follow aprovado, mostra cabeçalho, contadores e conteúdo. | web | [a public profile shows the header, counters and Recordas](../tests/profile/third-party-profile.spec.ts#L17)<br>[a private profile with an approved follow shows the header, counters and Recordas](../tests/profile/third-party-profile.spec.ts#L17) |
+| RF-29.2 | Perfil privado sem aprovação mostra nome, username, streak e música, oculta contadores e Recordas e mantém as três abas com aviso de restrição.<br>⚠️ O StreakBadge do frontend oculta o streak quando can_view_content é false; ver OPEN_QUESTIONS. | web | [a private profile without approval hides counters and Recordas behind a notice](../tests/profile/third-party-profile.spec.ts#L57)<br>[a private profile without approval still shows the streak](../tests/profile/third-party-profile.spec.ts#L111) |
 
 ### US 31 — Editar preferências musicais
 
@@ -478,7 +481,7 @@ Ficam fora:
 | --- | --- | --- | --- |
 | RF-35.1 | Só contam para a streak dias com pelo menos uma Recorda publicada, pela data de publicação. | API | — |
 | RF-35.2 | Curtidas, comentários e outras ações não contam. Só contam Recordas ativas: excluir a única Recorda de um dia tira esse dia da streak (regra da US 38).<br>_Fonte: Decisão do time, 2026-11-08: seguir a US 38, que substitui o critério original da US 35._<br>⚠️ A streak do perfil inclui Recordas excluídas (list_publication_times em recorda-backend/app/repositories/recorda_repository.py), enquanto a de Métricas já as exclui. | API | — |
-| RF-35.3 | O perfil mostra apenas um indicador de streak. | web | — |
+| RF-35.3 | O perfil mostra apenas um indicador de streak. | web | [the profile shows identity, avatar, counters, one streak and music](../tests/profile/own-profile.spec.ts#L19)<br>[publishing today shows a single active streak of one day](../tests/profile/own-profile.spec.ts#L125) |
 
 ### US 36 — Logout
 
@@ -709,6 +712,22 @@ Ficam fora:
 | [an expired session is cleared before returning to login](../tests/flows/session-startup.spec.ts#L94) | An expired saved token cannot open Feed; authentication storage is cleared and reopening stays signed out. | RF-01.6 |
 | [a slow session check sends the user to login after three seconds](../tests/flows/session-timeout.spec.ts#L42) | When session verification exceeds the required three-second deadline, Splash must give way to Login. | RF-01.7 |
 | [a late valid session response cannot navigate away from login](../tests/flows/session-timeout.spec.ts#L69) | After the current timeout sends the user to Login, releasing a real successful session response cannot reopen Feed or admin. | RF-01.7 |
+| [the bell shows the unread count and opening the list marks it as read](../tests/notifications/notification-center.spec.ts#L31) | Two new followers show as 2 unread on the Feed bell, which opens the notification center; after opening it the count is gone, also after reopening the app. | RF-26.1, RF-26.5 |
+| [notifications are listed newest first with who acted, what happened and the action](../tests/notifications/notification-center.spec.ts#L82) | A follow, then a like, then a follow request appear in reverse order, each with the actor's avatar initial and username and a description; only the request offers Accept and Decline, and the like shows the liked Recorda. | RF-26.2 |
+| [follows, requests, likes, comments and mentions notify the account owner](../tests/notifications/notification-center.spec.ts#L147) | Following a public account, liking and commenting on its Recorda, mentioning it in a Recorda and requesting to follow it once private each add a notification for it. | RF-26.3 |
+| [an approved follow request notifies the requester](../tests/notifications/notification-center.spec.ts#L193) | When a private account accepts a follow request, the person who asked gets a notification that the request was approved. | RF-26.3 |
+| [follow requests are accepted or declined from the notification list](../tests/notifications/notification-center.spec.ts#L216) | A private account finds its follow requests in the notification center, accepts one (it becomes a new follower) and declines the other (it disappears); only the accepted person ends up following. | RF-21.1, RF-26.4 |
+| [tapping a notification opens the related Recorda or profile](../tests/notifications/notification-center.spec.ts#L271) | A like notification opens the liked Recorda, and a new-follower notification opens the follower's profile. | RF-26.6 |
+| [the profile shows identity, avatar, counters, one streak and music](../tests/profile/own-profile.spec.ts#L19) | The header shows the account's name, @username, picture, Recordas/followers/following counters, a single streak indicator, the favorite song and the first favorite artist and genre, all matching what the backend has for the account. | RF-28.1, RF-35.3 |
+| [the Recordas, Métricas and Calendário tabs switch the content below the header](../tests/profile/own-profile.spec.ts#L79) | The profile keeps three tabs in a fixed order; each shows its own content (the Recordas grid, the metrics cards, the memory calendar) and Recordas comes back. | RF-28.4 |
+| [publishing today shows a single active streak of one day](../tests/profile/own-profile.spec.ts#L125) | After a new account publishes its first Recorda, the profile shows one streak indicator, highlighted as active, reading one day. | RF-35.3 |
+| [the grid loads the next page of Recordas when scrolling to the end](../tests/profile/own-profile.spec.ts#L150) | With one Recorda more than a page, the grid first shows a full page without the oldest Recorda, and scrolling to the end loads it. | RF-28.3 |
+| [removing the avatar brings back the default picture](../tests/profile/own-profile.spec.ts#L189) | An account with a profile picture removes it from the avatar menu after confirming; the default icon replaces it and stays after reopening the app. | RF-28.2 |
+| [choosing a picture from the gallery sets it as the avatar](../tests/profile/own-profile.spec.ts#L223) | In the web build, an account without a picture picks an image from the gallery; it replaces the default icon and stays after reopening the app. | RF-28.2 |
+| [a public profile shows the header, counters and Recordas](../tests/profile/third-party-profile.spec.ts#L17) | Opened from the search, the profile shows the owner's name, @username, streak and favorite song, the Recordas/followers/following counters and the Recordas grid, with no private-account notice. | RF-29.1 |
+| [a private profile with an approved follow shows the header, counters and Recordas](../tests/profile/third-party-profile.spec.ts#L17) | Opened from the search, the profile shows the owner's name, @username, streak and favorite song, the Recordas/followers/following counters and the Recordas grid, with no private-account notice. | RF-29.1 |
+| [a private profile without approval hides counters and Recordas behind a notice](../tests/profile/third-party-profile.spec.ts#L57) | A private account whose follow request is pending shows its name, @username and favorite song, but no counters and no Recordas; each of the three tabs shows the private-account notice instead of its content. | RF-29.2 |
+| [a private profile without approval still shows the streak](../tests/profile/third-party-profile.spec.ts#L111) | A private account whose follow request is pending shows its name, favorite song and streak indicator, as RF-29.2 and backend decision D-06 say. | RF-29.2 |
 | [a feed card and a profile thumbnail both open the Recorda details](../tests/recorda-details/recorda-details.spec.ts#L48) | Tapping a Recorda card in the feed, or its thumbnail in the author's profile grid, opens the details screen of that Recorda. | RF-17.1 |
 | [the details show the whole Recorda, with memory date, place and tagged people](../tests/recorda-details/recorda-details.spec.ts#L76) | The details show media, author, full description, song and comments, plus the Memory Date, Place and tagged users decided for the Recorda. | RF-17.2 |
 | [the feed card and the details offer like, comment and share](../tests/recorda-details/recorda-details.spec.ts#L114) | Feed cards and the details screen have a like button; the details also let the user open the comments and share the Recorda. | RF-17.4, RF-23.1 |

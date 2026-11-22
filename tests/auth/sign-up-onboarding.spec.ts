@@ -100,7 +100,7 @@ test.describe("Sign up and onboarding", () => {
 
       await test.step("the favorite song is highlighted on the profile", async () => {
         await app.goToProfile();
-        await expect(profilePage.favoriteSong).toHaveAttribute(
+        await expect(profilePage.details.favoriteSong).toHaveAttribute(
           "aria-label",
           t("profile.favoriteSongA11y", splitSongLabel(song))
         );

@@ -92,8 +92,8 @@ Destructure only what you use; fixtures are lazy.
 
 | Fixture                     | Use it for                                                    |
 | --------------------------- | ------------------------------------------------------------- |
-| `app`                       | `launch()`, `signInThroughUi(user)`, `goToProfile()`, `goToSettings()` |
-| `loginPage`, `feedPage`, `profilePage`, `settingsPage`, `adminPage` | Locators and actions of one screen |
+| `app`                       | `launch()`, `launchAs(account)`, `signInThroughUi(user)`, `goToProfile()`, `goToSettings()`, `goToNotifications()` |
+| `loginPage`, `feedPage`, `notificationsPage`, `profilePage`, `userProfilePage`, `recordaDetailsPage`, `settingsPage`, `adminPage`, `shareCardPage` | Locators and actions of one screen |
 | `api`                       | Arrange data and check side effects through the backend       |
 | `page`                      | Raw Playwright access, when nothing above fits                |
 
@@ -117,6 +117,8 @@ Sessions come from **storage state**, not from a login fixture:
   ```
 
 - To add an account, put it in `usersWithSavedSession` in `src/data/users.ts`.
+- A user created by the test (`api.createUser`) has no saved session: start the file
+  `signedOut` and open the app with `app.launchAs(account)`.
 - Sign in through the UI **only** in tests about signing in (`tests/auth/`). Everywhere
   else, a saved session is faster and keeps login problems from failing unrelated tests.
 

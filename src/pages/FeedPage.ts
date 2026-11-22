@@ -14,12 +14,15 @@ const TAB_KEY: Record<FeedVariant, string> = {
 export class FeedPage {
   readonly root: Locator;
   readonly notificationsButton: Locator;
+  /** Unread count on the bell; not rendered when everything is read. */
+  readonly notificationsBadge: Locator;
   readonly searchButton: Locator;
   readonly tabBar: BottomTabBar;
 
   constructor(page: Page) {
     this.root = page.getByTestId("feed-screen");
     this.notificationsButton = this.root.getByTestId("feed-notifications-button");
+    this.notificationsBadge = this.notificationsButton.getByTestId("feed-notifications-badge");
     this.searchButton = this.root.getByTestId("feed-search-button");
     this.tabBar = new BottomTabBar(this.root);
   }

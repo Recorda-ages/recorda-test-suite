@@ -9,3 +9,4 @@ export { ProfilePage } from "./ProfilePage";
 export { RecordaDetailsPage } from "./RecordaDetailsPage";
 export { SettingsPage } from "./SettingsPage";
 export { ShareCardPage } from "./ShareCardPage";
+export { UserProfilePage } from "./UserProfilePage";

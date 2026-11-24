@@ -2,6 +2,7 @@ import { expect, type Locator, type Page } from "@playwright/test";
 
 import { t } from "../support/i18n";
 import { BottomTabBar } from "./components/BottomTabBar";
+import { MemoryCalendar, MetricsDashboard, Retrospective } from "./components/Memories";
 import { ProfileDetails } from "./components/ProfileDetails";
 
 export class ProfilePage {
@@ -9,6 +10,9 @@ export class ProfilePage {
   readonly settingsButton: Locator;
   readonly tabBar: BottomTabBar;
   readonly details: ProfileDetails;
+  readonly calendar: MemoryCalendar;
+  readonly metrics: MetricsDashboard;
+  readonly retrospective: Retrospective;
   /** The avatar is a button on the own profile; it opens the avatar menu. */
   readonly editAvatarButton: Locator;
   // The menu and the dialog render in portals, outside `root`.
@@ -23,6 +27,9 @@ export class ProfilePage {
     this.settingsButton = this.root.getByRole("button", { name: t("settings.title") });
     this.tabBar = new BottomTabBar(this.root);
     this.details = new ProfileDetails(this.root);
+    this.calendar = new MemoryCalendar(this.root);
+    this.metrics = new MetricsDashboard(this.root);
+    this.retrospective = new Retrospective(this.root, page);
     this.editAvatarButton = this.root.getByRole("button", { name: t("profile.editAvatarA11y") });
     this.avatarMenuGallery = page.getByTestId("avatar-menu-gallery");
     this.avatarMenuRemove = page.getByTestId("avatar-menu-remove");

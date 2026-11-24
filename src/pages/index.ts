@@ -43,3 +43,11 @@ export {
   MusicSearchStep,
   RecordaComposerStep
 } from "./CreateRecordaPage";
+export {
+  DayMemoriesViewer,
+  MemoryCalendar,
+  MetricsDashboard,
+  monthTitle,
+  Retrospective,
+  todayInSaoPaulo
+} from "./components/Memories";

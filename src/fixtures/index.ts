@@ -9,6 +9,7 @@ import {
   AdminReportsPage,
   AdminUsersPage,
   CreateRecordaPage,
+  DayMemoriesViewer,
   FeedPage,
   FriendsPage,
   LanguagePage,
@@ -61,6 +62,8 @@ type Fixtures = {
   signUpPage: SignUpPage;
   onboardingPage: OnboardingPage;
   createRecordaPage: CreateRecordaPage;
+  /** The calendar's full-screen day viewer. */
+  dayViewer: DayMemoriesViewer;
   /** Automatic: fails any test declared without `meta()` (description + requirement). */
   requireMetadata: void;
 };
@@ -118,6 +121,7 @@ export const test = base.extend<Fixtures>({
   signUpPage: async ({ page }, use) => use(new SignUpPage(page)),
   onboardingPage: async ({ page }, use) => use(new OnboardingPage(page)),
   createRecordaPage: async ({ page }, use) => use(new CreateRecordaPage(page)),
+  dayViewer: async ({ page }, use) => use(new DayMemoriesViewer(page)),
 
   app: async (
     {

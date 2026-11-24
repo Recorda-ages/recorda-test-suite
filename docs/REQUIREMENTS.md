@@ -23,13 +23,13 @@ Fontes: Termo de Abertura do Projeto (2026/2) e os Épicos e User Stories das is
 
 ## Resumo
 
-226 requisitos, 199 verificáveis por esta suíte (web ou API), 116 cobertos por 109 teste(s). 17 decididos mas ainda não atendidos pelo código (⚠️).
+226 requisitos, 199 verificáveis por esta suíte (web ou API), 131 cobertos por 122 teste(s). 18 decididos mas ainda não atendidos pelo código (⚠️).
 
 | Épico | Nome | Requisitos | Web | API | Nativo | Manual | Cobertos |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | E2 | Autenticação, cadastro e onboarding | 32 | 26 | 4 | 0 | 2 | 26 |
 | E3 | Criação e publicação de Recordas | 25 | 16 | 4 | 5 | 0 | 0 |
-| E4 | Feed | 26 | 18 | 2 | 6 | 0 | 4 |
+| E4 | Feed | 26 | 18 | 2 | 6 | 0 | 18 |
 | E5 | Interações sociais | 39 | 36 | 3 | 0 | 0 | 36 |
 | E6 | Perfil e configurações | 22 | 20 | 2 | 0 | 0 | 20 |
 | E7 | Memórias e estatísticas | 24 | 20 | 0 | 2 | 2 | 0 |
@@ -37,7 +37,7 @@ Fontes: Termo de Abertura do Projeto (2026/2) e os Épicos e User Stories das is
 | E9 | Denúncias | 15 | 12 | 3 | 0 | 0 | 3 |
 | E10 | Administração e moderação | 19 | 18 | 1 | 0 | 0 | 17 |
 | TA | Termo de Abertura (sem User Story) | 1 | 1 | 0 | 0 | 0 | 0 |
-| NF | Requisitos não funcionais | 7 | 2 | 2 | 1 | 2 | 1 |
+| NF | Requisitos não funcionais | 7 | 2 | 2 | 1 | 2 | 2 |
 
 ## Decisões
 
@@ -65,6 +65,7 @@ até a implementação (marque-o com `test.fail()` e um comentário apontando o 
 - **RF-09.6**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
 - **RF-10.4**: No web, a captura do card (html2canvas-pro em ShareCardScreen) ignora contentFit="cover" e estica mídias que não são verticais, como o vídeo do seed.
 - **RF-11.2**: ShareCardScreen oferece quatro presets (light, mint, teal, dark); a US 11 exige exatamente três.
+- **RF-14.2**: O card não mostra a capa da música: RecordaCard (recorda-frontend/src/features/feed/components/RecordaCard.tsx) ignora song_cover_url.
 - **RF-17.2**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
 - **RF-20.5**: O FollowButton pede confirmação (UnfollowDialog) antes de deixar de seguir; ver OPEN_QUESTIONS.
 - **RF-24.3**: A linha do comentário não mostra a data (CommentRow em recorda-frontend/src/features/feed/components/RecordaDetailView.tsx).
@@ -110,7 +111,7 @@ Os requisitos agrupados por jornada do usuário. Cada fluxo tem uma issue em
 | FL-04 Recuperação de senha | [#4](https://github.com/Recorda-ages/recorda-test-suite/issues/4) | 4 | 4 | 4 | 0 | sim (`@mutates`) |
 | FL-05 Criação e publicação de Recorda | [#5](https://github.com/Recorda-ages/recorda-test-suite/issues/5) | 22 | 17 | 0 | 4 | sim (`@mutates`) |
 | FL-06 Card de compartilhamento | [#6](https://github.com/Recorda-ages/recorda-test-suite/issues/6) | 14 | 9 | 9 | 2 | não |
-| FL-07 Feed | [#7](https://github.com/Recorda-ages/recorda-test-suite/issues/7) | 20 | 15 | 0 | 0 | não |
+| FL-07 Feed | [#7](https://github.com/Recorda-ages/recorda-test-suite/issues/7) | 20 | 15 | 15 | 1 | não |
 | FL-08 Detalhes da Recorda, curtidas e comentários | [#8](https://github.com/Recorda-ages/recorda-test-suite/issues/8) | 17 | 16 | 16 | 2 | sim (`@mutates`) |
 | FL-09 Busca, seguir e rede de seguidores | [#9](https://github.com/Recorda-ages/recorda-test-suite/issues/9) | 17 | 17 | 17 | 2 | sim (`@mutates`) |
 | FL-10 Notificações | [#10](https://github.com/Recorda-ages/recorda-test-suite/issues/10) | 7 | 7 | 7 | 0 | sim (`@mutates`) |
@@ -258,11 +259,11 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-14.1 | A aba Seguindo é uma das duas abas superiores do Feed (com Geral), acessível pela barra inferior. | web | — |
-| RF-14.2 | Os cards mostram avatar e username do autor, mídia, música (título, artista e capa), descrição e as ações Curtir, Comentar e Denunciar. | web | — |
-| RF-14.3 | A aba lista apenas Recordas de quem o usuário segue, da mais recente para a mais antiga. | web | — |
-| RF-14.4 | Só aparecem Recordas de autores com conta pública ou que aprovaram a solicitação de seguir; não é preciso seguir mutuamente. | web | — |
-| RF-14.5 | O estado vazio orienta a seguir perfis ou criar a primeira Recorda. | web | — |
+| RF-14.1 | A aba Seguindo é uma das duas abas superiores do Feed (com Geral), acessível pela barra inferior. | web | [the Feed opens on Para Você, with Seguindo as the other top tab](../tests/feed/following-tab.spec.ts#L11) |
+| RF-14.2 | Os cards mostram avatar e username do autor, mídia, música (título, artista e capa), descrição e as ações Curtir, Comentar e Denunciar.<br>⚠️ O card não mostra a capa da música: RecordaCard (recorda-frontend/src/features/feed/components/RecordaCard.tsx) ignora song_cover_url. | web | [a card shows the author, the media, the song, the caption and the actions](../tests/feed/following-tab.spec.ts#L45)<br>[a card shows the song's cover](../tests/feed/following-tab.spec.ts#L98) |
+| RF-14.3 | A aba lista apenas Recordas de quem o usuário segue, da mais recente para a mais antiga. | web | [Seguindo lists only followed people, newest first, including approved private accounts](../tests/feed/following-tab.spec.ts#L129) |
+| RF-14.4 | Só aparecem Recordas de autores com conta pública ou que aprovaram a solicitação de seguir; não é preciso seguir mutuamente. | web | [Seguindo lists only followed people, newest first, including approved private accounts](../tests/feed/following-tab.spec.ts#L129) |
+| RF-14.5 | O estado vazio orienta a seguir perfis ou criar a primeira Recorda. | web | [with nobody followed, Seguindo suggests following people](../tests/feed/following-tab.spec.ts#L185) |
 
 ### US 15 — Feed: Aba Geral
 
@@ -270,12 +271,12 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-15.1 | A aba Geral é a aba padrão ao abrir o Feed. | web | — |
-| RF-15.2 | A aba Geral une, por recência, as Recordas de quem o usuário segue e Recordas públicas de perfis não seguidos com Afinidade Musical maior que zero. | web | — |
+| RF-15.1 | A aba Geral é a aba padrão ao abrir o Feed. | web | [the Feed opens on Para Você, with Seguindo as the other top tab](../tests/feed/following-tab.spec.ts#L11) |
+| RF-15.2 | A aba Geral une, por recência, as Recordas de quem o usuário segue e Recordas públicas de perfis não seguidos com Afinidade Musical maior que zero. | web | [Para Você mixes followed people and public accounts with musical affinity, by recency](../tests/feed/general-tab.spec.ts#L62) |
 | RF-15.3 | A Afinidade Musical decide só a elegibilidade dos itens de descoberta, não a ordenação. | API | — |
 | RF-15.4 | A Afinidade Musical usa apenas artistas e gêneros do onboarding; nenhum dado comportamental entra no cálculo. | API | — |
-| RF-15.5 | Recordas restritas a seguidores só aparecem para seguidores aprovados. | web | — |
-| RF-15.6 | Sem itens de descoberta elegíveis, a aba exibe as Recordas de quem o usuário segue. | web | — |
+| RF-15.5 | Recordas restritas a seguidores só aparecem para seguidores aprovados. | web | [a private account's Recordas reach Para Você only once the follow is approved](../tests/feed/general-tab.spec.ts#L100) |
+| RF-15.6 | Sem itens de descoberta elegíveis, a aba exibe as Recordas de quem o usuário segue. | web | [with nobody to discover, Para Você shows the followed people's Recordas](../tests/feed/general-tab.spec.ts#L140) |
 
 ### US 16 — Reprodução Automática
 
@@ -286,8 +287,8 @@ Ficam fora:
 | RF-16.1 | Ao entrar em foco no scroll, em qualquer aba, a Recorda toca automaticamente o preview de 30 s. | nativo | — |
 | RF-16.2 | Apenas uma Recorda toca por vez; ao sair de foco, a reprodução para. | nativo | — |
 | RF-16.3 | O preview reinicia em loop enquanto a Recorda estiver em foco. | nativo | — |
-| RF-16.4 | Vídeos são sempre exibidos sem som; só a música emite áudio. | web | — |
-| RF-16.5 | Há um controle visível para silenciar/reativar, e a escolha persiste durante a sessão. | web | — |
+| RF-16.4 | Vídeos são sempre exibidos sem som; só a música emite áudio. | web | [a video plays without its own sound](../tests/feed/playback.spec.ts#L14) |
+| RF-16.5 | Há um controle visível para silenciar/reativar, e a escolha persiste durante a sessão. | web | [the mute toggle is on every card and the choice lasts for the session](../tests/feed/playback.spec.ts#L47) |
 | RF-16.6 | Ao sair da tela ou minimizar o app, o áudio para. | nativo | — |
 
 ### US 17 — Detalhes da Recorda (feed)
@@ -308,10 +309,10 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-18.1 | O feed carrega em páginas, buscando mais itens perto do fim da lista. | web | — |
+| RF-18.1 | O feed carrega em páginas, buscando mais itens perto do fim da lista. | web | [the next page loads near the end of the list, and its failure can be retried](../tests/feed/loading.spec.ts#L73) |
 | RF-18.2 | Há pull-to-refresh nas duas abas. | nativo | — |
-| RF-18.3 | Há indicador de carregamento e tratamento de erro de rede com opção de tentar novamente. | web | — |
-| RF-18.4 | A posição de rolagem e o estado de reprodução são preservados ao alternar entre Geral e Seguindo. | web | — |
+| RF-18.3 | Há indicador de carregamento e tratamento de erro de rede com opção de tentar novamente. | web | [while the first page loads there is an indicator, and a failure offers to try again](../tests/feed/loading.spec.ts#L32)<br>[the next page loads near the end of the list, and its failure can be retried](../tests/feed/loading.spec.ts#L73) |
+| RF-18.4 | A posição de rolagem e o estado de reprodução são preservados ao alternar entre Geral e Seguindo. | web | [switching tabs keeps each tab's scroll position](../tests/feed/loading.spec.ts#L129) |
 
 ## E5 — Interações sociais
 
@@ -684,7 +685,7 @@ Ficam fora:
 | RNF-02 | A interface está disponível em português, inglês e espanhol, sem textos fixos fora das traduções.<br>_Fonte: Termo; US 33_ | web | [feed and settings screens are fully translated to en](../tests/settings/language.spec.ts#L108)<br>[feed and settings screens are fully translated to es](../tests/settings/language.spec.ts#L108) |
 | RNF-03 | Não há coleta de dados comportamentais: só os dados necessários à conta e às preferências declaradas.<br>_Fonte: US 2; US 15_ | manual | — |
 | RNF-04 | Toda comunicação do app com a API usa HTTPS.<br>_Fonte: Relatório de deploy_ | API | — |
-| RNF-05 | A interface não trava esperando a rede: carregamentos mostram indicador e falhas oferecem tentar novamente.<br>_Fonte: US 1; US 18_ | web | — |
+| RNF-05 | A interface não trava esperando a rede: carregamentos mostram indicador e falhas oferecem tentar novamente.<br>_Fonte: US 1; US 18_ | web | [while the first page loads there is an indicator, and a failure offers to try again](../tests/feed/loading.spec.ts#L32)<br>[the next page loads near the end of the list, and its failure can be retried](../tests/feed/loading.spec.ts#L73) |
 | RNF-06 | Datas e streaks são calculados no fuso America/Sao_Paulo.<br>_Fonte: US 37; US 38_ | API | — |
 | RNF-07 | Fora do escopo: monetização, assinaturas, chat em tempo real, comunidades ou grupos, marketplace e streaming próprio.<br>_Fonte: Termo: fora do escopo_ | manual | — |
 
@@ -718,6 +719,19 @@ Ficam fora:
 | [a password shorter than 8 characters is not accepted](../tests/auth/sign-up-onboarding.spec.ts#L196) | A 7-character password shows the minimum-length message and keeps the user on Sign Up; with 8 characters the message goes away. | RF-02.4 |
 | [each onboarding step needs its minimum choices to move on](../tests/auth/sign-up-onboarding.spec.ts#L225) | Next stays disabled until 3 artists and then 3 genres are picked, and Finish stays disabled until a favorite song is picked. | RF-03.4 |
 | [going back to a previous step keeps what was selected](../tests/auth/sign-up-onboarding.spec.ts#L266) | Returning from genres to artists, and from music to genres, shows the same number of choices already selected, so nothing has to be picked again. | RF-03.7 |
+| [the Feed opens on Para Você, with Seguindo as the other top tab](../tests/feed/following-tab.spec.ts#L11) | Signing in lands on the Feed with its two top tabs, Para Você and Seguindo, and Para Você in front; tapping Seguindo brings that list forward. The bottom bar has the way back to the Feed. | RF-14.1, RF-15.1 |
+| [a card shows the author, the media, the song, the caption and the actions](../tests/feed/following-tab.spec.ts#L45) | A card on Seguindo shows the author's avatar and username, the photo, the song title and artist, the caption, and the Curtir and Comentar buttons; its three-dots menu offers Denunciar. | RF-14.2 |
+| [a card shows the song's cover](../tests/feed/following-tab.spec.ts#L98) | Next to the song title and artist, the card shows the song's cover art. | RF-14.2 |
+| [Seguindo lists only followed people, newest first, including approved private accounts](../tests/feed/following-tab.spec.ts#L129) | The tab shows the Recordas of a followed public account and of a private one that approved the request, newest first, without either following back. A private account with a pending request, a public account not followed and the viewer's own Recorda are left out. | RF-14.3, RF-14.4 |
+| [with nobody followed, Seguindo suggests following people](../tests/feed/following-tab.spec.ts#L185) | A new account that follows nobody sees, on Seguindo, the empty state telling it to follow people to see their Recordas. | RF-14.5 |
+| [Para Você mixes followed people and public accounts with musical affinity, by recency](../tests/feed/general-tab.spec.ts#L62) | The tab shows, newest first, the Recordas of a followed account (with no affinity) interleaved with those of a public account that shares an artist with the viewer. A public account with nothing in common and a private account with affinity that the viewer doesn't follow are left out. | RF-15.2 |
+| [a private account's Recordas reach Para Você only once the follow is approved](../tests/feed/general-tab.spec.ts#L100) | A private account with musical affinity stays out of Para Você while the viewer's request is pending, and its Recorda shows up once the request is approved. | RF-15.5 |
+| [with nobody to discover, Para Você shows the followed people's Recordas](../tests/feed/general-tab.spec.ts#L140) | A viewer whose tastes match nobody, following one account, sees that account's Recordas on Para Você instead of an empty tab. | RF-15.6 |
+| [while the first page loads there is an indicator, and a failure offers to try again](../tests/feed/loading.spec.ts#L32) | Para Você shows Carregando feed... while its request is pending. When it fails, the tab says the feed couldn't be loaded and offers Tentar novamente, which loads it. | RF-18.3, RNF-05 |
+| [the next page loads near the end of the list, and its failure can be retried](../tests/feed/loading.spec.ts#L73) | Seguindo first asks for one page of 20 Recordas. Scrolling to the end asks for the next page; when that fails, the end of the list says so, and Tentar novamente brings in the remaining Recordas down to the oldest. | RF-18.1, RF-18.3, RNF-05 |
+| [switching tabs keeps each tab's scroll position](../tests/feed/loading.spec.ts#L129) | After scrolling down Seguindo, going to Para Você and back returns to the same place in the list instead of the top. | RF-18.4 |
+| [a video plays without its own sound](../tests/feed/playback.spec.ts#L14) | A video Recorda in focus plays muted, even though the clip has an audio track: only the song is heard. | RF-16.4 |
+| [the mute toggle is on every card and the choice lasts for the session](../tests/feed/playback.spec.ts#L47) | Each card with a song has a sound button. Silencing on one card shows Reativar música on the others too, and it is still silenced after opening a Recorda and coming back to the Feed. | RF-16.5 |
 | [returning user browses the feed, opens settings and signs out](../tests/flows/session-lifecycle.spec.ts#L14) | A saved session opens the feed without logging in again; signing out from Settings asks for confirmation, returns to Login and clears the session for the next launch while restoring the device language. | RF-04.6, RF-36.1, RF-36.2 |
 | [splash is the first screen and hands over to login](../tests/flows/session-startup.spec.ts#L10) | A fresh launch shows Splash before Login, without exposing authenticated screens. | RF-01.2, RF-01.3 |
 | [a saved user session opens the feed and survives reopening](../tests/flows/session-startup.spec.ts#L33) | Gabriel reaches Feed through Splash on both launch and reload, without entering credentials. | RF-01.2, RF-01.4, RF-04.6 |

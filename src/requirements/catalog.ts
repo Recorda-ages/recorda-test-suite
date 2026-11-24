@@ -222,7 +222,7 @@ export const REQUIREMENTS = [
 
   // ── E4 · US 14 — Feed Seguindo ───────────────────────────────────────────────────────────
   req("RF-14.1", 14, "A aba Seguindo é uma das duas abas superiores do Feed (com Geral), acessível pela barra inferior.", "web"),
-  req("RF-14.2", 14, "Os cards mostram avatar e username do autor, mídia, música (título, artista e capa), descrição e as ações Curtir, Comentar e Denunciar.", "web"),
+  req("RF-14.2", 14, "Os cards mostram avatar e username do autor, mídia, música (título, artista e capa), descrição e as ações Curtir, Comentar e Denunciar.", "web", { gap: "O card não mostra a capa da música: RecordaCard (recorda-frontend/src/features/feed/components/RecordaCard.tsx) ignora song_cover_url." }),
   req("RF-14.3", 14, "A aba lista apenas Recordas de quem o usuário segue, da mais recente para a mais antiga.", "web"),
   req("RF-14.4", 14, "Só aparecem Recordas de autores com conta pública ou que aprovaram a solicitação de seguir; não é preciso seguir mutuamente.", "web"),
   req("RF-14.5", 14, "O estado vazio orienta a seguir perfis ou criar a primeira Recorda.", "web"),

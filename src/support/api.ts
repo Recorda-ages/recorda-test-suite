@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
 import { expect, type APIRequestContext } from "@playwright/test";
 
 import { env } from "../config/env";
@@ -110,6 +113,8 @@ export type Profile = {
 
 
 // 1×1 PNG: the smallest media the upload endpoint accepts.
+const CLIP_MP4 = path.resolve(__dirname, "../../tests/fixtures/clip.mp4");
+
 const PIXEL_PNG = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
   "base64"
@@ -217,20 +222,30 @@ export class RecordaApi {
     return (await response.json()) as AccountDetails;
   }
 
-  /** Publishes a photo Recorda as `author`, without calling Deezer. */
+  /**
+   * Publishes a Recorda as `author`, without calling Deezer: a 1-pixel photo, or with
+   * `video` the clip in tests/fixtures/clip.mp4 (which has its own audio track).
+   */
   async createRecorda(
     author: TestAccount,
     data: {
       description: string;
       songTitle?: string;
       songArtist?: string;
+      /** The song's 30 s preview; see `PREVIEW_URL` in support/media.ts. */
+      songPreviewUrl?: string;
+      songCoverUrl?: string;
+      video?: boolean;
       /** People to mark in the Recorda; the author must follow them. */
       mentioned?: TestAccount[];
     }
   ): Promise<CreatedRecorda> {
+    const file = data.video
+      ? { name: "clip.mp4", mimeType: "video/mp4", buffer: readFileSync(CLIP_MP4) }
+      : { name: "pixel.png", mimeType: "image/png", buffer: PIXEL_PNG };
     const upload = await this.request.post("/api/v1/recordas/media", {
       headers: this.auth(author.session),
-      multipart: { file: { name: "pixel.png", mimeType: "image/png", buffer: PIXEL_PNG } }
+      multipart: { file }
     });
     expect(upload, "Could not upload the Recorda media").toBeOK();
     const { url } = (await upload.json()) as { url: string };
@@ -238,11 +253,13 @@ export class RecordaApi {
       headers: this.auth(author.session),
       data: {
         media_url: url,
-        media_type: "PHOTO",
+        media_type: data.video ? "VIDEO" : "PHOTO",
         description: data.description,
         deezer_track_id: String(uniqueDeezerId()),
         song_title: data.songTitle ?? "E2E Song",
         song_artist_name: data.songArtist ?? "E2E Artist",
+        song_cover_url: data.songCoverUrl ?? "",
+        song_preview_url: data.songPreviewUrl ?? null,
         song_genre_name: "Pop",
         mentioned_user_ids: (data.mentioned ?? []).map((account) => account.session.user.user_id)
       }

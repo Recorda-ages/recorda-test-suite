@@ -132,6 +132,9 @@ function uniqueDeezerId(): number {
  * without going through the UI. Keep it to what tests need; it is not an SDK.
  */
 export class RecordaApi {
+  /** Accounts this client registered, deleted by `deleteCreatedAccounts()` after the test. */
+  private readonly created: Array<{ username: string; password: string; token?: string }> = [];
+
   constructor(private readonly request: APIRequestContext) {}
 
   private auth(session: LoginResponse) {
@@ -288,6 +291,15 @@ export class RecordaApi {
     return ((await response.json()) as { username: string }[]).map((user) => user.username);
   }
 
+  /** HTTP status of reading `of`'s followers as `viewer` (403 for a private account). */
+  async followersStatus(viewer: TestAccount, of: TestAccount): Promise<number> {
+    const response = await this.request.get(
+      `/api/v1/users/${of.session.user.user_id}/followers`,
+      { headers: this.auth(viewer.session) }
+    );
+    return response.status();
+  }
+
   /** First page of `account`'s notifications, newest first. Reading doesn't mark them read. */
   async notifications(account: TestAccount): Promise<NotificationList> {
     const response = await this.request.get("/api/v1/notifications?limit=50", {
@@ -427,7 +439,9 @@ export class RecordaApi {
     password: string;
   }): Promise<number> {
     this.assertLocal("registerStatus()");
-    return (await this.request.post("/api/v1/auth/register", { data })).status();
+    const response = await this.request.post("/api/v1/auth/register", { data });
+    if (response.ok()) this.created.push(data);
+    return response.status();
   }
 
   /** Creates a brand-new account. Use for tests that mutate the user. */
@@ -441,7 +455,37 @@ export class RecordaApi {
     this.assertLocal("register()");
     const response = await this.request.post("/api/v1/auth/register", { data });
     expect(response, `Could not register "${data.username}"`).toBeOK();
-    return (await response.json()) as LoginResponse;
+    const session = (await response.json()) as LoginResponse;
+    this.created.push({ ...data, token: session.access_token });
+    return session;
+  }
+
+  /** Deletes after the test an account made outside this client, e.g. through the sign-up form. */
+  deleteAfterTest(credentials: { username: string; password: string }): void {
+    this.created.push({ ...credentials });
+  }
+
+  /**
+   * Deletes (DELETE /users/me, a soft delete) every account this client registered, so test
+   * users don't pile up in the local database: feed and suggestions score every active
+   * account, and get slower with each one. Best effort: an account the test already deleted,
+   * banned or whose password it changed may refuse, and is left as is.
+   */
+  async deleteCreatedAccounts(): Promise<void> {
+    const accounts = this.created.splice(0);
+    await Promise.all(
+      accounts.map(async ({ username, password, token }) => {
+        const remove = (bearer: string) =>
+          this.request.delete("/api/v1/users/me", {
+            headers: { Authorization: `Bearer ${bearer}` }
+          });
+        if (token && (await remove(token)).ok()) return;
+        const login = await this.request.post("/api/v1/auth/login", {
+          data: { username, password }
+        });
+        if (login.ok()) await remove(((await login.json()) as LoginResponse).access_token);
+      })
+    );
   }
 
   private assertLocal(method: string): void {

@@ -267,7 +267,7 @@ export const REQUIREMENTS = [
   req("RF-20.2", 20, "Seguir uma conta pública é efetivado imediatamente.", "web"),
   req("RF-20.3", 20, "Seguir uma conta privada cria uma solicitação (estado Solicitado) e notifica o alvo.", "web"),
   req("RF-20.4", 20, "A relação é assimétrica: seguir não implica ser seguido.", "api"),
-  req("RF-20.5", 20, "É possível deixar de seguir a qualquer momento, sem confirmação nem notificação ao outro lado.", "web"),
+  req("RF-20.5", 20, "É possível deixar de seguir a qualquer momento, sem confirmação nem notificação ao outro lado.", "web", { gap: "O FollowButton pede confirmação (UnfollowDialog) antes de deixar de seguir; ver OPEN_QUESTIONS." }),
   req("RF-20.6", 20, "Não é possível seguir a si mesmo nem enviar solicitação duplicada.", "api"),
 
   // ── E5 · US 21 — Solicitações para seguir ────────────────────────────────────────────────
@@ -313,7 +313,7 @@ export const REQUIREMENTS = [
   // ── E5 · US 27 — Sugestões ───────────────────────────────────────────────────────────────
   req("RF-27.1", 27, "A busca exibe perfis sugeridos ordenados por Afinidade Musical.", "web"),
   req("RF-27.2", 27, "Ficam de fora perfis já seguidos, solicitações pendentes e o próprio usuário.", "web"),
-  req("RF-27.3", 27, "Cada sugestão mostra avatar, username, gêneros/artistas em comum e a ação de seguir.", "web"),
+  req("RF-27.3", 27, "Cada sugestão mostra avatar, username, gêneros/artistas em comum e a ação de seguir.", "web", { gap: "GET /users/suggestions já retorna common_genres/common_artists, mas SuggestedProfiles (recorda-frontend) não os mostra." }),
 
   // ── E6 · US 28 — Perfil pessoal ──────────────────────────────────────────────────────────
   req("RF-28.1", 28, "O perfil mostra nome, username, avatar, contadores, uma única streak, música favorita e chips de artistas e gêneros.", "web"),
@@ -456,7 +456,8 @@ export const REQUIREMENTS_BY_ID = new Map<string, Requirement>(
 /** Contradictions and gaps still waiting for a team decision. */
 export const OPEN_QUESTIONS = [
   "Duração de vídeo: a US 6 cita 60 s como proposta (RF-06.6), sem valor definido.",
-  "Streak em perfil privado sem aprovação (RF-29.2): a US 29 e a decisão D-06 do backend mostram o streak, mas o StreakBadge do frontend o oculta provisoriamente (recorda-frontend docs/issue-260.md)."
+  "Streak em perfil privado sem aprovação (RF-29.2): a US 29 e a decisão D-06 do backend mostram o streak, mas o StreakBadge do frontend o oculta provisoriamente (recorda-frontend docs/issue-260.md).",
+  "Confirmação ao deixar de seguir (RF-20.5): a US 20 diz que não há confirmação, mas o frontend pede \"Deixar de seguir?\" (UnfollowDialog, escolha da recorda-frontend docs/issue-255.md)."
 ] as const;
 
 /**

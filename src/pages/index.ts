@@ -15,6 +15,7 @@ export { AdminTabBar, type AdminTab } from "./components/AdminTabBar";
 export { BottomTabBar, type BottomTab } from "./components/BottomTabBar";
 export { ProfileDetails } from "./components/ProfileDetails";
 export { ReasonDialog } from "./components/ReasonDialog";
+export { ReportDialog, type ReportTarget } from "./components/ReportDialog";
 export { FeedPage, type FeedVariant } from "./FeedPage";
 export { LanguagePage } from "./LanguagePage";
 export { LoginPage } from "./LoginPage";

@@ -23,7 +23,7 @@ Fontes: Termo de Abertura do Projeto (2026/2) e os Épicos e User Stories das is
 
 ## Resumo
 
-226 requisitos, 199 verificáveis por esta suíte (web ou API), 99 cobertos por 94 teste(s). 15 decididos mas ainda não atendidos pelo código (⚠️).
+226 requisitos, 199 verificáveis por esta suíte (web ou API), 108 cobertos por 101 teste(s). 15 decididos mas ainda não atendidos pelo código (⚠️).
 
 | Épico | Nome | Requisitos | Web | API | Nativo | Manual | Cobertos |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -34,7 +34,7 @@ Fontes: Termo de Abertura do Projeto (2026/2) e os Épicos e User Stories das is
 | E6 | Perfil e configurações | 22 | 20 | 2 | 0 | 0 | 20 |
 | E7 | Memórias e estatísticas | 24 | 20 | 0 | 2 | 2 | 0 |
 | E8 | Compartilhamento de cards | 16 | 9 | 0 | 5 | 2 | 9 |
-| E9 | Denúncias | 15 | 12 | 3 | 0 | 0 | 3 |
+| E9 | Denúncias | 15 | 12 | 3 | 0 | 0 | 12 |
 | E10 | Administração e moderação | 19 | 18 | 1 | 0 | 0 | 17 |
 | TA | Termo de Abertura (sem User Story) | 1 | 1 | 0 | 0 | 0 | 0 |
 | NF | Requisitos não funcionais | 7 | 2 | 2 | 1 | 2 | 1 |
@@ -114,7 +114,7 @@ Os requisitos agrupados por jornada do usuário. Cada fluxo tem uma issue em
 | FL-11 Perfil pessoal e de terceiros | [#11](https://github.com/Recorda-ages/recorda-test-suite/issues/11) | 7 | 7 | 7 | 2 | sim (`@mutates`) |
 | FL-12 Configurações, preferências e conta | [#12](https://github.com/Recorda-ages/recorda-test-suite/issues/12) | 12 | 12 | 12 | 2 | sim (`@mutates`) |
 | FL-13 Memórias: calendário, métricas e retrospectiva | [#13](https://github.com/Recorda-ages/recorda-test-suite/issues/13) | 22 | 20 | 0 | 0 | não |
-| FL-14 Denúncias | [#14](https://github.com/Recorda-ages/recorda-test-suite/issues/14) | 9 | 9 | 0 | 0 | sim (`@mutates`) |
+| FL-14 Denúncias | [#14](https://github.com/Recorda-ages/recorda-test-suite/issues/14) | 9 | 9 | 9 | 0 | sim (`@mutates`) |
 | FL-15 Moderação administrativa | [#15](https://github.com/Recorda-ages/recorda-test-suite/issues/15) | 21 | 21 | 20 | 0 | sim (`@mutates`) |
 
 Os fluxos contêm só requisitos de jornada do usuário (verificação *web* ou *nativo*).
@@ -588,12 +588,12 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-40.1 | É possível denunciar uma Recorda pelo card do feed ou pelo menu da tela de detalhes. | web | — |
-| RF-40.2 | A denúncia aceita justificativa opcional de até 500 caracteres. | web | — |
-| RF-40.3 | O mesmo usuário não denuncia a mesma Recorda duas vezes (erro amigável). | web | — |
+| RF-40.1 | É possível denunciar uma Recorda pelo card do feed ou pelo menu da tela de detalhes. | web | [a Recorda is reported from its feed card with an optional reason and stays visible](../tests/reports/reports.spec.ts#L32)<br>[a Recorda is reported from the details menu without a reason](../tests/reports/reports.spec.ts#L66) |
+| RF-40.2 | A denúncia aceita justificativa opcional de até 500 caracteres. | web | [a Recorda is reported from its feed card with an optional reason and stays visible](../tests/reports/reports.spec.ts#L32)<br>[a Recorda is reported from the details menu without a reason](../tests/reports/reports.spec.ts#L66) |
+| RF-40.3 | O mesmo usuário não denuncia a mesma Recorda duas vezes (erro amigável). | web | [reporting the same Recorda twice shows a friendly message](../tests/reports/reports.spec.ts#L92) |
 | RF-40.4 | A denúncia é registrada com status OPEN. | API | — |
-| RF-40.5 | A Recorda continua visível após a denúncia. | web | — |
-| RF-40.6 | O autor não é notificado nem vê quem denunciou. | web | — |
+| RF-40.5 | A Recorda continua visível após a denúncia. | web | [a Recorda is reported from its feed card with an optional reason and stays visible](../tests/reports/reports.spec.ts#L32)<br>[a Recorda is reported from the details menu without a reason](../tests/reports/reports.spec.ts#L66) |
+| RF-40.6 | O autor não é notificado nem vê quem denunciou. | web | [the author is not notified of a report and can't see who sent it](../tests/reports/reports.spec.ts#L115) |
 
 ### US 41 — Denúncia de Perfil de Usuário
 
@@ -601,10 +601,10 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-41.1 | É possível denunciar o perfil de outro usuário. | web | — |
-| RF-41.2 | Não é possível denunciar o próprio perfil. | web | — |
-| RF-41.3 | A denúncia de perfil aceita justificativa de até 500 caracteres. | web | — |
-| RF-41.4 | O mesmo usuário não denuncia o mesmo perfil duas vezes (erro amigável). | web | — |
+| RF-41.1 | É possível denunciar o perfil de outro usuário. | web | [another person's profile is reported with a reason](../tests/reports/reports.spec.ts#L150) |
+| RF-41.2 | Não é possível denunciar o próprio perfil. | web | [your own profile can't be reported](../tests/reports/reports.spec.ts#L176) |
+| RF-41.3 | A denúncia de perfil aceita justificativa de até 500 caracteres. | web | [another person's profile is reported with a reason](../tests/reports/reports.spec.ts#L150) |
+| RF-41.4 | O mesmo usuário não denuncia o mesmo perfil duas vezes (erro amigável). | web | [reporting the same profile twice shows a friendly message](../tests/reports/reports.spec.ts#L194) |
 | RF-41.5 | A denúncia de perfil é registrada com status OPEN. | API | — |
 
 ### US 42 — Notificação ao Autor sobre Remoção de Conteúdo
@@ -751,6 +751,13 @@ Ficam fora:
 | [the author is notified of new comments](../tests/recorda-details/recorda-details.spec.ts#L429) | A comment written by someone else shows up in the Recorda author's notifications. | RF-24.6 |
 | [the comment author deletes their comment after confirming](../tests/recorda-details/recorda-details.spec.ts#L457) | Only your own comments show a delete button on someone else's Recorda; deleting asks for confirmation, cancelling keeps the comment and confirming removes it on the server. | RF-25.1, RF-25.3 |
 | [the Recorda author deletes someone else's comment for everyone](../tests/recorda-details/recorda-details.spec.ts#L510) | The author of a Recorda can delete any comment on it; once confirmed, the comment is gone for its writer too. | RF-25.2, RF-25.3 |
+| [a Recorda is reported from its feed card with an optional reason and stays visible](../tests/reports/reports.spec.ts#L32) | From the card's three-dots menu, the report dialog takes a reason of up to 500 characters; sending it confirms the report, and the Recorda is still on the feed. | RF-40.1, RF-40.2, RF-40.5 |
+| [a Recorda is reported from the details menu without a reason](../tests/reports/reports.spec.ts#L66) | From the details screen's three-dots menu, a report can be sent with no reason; the details stay open afterwards. | RF-40.1, RF-40.2, RF-40.5 |
+| [reporting the same Recorda twice shows a friendly message](../tests/reports/reports.spec.ts#L92) | Someone who already reported a Recorda tries again from the feed: the dialog closes and says it was already reported, instead of an error. | RF-40.3 |
+| [the author is not notified of a report and can't see who sent it](../tests/reports/reports.spec.ts#L115) | After someone reports a Recorda, its author's notification center has nothing from the reporter and nothing about the report. | RF-40.6 |
+| [another person's profile is reported with a reason](../tests/reports/reports.spec.ts#L150) | From someone else's profile, the three-dots menu opens the profile report dialog, which takes a reason of up to 500 characters and confirms the report. | RF-41.1, RF-41.3 |
+| [your own profile can't be reported](../tests/reports/reports.spec.ts#L176) | The signed-in person's own profile has no three-dots menu and no report option. | RF-41.2 |
+| [reporting the same profile twice shows a friendly message](../tests/reports/reports.spec.ts#L194) | Someone who already reported a profile tries again: the dialog closes and says it was already reported, instead of an error. | RF-41.4 |
 | [an invalid email is refused before saving](../tests/settings/account.spec.ts#L10) | Saving an email without a valid format shows the format error and leaves the account's email unchanged. | RF-34.1 |
 | [saving name, username and email updates the account](../tests/settings/account.spec.ts#L31) | New name, username and email saved in Minha conta are what the account has on the server, with no confirmation link for the email. | RF-34.1 |
 | [an email already in use is refused](../tests/settings/account.spec.ts#L63) | Saving the email of another account shows that it is already in use, keeps what was typed and does not change the account. | RF-34.1 |

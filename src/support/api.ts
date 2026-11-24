@@ -369,6 +369,16 @@ export class RecordaApi {
     return ((await response.json()) as { report_id: string }).report_id;
   }
 
+  /** `reporter` reports `target`'s profile; returns the report id. */
+  async reportUser(reporter: TestAccount, target: TestAccount, description?: string): Promise<string> {
+    const response = await this.request.post(
+      `/api/v1/users/${target.session.user.user_id}/reports`,
+      { headers: this.auth(reporter.session), data: { description } }
+    );
+    expect(response, `${reporter.user.username} could not report ${target.user.username}`).toBeOK();
+    return ((await response.json()) as { report_id: string }).report_id;
+  }
+
   /** HTTP status of opening a Recorda as `viewer` (404 once it is removed or hidden). */
   async recordaStatus(viewer: TestAccount, recordaId: string): Promise<number> {
     const response = await this.request.get(`/api/v1/recordas/${recordaId}`, {

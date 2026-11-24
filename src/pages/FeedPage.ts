@@ -59,6 +59,19 @@ export class FeedPage {
     return this.root.page().getByTestId("recorda-card-menu");
   }
 
+  /** The three-dots button of a card. */
+  moreButton(variant: FeedVariant, recordaId: string): Locator {
+    return this.post(variant, recordaId).getByRole("button", { name: t("feed.more") });
+  }
+
+  /** Card → three dots → "Denunciar". Opens the report dialog. */
+  async openReport(variant: FeedVariant, recordaId: string): Promise<void> {
+    await this.moreButton(variant, recordaId).click();
+    await this.cardMenu()
+      .getByRole("button", { name: t("publishedRecorda.report"), exact: true })
+      .click();
+  }
+
   emptyState(variant: FeedVariant): Locator {
     return this.root.getByTestId(`feed-${variant}-empty-state`);
   }

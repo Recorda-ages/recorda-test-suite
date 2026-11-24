@@ -119,7 +119,9 @@ const req = <const Id extends string>(
 ) => ({ id, us, epic: USER_STORIES[us].epic as EpicId, text, verification, ...extra }) as const;
 
 const DECIDED = "Decisão do time, 2026-11-08";
-const MEMORY_FIELDS_GAP = "Não implementado: o model recorda não tem Data da Memória, Local nem marcações.";
+const MEMORY_FIELDS_GAP = "Não implementado: o model recorda não tem Data da Memória nem Local (as marcações já existem).";
+const WEB_PUBLISH_GAP =
+  "Só no build web: publicar falha antes de enviar a mídia, porque uploadRecordaMedia (recorda-frontend/src/features/recorda-publish/api) usa File do expo-file-system, sem suporte no web.";
 const ACCOUNT_MOCK_GAP =
   "A tela Minha conta ainda lê e salva pelo accountService.mock (recorda-frontend/src/features/account/services/accountAdapter.ts), embora o backend já tenha GET e PATCH /users/me/account.";
 
@@ -178,7 +180,7 @@ export const REQUIREMENTS = [
   req("RF-06.6", 6, "Vídeos têm duração máxima (proposta: 60 s) e são comprimidos antes do upload.", "native"),
 
   // ── E3 · US 7 — Música ───────────────────────────────────────────────────────────────────
-  req("RF-07.1", 7, "O campo Música abre um buscador do Deezer que retorna faixa, artista, álbum, gênero e capa.", "web"),
+  req("RF-07.1", 7, "O campo Música abre um buscador do Deezer que retorna faixa, artista, álbum, gênero e capa.", "web", { gap: "GET /music/tracks/search devolve genre_id sempre null, e o app não envia song_genre_name ao publicar." }),
   req("RF-07.2", 7, "A busca funciona por nome de música, artista ou álbum.", "web"),
   req("RF-07.3", 7, "É possível ouvir o preview de 30 s de um resultado antes de confirmar.", "native"),
   req("RF-07.4", 7, "A publicação é associada a uma música específica.", "web"),
@@ -192,15 +194,15 @@ export const REQUIREMENTS = [
   req("RF-08.4", 8, "Publicar só fica habilitado com a música associada.", "web"),
   req("RF-08.5", 8, "A tela de detalhes permite informar a Data da Memória (quando o momento aconteceu).", "web", { source: `${DECIDED}: obrigatório implementar.`, gap: MEMORY_FIELDS_GAP }),
   req("RF-08.6", 8, "A tela de detalhes permite informar o Local da memória.", "web", { source: `${DECIDED}: obrigatório implementar.`, gap: MEMORY_FIELDS_GAP }),
-  req("RF-08.7", 8, "A tela de detalhes permite marcar outros usuários na Recorda.", "web", { source: `${DECIDED}: obrigatório implementar; Termo: marcação de amigos.`, gap: MEMORY_FIELDS_GAP }),
+  req("RF-08.7", 8, "A tela de detalhes permite marcar outros usuários na Recorda.", "web", { source: `${DECIDED}: obrigatório implementar; Termo: marcação de amigos.` }),
 
   // ── E3 · US 9 — Publicação ───────────────────────────────────────────────────────────────
   req("RF-09.1", 9, "A Recorda é composta por mídia, música, descrição opcional, Data da Memória, Local e marcações.", "api", { source: `${DECIDED}: Data da Memória, Local e marcações voltam ao escopo.`, gap: MEMORY_FIELDS_GAP }),
   req("RF-09.2", 9, "A visibilidade não é escolhida na publicação: deriva da privacidade da conta, sem seletor nem campo por publicação.", "web"),
   req("RF-09.3", 9, "A Data de Publicação é registrada automaticamente.", "api"),
-  req("RF-09.4", 9, "Após publicar, a Recorda aparece imediatamente no perfil do autor e fica disponível aos feeds conforme a visibilidade da conta.", "web"),
+  req("RF-09.4", 9, "Após publicar, a Recorda aparece imediatamente no perfil do autor e fica disponível aos feeds conforme a visibilidade da conta.", "web", { gap: WEB_PUBLISH_GAP }),
   req("RF-09.5", 9, "Há indicador de progresso no upload e, em caso de falha, é possível tentar novamente sem perder os dados nem recapturar a mídia.", "web"),
-  req("RF-09.6", 9, "Usuários marcados são notificados da marcação.", "web", { source: `${DECIDED}; US 26.`, gap: MEMORY_FIELDS_GAP }),
+  req("RF-09.6", 9, "Usuários marcados são notificados da marcação.", "web", { source: `${DECIDED}; US 26.` }),
 
   // ── E8 · US 10–12 — Card de compartilhamento ─────────────────────────────────────────────
   req("RF-10.1", 10, "A partir da tela de detalhes há a interface Compartilhar Recorda.", "web"),

@@ -36,3 +36,10 @@ export { SettingsPage } from "./SettingsPage";
 export { ShareCardPage } from "./ShareCardPage";
 export { UserProfilePage } from "./UserProfilePage";
 export { UserSearchPage } from "./UserSearchPage";
+export {
+  CameraStep,
+  CreateRecordaPage,
+  MediaPreviewStep,
+  MusicSearchStep,
+  RecordaComposerStep
+} from "./CreateRecordaPage";

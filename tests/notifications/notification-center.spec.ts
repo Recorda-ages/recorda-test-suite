@@ -150,7 +150,7 @@ test.describe("Notification center", () => {
       description:
         "Following a public account, liking and commenting on its Recorda, mentioning it in " +
         "a Recorda and requesting to follow it once private each add a notification for it.",
-      requirement: "RF-26.3",
+      requirement: ["RF-26.3", "RF-09.6"],
       tag: "@mutates"
     }),
     async ({ api, app, notificationsPage }) => {

@@ -8,6 +8,7 @@ import {
   AdminReportDetailPage,
   AdminReportsPage,
   AdminUsersPage,
+  CreateRecordaPage,
   FeedPage,
   FriendsPage,
   LanguagePage,
@@ -59,6 +60,7 @@ type Fixtures = {
   musicPreferencesPage: MusicPreferencesPage;
   signUpPage: SignUpPage;
   onboardingPage: OnboardingPage;
+  createRecordaPage: CreateRecordaPage;
   /** Automatic: fails any test declared without `meta()` (description + requirement). */
   requireMetadata: void;
 };
@@ -115,6 +117,7 @@ export const test = base.extend<Fixtures>({
   musicPreferencesPage: async ({ page }, use) => use(new MusicPreferencesPage(page)),
   signUpPage: async ({ page }, use) => use(new SignUpPage(page)),
   onboardingPage: async ({ page }, use) => use(new OnboardingPage(page)),
+  createRecordaPage: async ({ page }, use) => use(new CreateRecordaPage(page)),
 
   app: async (
     {

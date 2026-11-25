@@ -9,6 +9,7 @@ import {
   AdminReportsPage,
   AdminUsersPage,
   FeedPage,
+  FriendsPage,
   LanguagePage,
   LoginPage,
   MusicPreferencesPage,
@@ -40,6 +41,7 @@ type Fixtures = {
   newAccount: NewAccount;
   loginPage: LoginPage;
   feedPage: FeedPage;
+  friendsPage: FriendsPage;
   profilePage: ProfilePage;
   settingsPage: SettingsPage;
   recordaDetailsPage: RecordaDetailsPage;
@@ -83,7 +85,9 @@ export const test = base.extend<Fixtures>({
 
   api: async ({ playwright }, use) => {
     const request = await playwright.request.newContext({ baseURL: env.apiURL });
-    await use(new RecordaApi(request));
+    const api = new RecordaApi(request);
+    await use(api);
+    await api.deleteCreatedAccounts();
     await request.dispose();
   },
 
@@ -93,6 +97,7 @@ export const test = base.extend<Fixtures>({
 
   loginPage: async ({ page }, use) => use(new LoginPage(page)),
   feedPage: async ({ page }, use) => use(new FeedPage(page)),
+  friendsPage: async ({ page }, use) => use(new FriendsPage(page)),
   profilePage: async ({ page }, use) => use(new ProfilePage(page)),
   settingsPage: async ({ page }, use) => use(new SettingsPage(page)),
   recordaDetailsPage: async ({ page }, use) => use(new RecordaDetailsPage(page)),

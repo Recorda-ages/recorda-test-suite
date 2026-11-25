@@ -62,7 +62,17 @@ export class AdminUsersPage {
     return this.root.getByTestId(`admin-user-history-${userId}`);
   }
 
+  /**
+   * Types `username` in the search and waits for its results. The search is debounced, and a
+   * card from an earlier, partial query is replaced (dropping any dialog opened on it) when
+   * the final results arrive.
+   */
   async find(username: string): Promise<void> {
+    const results = this.root.page().waitForResponse((response) => {
+      const url = new URL(response.url());
+      return url.pathname.endsWith("/admin/users") && url.searchParams.get("q") === username;
+    });
     await this.search.fill(username);
+    await results;
   }
 }

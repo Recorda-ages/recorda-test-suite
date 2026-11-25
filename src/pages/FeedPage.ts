@@ -59,6 +59,55 @@ export class FeedPage {
     return this.root.page().getByTestId("recorda-card-menu");
   }
 
+  /** The scrollable list of a tab (a FlatList; on web its root is the scroll container). */
+  list(variant: FeedVariant): Locator {
+    return this.panel(variant).getByTestId(`${variant}-feed-list`);
+  }
+
+  /** "Carregando feed...", while the first page loads. */
+  loading(variant: FeedVariant): Locator {
+    return this.panel(variant).getByText(t("feed.loading"), { exact: true });
+  }
+
+  /** The first page failed: the message, with "Tentar novamente" next to it. */
+  loadError(variant: FeedVariant): Locator {
+    return this.panel(variant).getByText(t("feed.loadError"), { exact: true });
+  }
+
+  /** A later page failed: the message at the end of the list. */
+  loadMoreError(variant: FeedVariant): Locator {
+    return this.panel(variant).getByText(t("feed.loadMoreError"), { exact: true });
+  }
+
+  retryButton(variant: FeedVariant): Locator {
+    return this.panel(variant).getByRole("button", { name: t("feed.retry"), exact: true });
+  }
+
+  /** Mute/unmute toggle over a card's media; only shown when the Recorda has a preview. */
+  soundToggle(variant: FeedVariant, recordaId: string): Locator {
+    return this.post(variant, recordaId).getByTestId(`recorda-sound-toggle-${recordaId}`);
+  }
+
+  // Scrolling sets `scrollTop`: react-native-web replaces the list node's `scrollTo` with
+  // its own (x, y) signature.
+
+  /** Scrolls a tab's list to its end, which asks for the next page. */
+  async scrollToEnd(variant: FeedVariant): Promise<void> {
+    await this.list(variant).evaluate((list) => {
+      list.scrollTop = list.scrollHeight;
+    });
+  }
+
+  async scrollDown(variant: FeedVariant, pixels: number): Promise<void> {
+    await this.list(variant).evaluate((list, by) => {
+      list.scrollTop += by;
+    }, pixels);
+  }
+
+  async scrollTop(variant: FeedVariant): Promise<number> {
+    return this.list(variant).evaluate((list) => list.scrollTop);
+  }
+
   /** The three-dots button of a card. */
   moreButton(variant: FeedVariant, recordaId: string): Locator {
     return this.post(variant, recordaId).getByRole("button", { name: t("feed.more") });

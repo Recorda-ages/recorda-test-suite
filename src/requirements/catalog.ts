@@ -119,7 +119,9 @@ const req = <const Id extends string>(
 ) => ({ id, us, epic: USER_STORIES[us].epic as EpicId, text, verification, ...extra }) as const;
 
 const DECIDED = "Decisão do time, 2026-11-08";
-const MEMORY_FIELDS_GAP = "Não implementado: o model recorda não tem Data da Memória, Local nem marcações.";
+const MEMORY_FIELDS_GAP = "Não implementado: o model recorda não tem Data da Memória nem Local (as marcações já existem).";
+const WEB_PUBLISH_GAP =
+  "Só no build web: publicar falha antes de enviar a mídia, porque uploadRecordaMedia (recorda-frontend/src/features/recorda-publish/api) usa File do expo-file-system, sem suporte no web.";
 const ACCOUNT_MOCK_GAP =
   "A tela Minha conta ainda lê e salva pelo accountService.mock (recorda-frontend/src/features/account/services/accountAdapter.ts), embora o backend já tenha GET e PATCH /users/me/account.";
 
@@ -178,7 +180,7 @@ export const REQUIREMENTS = [
   req("RF-06.6", 6, "Vídeos têm duração máxima (proposta: 60 s) e são comprimidos antes do upload.", "native"),
 
   // ── E3 · US 7 — Música ───────────────────────────────────────────────────────────────────
-  req("RF-07.1", 7, "O campo Música abre um buscador do Deezer que retorna faixa, artista, álbum, gênero e capa.", "web"),
+  req("RF-07.1", 7, "O campo Música abre um buscador do Deezer que retorna faixa, artista, álbum, gênero e capa.", "web", { gap: "GET /music/tracks/search devolve genre_id sempre null, e o app não envia song_genre_name ao publicar." }),
   req("RF-07.2", 7, "A busca funciona por nome de música, artista ou álbum.", "web"),
   req("RF-07.3", 7, "É possível ouvir o preview de 30 s de um resultado antes de confirmar.", "native"),
   req("RF-07.4", 7, "A publicação é associada a uma música específica.", "web"),
@@ -192,15 +194,15 @@ export const REQUIREMENTS = [
   req("RF-08.4", 8, "Publicar só fica habilitado com a música associada.", "web"),
   req("RF-08.5", 8, "A tela de detalhes permite informar a Data da Memória (quando o momento aconteceu).", "web", { source: `${DECIDED}: obrigatório implementar.`, gap: MEMORY_FIELDS_GAP }),
   req("RF-08.6", 8, "A tela de detalhes permite informar o Local da memória.", "web", { source: `${DECIDED}: obrigatório implementar.`, gap: MEMORY_FIELDS_GAP }),
-  req("RF-08.7", 8, "A tela de detalhes permite marcar outros usuários na Recorda.", "web", { source: `${DECIDED}: obrigatório implementar; Termo: marcação de amigos.`, gap: MEMORY_FIELDS_GAP }),
+  req("RF-08.7", 8, "A tela de detalhes permite marcar outros usuários na Recorda.", "web", { source: `${DECIDED}: obrigatório implementar; Termo: marcação de amigos.` }),
 
   // ── E3 · US 9 — Publicação ───────────────────────────────────────────────────────────────
   req("RF-09.1", 9, "A Recorda é composta por mídia, música, descrição opcional, Data da Memória, Local e marcações.", "api", { source: `${DECIDED}: Data da Memória, Local e marcações voltam ao escopo.`, gap: MEMORY_FIELDS_GAP }),
   req("RF-09.2", 9, "A visibilidade não é escolhida na publicação: deriva da privacidade da conta, sem seletor nem campo por publicação.", "web"),
   req("RF-09.3", 9, "A Data de Publicação é registrada automaticamente.", "api"),
-  req("RF-09.4", 9, "Após publicar, a Recorda aparece imediatamente no perfil do autor e fica disponível aos feeds conforme a visibilidade da conta.", "web"),
+  req("RF-09.4", 9, "Após publicar, a Recorda aparece imediatamente no perfil do autor e fica disponível aos feeds conforme a visibilidade da conta.", "web", { gap: WEB_PUBLISH_GAP }),
   req("RF-09.5", 9, "Há indicador de progresso no upload e, em caso de falha, é possível tentar novamente sem perder os dados nem recapturar a mídia.", "web"),
-  req("RF-09.6", 9, "Usuários marcados são notificados da marcação.", "web", { source: `${DECIDED}; US 26.`, gap: MEMORY_FIELDS_GAP }),
+  req("RF-09.6", 9, "Usuários marcados são notificados da marcação.", "web", { source: `${DECIDED}; US 26.` }),
 
   // ── E8 · US 10–12 — Card de compartilhamento ─────────────────────────────────────────────
   req("RF-10.1", 10, "A partir da tela de detalhes há a interface Compartilhar Recorda.", "web"),
@@ -222,7 +224,7 @@ export const REQUIREMENTS = [
 
   // ── E4 · US 14 — Feed Seguindo ───────────────────────────────────────────────────────────
   req("RF-14.1", 14, "A aba Seguindo é uma das duas abas superiores do Feed (com Geral), acessível pela barra inferior.", "web"),
-  req("RF-14.2", 14, "Os cards mostram avatar e username do autor, mídia, música (título, artista e capa), descrição e as ações Curtir, Comentar e Denunciar.", "web"),
+  req("RF-14.2", 14, "Os cards mostram avatar e username do autor, mídia, música (título, artista e capa), descrição e as ações Curtir, Comentar e Denunciar.", "web", { gap: "O card não mostra a capa da música: RecordaCard (recorda-frontend/src/features/feed/components/RecordaCard.tsx) ignora song_cover_url." }),
   req("RF-14.3", 14, "A aba lista apenas Recordas de quem o usuário segue, da mais recente para a mais antiga.", "web"),
   req("RF-14.4", 14, "Só aparecem Recordas de autores com conta pública ou que aprovaram a solicitação de seguir; não é preciso seguir mutuamente.", "web"),
   req("RF-14.5", 14, "O estado vazio orienta a seguir perfis ou criar a primeira Recorda.", "web"),
@@ -267,7 +269,7 @@ export const REQUIREMENTS = [
   req("RF-20.2", 20, "Seguir uma conta pública é efetivado imediatamente.", "web"),
   req("RF-20.3", 20, "Seguir uma conta privada cria uma solicitação (estado Solicitado) e notifica o alvo.", "web"),
   req("RF-20.4", 20, "A relação é assimétrica: seguir não implica ser seguido.", "api"),
-  req("RF-20.5", 20, "É possível deixar de seguir a qualquer momento, sem confirmação nem notificação ao outro lado.", "web"),
+  req("RF-20.5", 20, "É possível deixar de seguir a qualquer momento, sem confirmação nem notificação ao outro lado.", "web", { gap: "O FollowButton pede confirmação (UnfollowDialog) antes de deixar de seguir; ver OPEN_QUESTIONS." }),
   req("RF-20.6", 20, "Não é possível seguir a si mesmo nem enviar solicitação duplicada.", "api"),
 
   // ── E5 · US 21 — Solicitações para seguir ────────────────────────────────────────────────
@@ -313,7 +315,7 @@ export const REQUIREMENTS = [
   // ── E5 · US 27 — Sugestões ───────────────────────────────────────────────────────────────
   req("RF-27.1", 27, "A busca exibe perfis sugeridos ordenados por Afinidade Musical.", "web"),
   req("RF-27.2", 27, "Ficam de fora perfis já seguidos, solicitações pendentes e o próprio usuário.", "web"),
-  req("RF-27.3", 27, "Cada sugestão mostra avatar, username, gêneros/artistas em comum e a ação de seguir.", "web"),
+  req("RF-27.3", 27, "Cada sugestão mostra avatar, username, gêneros/artistas em comum e a ação de seguir.", "web", { gap: "GET /users/suggestions já retorna common_genres/common_artists, mas SuggestedProfiles (recorda-frontend) não os mostra." }),
 
   // ── E6 · US 28 — Perfil pessoal ──────────────────────────────────────────────────────────
   req("RF-28.1", 28, "O perfil mostra nome, username, avatar, contadores, uma única streak, música favorita e chips de artistas e gêneros.", "web"),
@@ -371,11 +373,11 @@ export const REQUIREMENTS = [
   req("RF-37.10", 37, "O visualizador tem a pílula sonora com controle do preview do Deezer.", "web"),
   req("RF-37.11", 37, "É possível ir ao dia anterior ou próximo com memórias sem fechar o visualizador.", "web"),
   req("RF-37.12", 37, "O visualizador fecha pelo X ou arrastando para baixo, voltando à grade com o dia em foco.", "web"),
-  req("RF-37.13", 37, "Períodos sem memórias exibem estado vazio convidando a publicar.", "web"),
+  req("RF-37.13", 37, "Períodos sem memórias exibem estado vazio convidando a publicar.", "web", { gap: "O calendário vazio só diz \"Nenhuma memória neste mês\", sem convite nem atalho para publicar (MemoryCalendarGrid em recorda-frontend/src/features/memories-calendar)." }),
 
   // ── E7 · US 38 — Métricas ────────────────────────────────────────────────────────────────
   req("RF-38.1", 38, "A aba Métricas mostra o Artista Mais Recorrente no período.", "web"),
-  req("RF-38.2", 38, "A aba mostra o ranking de gêneros com barras percentuais e contagem.", "web"),
+  req("RF-38.2", 38, "A aba mostra o ranking de gêneros com barras percentuais e contagem.", "web", { gap: "O ranking de gêneros mostra só nome e percentual, sem a contagem (TopGenresRankingCard em recorda-frontend/src/features/memories-metrics)." }),
   req("RF-38.3", 38, "A aba mostra a Streak Atual em dias consecutivos, zerando sem publicação no dia anterior ou atual (fuso de São Paulo).", "web"),
   req("RF-38.4", 38, "A Streak Atual tem visual minimalista, sem ícones de fogo ou brilho.", "manual"),
   req("RF-38.5", 38, "É possível alternar entre 30 dias, 90 dias, 1 ano e todo o histórico.", "web"),
@@ -456,7 +458,8 @@ export const REQUIREMENTS_BY_ID = new Map<string, Requirement>(
 /** Contradictions and gaps still waiting for a team decision. */
 export const OPEN_QUESTIONS = [
   "Duração de vídeo: a US 6 cita 60 s como proposta (RF-06.6), sem valor definido.",
-  "Streak em perfil privado sem aprovação (RF-29.2): a US 29 e a decisão D-06 do backend mostram o streak, mas o StreakBadge do frontend o oculta provisoriamente (recorda-frontend docs/issue-260.md)."
+  "Streak em perfil privado sem aprovação (RF-29.2): a US 29 e a decisão D-06 do backend mostram o streak, mas o StreakBadge do frontend o oculta provisoriamente (recorda-frontend docs/issue-260.md).",
+  "Confirmação ao deixar de seguir (RF-20.5): a US 20 diz que não há confirmação, mas o frontend pede \"Deixar de seguir?\" (UnfollowDialog, escolha da recorda-frontend docs/issue-255.md)."
 ] as const;
 
 /**

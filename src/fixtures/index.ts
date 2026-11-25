@@ -8,7 +8,10 @@ import {
   AdminReportDetailPage,
   AdminReportsPage,
   AdminUsersPage,
+  CreateRecordaPage,
+  DayMemoriesViewer,
   FeedPage,
+  FriendsPage,
   LanguagePage,
   LoginPage,
   MusicPreferencesPage,
@@ -40,6 +43,7 @@ type Fixtures = {
   newAccount: NewAccount;
   loginPage: LoginPage;
   feedPage: FeedPage;
+  friendsPage: FriendsPage;
   profilePage: ProfilePage;
   settingsPage: SettingsPage;
   recordaDetailsPage: RecordaDetailsPage;
@@ -57,6 +61,9 @@ type Fixtures = {
   musicPreferencesPage: MusicPreferencesPage;
   signUpPage: SignUpPage;
   onboardingPage: OnboardingPage;
+  createRecordaPage: CreateRecordaPage;
+  /** The calendar's full-screen day viewer. */
+  dayViewer: DayMemoriesViewer;
   /** Automatic: fails any test declared without `meta()` (description + requirement). */
   requireMetadata: void;
 };
@@ -83,7 +90,9 @@ export const test = base.extend<Fixtures>({
 
   api: async ({ playwright }, use) => {
     const request = await playwright.request.newContext({ baseURL: env.apiURL });
-    await use(new RecordaApi(request));
+    const api = new RecordaApi(request);
+    await use(api);
+    await api.deleteCreatedAccounts();
     await request.dispose();
   },
 
@@ -93,6 +102,7 @@ export const test = base.extend<Fixtures>({
 
   loginPage: async ({ page }, use) => use(new LoginPage(page)),
   feedPage: async ({ page }, use) => use(new FeedPage(page)),
+  friendsPage: async ({ page }, use) => use(new FriendsPage(page)),
   profilePage: async ({ page }, use) => use(new ProfilePage(page)),
   settingsPage: async ({ page }, use) => use(new SettingsPage(page)),
   recordaDetailsPage: async ({ page }, use) => use(new RecordaDetailsPage(page)),
@@ -110,6 +120,8 @@ export const test = base.extend<Fixtures>({
   musicPreferencesPage: async ({ page }, use) => use(new MusicPreferencesPage(page)),
   signUpPage: async ({ page }, use) => use(new SignUpPage(page)),
   onboardingPage: async ({ page }, use) => use(new OnboardingPage(page)),
+  createRecordaPage: async ({ page }, use) => use(new CreateRecordaPage(page)),
+  dayViewer: async ({ page }, use) => use(new DayMemoriesViewer(page)),
 
   app: async (
     {

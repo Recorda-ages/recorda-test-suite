@@ -13,10 +13,12 @@ export {
 export { AccountModeration, AdminUsersPage, type AccountStatus } from "./AdminUsersPage";
 export { AdminTabBar, type AdminTab } from "./components/AdminTabBar";
 export { BottomTabBar, type BottomTab } from "./components/BottomTabBar";
+export { FollowButton, type FollowState } from "./components/FollowButton";
 export { ProfileDetails } from "./components/ProfileDetails";
 export { ReasonDialog } from "./components/ReasonDialog";
 export { ReportDialog, type ReportTarget } from "./components/ReportDialog";
 export { FeedPage, type FeedVariant } from "./FeedPage";
+export { FriendsPage, type FriendsTab } from "./FriendsPage";
 export { LanguagePage } from "./LanguagePage";
 export { LoginPage } from "./LoginPage";
 export { MusicPreferencesPage } from "./MusicPreferencesPage";
@@ -35,3 +37,18 @@ export { SettingsPage } from "./SettingsPage";
 export { ShareCardPage } from "./ShareCardPage";
 export { UserProfilePage } from "./UserProfilePage";
 export { UserSearchPage } from "./UserSearchPage";
+export {
+  CameraStep,
+  CreateRecordaPage,
+  MediaPreviewStep,
+  MusicSearchStep,
+  RecordaComposerStep
+} from "./CreateRecordaPage";
+export {
+  DayMemoriesViewer,
+  MemoryCalendar,
+  MetricsDashboard,
+  monthTitle,
+  Retrospective,
+  todayInSaoPaulo
+} from "./components/Memories";

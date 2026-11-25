@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
 import { expect, type APIRequestContext } from "@playwright/test";
 
 import { env } from "../config/env";
@@ -57,6 +60,8 @@ export type CreatedRecorda = {
   description: string | null;
   song_title: string;
   song_artist_name: string;
+  /** ISO timestamp (UTC). */
+  created_at: string;
 };
 
 export type RecordaComment = {
@@ -110,6 +115,8 @@ export type Profile = {
 
 
 // 1×1 PNG: the smallest media the upload endpoint accepts.
+const CLIP_MP4 = path.resolve(__dirname, "../../tests/fixtures/clip.mp4");
+
 const PIXEL_PNG = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
   "base64"
@@ -132,6 +139,9 @@ function uniqueDeezerId(): number {
  * without going through the UI. Keep it to what tests need; it is not an SDK.
  */
 export class RecordaApi {
+  /** Accounts this client registered, deleted by `deleteCreatedAccounts()` after the test. */
+  private readonly created: Array<{ username: string; password: string; token?: string }> = [];
+
   constructor(private readonly request: APIRequestContext) {}
 
   private auth(session: LoginResponse) {
@@ -214,20 +224,32 @@ export class RecordaApi {
     return (await response.json()) as AccountDetails;
   }
 
-  /** Publishes a photo Recorda as `author`, without calling Deezer. */
+  /**
+   * Publishes a Recorda as `author`, without calling Deezer: a 1-pixel photo, or with
+   * `video` the clip in tests/fixtures/clip.mp4 (which has its own audio track).
+   */
   async createRecorda(
     author: TestAccount,
     data: {
       description: string;
       songTitle?: string;
       songArtist?: string;
+      /** The song's 30 s preview; see `PREVIEW_URL` in support/media.ts. */
+      songPreviewUrl?: string;
+      songCoverUrl?: string;
+      /** Defaults to "Pop". */
+      songGenre?: string;
+      video?: boolean;
       /** People to mark in the Recorda; the author must follow them. */
       mentioned?: TestAccount[];
     }
   ): Promise<CreatedRecorda> {
+    const file = data.video
+      ? { name: "clip.mp4", mimeType: "video/mp4", buffer: readFileSync(CLIP_MP4) }
+      : { name: "pixel.png", mimeType: "image/png", buffer: PIXEL_PNG };
     const upload = await this.request.post("/api/v1/recordas/media", {
       headers: this.auth(author.session),
-      multipart: { file: { name: "pixel.png", mimeType: "image/png", buffer: PIXEL_PNG } }
+      multipart: { file }
     });
     expect(upload, "Could not upload the Recorda media").toBeOK();
     const { url } = (await upload.json()) as { url: string };
@@ -235,12 +257,14 @@ export class RecordaApi {
       headers: this.auth(author.session),
       data: {
         media_url: url,
-        media_type: "PHOTO",
+        media_type: data.video ? "VIDEO" : "PHOTO",
         description: data.description,
         deezer_track_id: String(uniqueDeezerId()),
         song_title: data.songTitle ?? "E2E Song",
         song_artist_name: data.songArtist ?? "E2E Artist",
-        song_genre_name: "Pop",
+        song_cover_url: data.songCoverUrl ?? "",
+        song_preview_url: data.songPreviewUrl ?? null,
+        song_genre_name: data.songGenre ?? "Pop",
         mentioned_user_ids: (data.mentioned ?? []).map((account) => account.session.user.user_id)
       }
     });
@@ -286,6 +310,15 @@ export class RecordaApi {
     );
     expect(response, `Could not list the followers of ${of.user.username}`).toBeOK();
     return ((await response.json()) as { username: string }[]).map((user) => user.username);
+  }
+
+  /** HTTP status of reading `of`'s followers as `viewer` (403 for a private account). */
+  async followersStatus(viewer: TestAccount, of: TestAccount): Promise<number> {
+    const response = await this.request.get(
+      `/api/v1/users/${of.session.user.user_id}/followers`,
+      { headers: this.auth(viewer.session) }
+    );
+    return response.status();
   }
 
   /** First page of `account`'s notifications, newest first. Reading doesn't mark them read. */
@@ -437,7 +470,9 @@ export class RecordaApi {
     password: string;
   }): Promise<number> {
     this.assertLocal("registerStatus()");
-    return (await this.request.post("/api/v1/auth/register", { data })).status();
+    const response = await this.request.post("/api/v1/auth/register", { data });
+    if (response.ok()) this.created.push(data);
+    return response.status();
   }
 
   /** Creates a brand-new account. Use for tests that mutate the user. */
@@ -451,7 +486,37 @@ export class RecordaApi {
     this.assertLocal("register()");
     const response = await this.request.post("/api/v1/auth/register", { data });
     expect(response, `Could not register "${data.username}"`).toBeOK();
-    return (await response.json()) as LoginResponse;
+    const session = (await response.json()) as LoginResponse;
+    this.created.push({ ...data, token: session.access_token });
+    return session;
+  }
+
+  /** Deletes after the test an account made outside this client, e.g. through the sign-up form. */
+  deleteAfterTest(credentials: { username: string; password: string }): void {
+    this.created.push({ ...credentials });
+  }
+
+  /**
+   * Deletes (DELETE /users/me, a soft delete) every account this client registered, so test
+   * users don't pile up in the local database: feed and suggestions score every active
+   * account, and get slower with each one. Best effort: an account the test already deleted,
+   * banned or whose password it changed may refuse, and is left as is.
+   */
+  async deleteCreatedAccounts(): Promise<void> {
+    const accounts = this.created.splice(0);
+    await Promise.all(
+      accounts.map(async ({ username, password, token }) => {
+        const remove = (bearer: string) =>
+          this.request.delete("/api/v1/users/me", {
+            headers: { Authorization: `Bearer ${bearer}` }
+          });
+        if (token && (await remove(token)).ok()) return;
+        const login = await this.request.post("/api/v1/auth/login", {
+          data: { username, password }
+        });
+        if (login.ok()) await remove(((await login.json()) as LoginResponse).access_token);
+      })
+    );
   }
 
   private assertLocal(method: string): void {

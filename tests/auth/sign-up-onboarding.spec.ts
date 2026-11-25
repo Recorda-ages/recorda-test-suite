@@ -2,7 +2,7 @@ import { signedOut, users } from "../../src/data/users";
 import { expect, meta, test } from "../../src/fixtures";
 import type { OnboardingPage, SignUpData, SignUpPage } from "../../src/pages";
 import type { App } from "../../src/support/app";
-import { uniqueId } from "../../src/support/api";
+import { uniqueId, type RecordaApi } from "../../src/support/api";
 import { t } from "../../src/support/i18n";
 
 /**
@@ -18,8 +18,10 @@ const PASSWORD = "Senha@1234";
 /** Email of the seeded `gabriel` account (recorda-backend/app/db/development_seed_data.py). */
 const SEEDED_EMAIL = "gabriel@recorda.com";
 
-function newUser(label: string): SignUpData {
+/** Sign-up data for a new person; the account, if created, is deleted after the test. */
+function newUser(api: RecordaApi, label: string): SignUpData {
   const username = `e2e-${label}-${uniqueId()}`;
+  api.deleteAfterTest({ username, password: PASSWORD });
   return {
     name: `E2E ${label}`,
     username,
@@ -36,13 +38,14 @@ function splitSongLabel(label: string): { title: string; artist: string } {
 
 /** Signs up a brand-new user and waits on onboarding step 1. */
 async function signUpToOnboarding(
+  api: RecordaApi,
   app: App,
   signUpPage: SignUpPage,
   onboardingPage: OnboardingPage,
   label: string
 ): Promise<void> {
   await app.goToSignUp();
-  await signUpPage.signUp(newUser(label));
+  await signUpPage.signUp(newUser(api, label));
   await onboardingPage.artists.expectLoaded();
 }
 
@@ -57,13 +60,13 @@ test.describe("Sign up and onboarding", () => {
       requirement: ["RF-02.5", "RF-03.1", "RF-03.2", "RF-03.3", "RF-03.6"],
       tag: "@mutates"
     }),
-    async ({ app, signUpPage, onboardingPage, feedPage, profilePage }) => {
+    async ({ api, app, signUpPage, onboardingPage, feedPage, profilePage }) => {
       const { artists, genres, music } = onboardingPage;
       let song = "";
 
       await test.step("a new person signs up", async () => {
         await app.goToSignUp();
-        await signUpPage.signUp(newUser("flow"));
+        await signUpPage.signUp(newUser(api, "flow"));
       });
 
       await test.step("onboarding opens on step 1 instead of the Feed", async () => {
@@ -116,7 +119,7 @@ test.describe("Sign up and onboarding", () => {
         "password confirmation and no terms checkbox.",
       requirement: "RF-02.1"
     }),
-    async ({ app, signUpPage }) => {
+    async ({ api, app, signUpPage }) => {
       await app.goToSignUp();
 
       await expect(signUpPage.name).toBeVisible();
@@ -137,10 +140,10 @@ test.describe("Sign up and onboarding", () => {
       requirement: "RF-02.2",
       tag: "@mutates"
     }),
-    async ({ app, signUpPage, onboardingPage }) => {
+    async ({ api, app, signUpPage, onboardingPage }) => {
       await test.step("a username that already exists", async () => {
         await app.goToSignUp();
-        await signUpPage.signUp({ ...newUser("dup-user"), username: users.gabriel.username });
+        await signUpPage.signUp({ ...newUser(api, "dup-user"), username: users.gabriel.username });
 
         await expect(signUpPage.fieldError("username")).toBeVisible();
         await expect(signUpPage.fieldError("email")).toHaveCount(0);
@@ -149,7 +152,7 @@ test.describe("Sign up and onboarding", () => {
 
       await test.step("an email that already exists", async () => {
         await app.goToSignUp();
-        await signUpPage.signUp({ ...newUser("dup-mail"), email: SEEDED_EMAIL });
+        await signUpPage.signUp({ ...newUser(api, "dup-mail"), email: SEEDED_EMAIL });
 
         await expect(signUpPage.fieldError("email")).toBeVisible();
         await expect(signUpPage.fieldError("username")).toHaveCount(0);
@@ -166,7 +169,7 @@ test.describe("Sign up and onboarding", () => {
         "invalid email shows the email-format message; the user stays on Sign Up.",
       requirement: "RF-02.3"
     }),
-    async ({ app, signUpPage }) => {
+    async ({ api, app, signUpPage }) => {
       await app.goToSignUp();
 
       await test.step("an empty form flags every field", async () => {
@@ -198,12 +201,12 @@ test.describe("Sign up and onboarding", () => {
         "Sign Up; with 8 characters the message goes away.",
       requirement: "RF-02.4"
     }),
-    async ({ app, signUpPage }) => {
+    async ({ api, app, signUpPage }) => {
       const minLength = t("auth.validation.passwordMinLength", { min: 8 });
       await app.goToSignUp();
 
       await test.step("7 characters are rejected", async () => {
-        await signUpPage.fill({ ...newUser("short-pw"), password: "1234567" });
+        await signUpPage.fill({ ...newUser(api, "short-pw"), password: "1234567" });
         await signUpPage.submit.click();
 
         await expect(signUpPage.fieldError("password")).toHaveText(minLength);
@@ -228,9 +231,9 @@ test.describe("Sign up and onboarding", () => {
       requirement: "RF-03.4",
       tag: "@mutates"
     }),
-    async ({ app, signUpPage, onboardingPage }) => {
+    async ({ api, app, signUpPage, onboardingPage }) => {
       const { artists, genres, music } = onboardingPage;
-      await signUpToOnboarding(app, signUpPage, onboardingPage, "minimum");
+      await signUpToOnboarding(api, app, signUpPage, onboardingPage, "minimum");
 
       await test.step("artists: 2 are not enough, 3 are", async () => {
         await expect(artists.next).toBeDisabled();
@@ -269,10 +272,10 @@ test.describe("Sign up and onboarding", () => {
       requirement: "RF-03.7",
       tag: "@mutates"
     }),
-    async ({ app, signUpPage, onboardingPage }) => {
+    async ({ api, app, signUpPage, onboardingPage }) => {
       const { artists, genres, music } = onboardingPage;
       const threeSelected = t("onboarding.selectedCount", { count: 3 });
-      await signUpToOnboarding(app, signUpPage, onboardingPage, "back");
+      await signUpToOnboarding(api, app, signUpPage, onboardingPage, "back");
 
       await test.step("picks 3 artists and 3 genres, reaching music", async () => {
         await artists.selectFirst(3);

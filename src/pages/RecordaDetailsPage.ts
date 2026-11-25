@@ -108,6 +108,12 @@ export class RecordaDetailsPage {
     await this.sendCommentButton.click();
   }
 
+  /** Three dots → "Denunciar" (someone else's Recorda). Opens the report dialog. */
+  async openReport(): Promise<void> {
+    await this.openMenu();
+    await this.reportOption.click();
+  }
+
   async openMenu(): Promise<void> {
     await this.moreButton.click();
   }

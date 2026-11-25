@@ -16,6 +16,7 @@ export { BottomTabBar, type BottomTab } from "./components/BottomTabBar";
 export { FollowButton, type FollowState } from "./components/FollowButton";
 export { ProfileDetails } from "./components/ProfileDetails";
 export { ReasonDialog } from "./components/ReasonDialog";
+export { ReportDialog, type ReportTarget } from "./components/ReportDialog";
 export { FeedPage, type FeedVariant } from "./FeedPage";
 export { FriendsPage, type FriendsTab } from "./FriendsPage";
 export { LanguagePage } from "./LanguagePage";

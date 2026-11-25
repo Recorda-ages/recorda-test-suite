@@ -23,12 +23,12 @@ Fontes: Termo de Abertura do Projeto (2026/2) e os Épicos e User Stories das is
 
 ## Resumo
 
-226 requisitos, 199 verificáveis por esta suíte (web ou API), 131 cobertos por 122 teste(s). 18 decididos mas ainda não atendidos pelo código (⚠️).
+226 requisitos, 199 verificáveis por esta suíte (web ou API), 148 cobertos por 134 teste(s). 18 decididos mas ainda não atendidos pelo código (⚠️).
 
 | Épico | Nome | Requisitos | Web | API | Nativo | Manual | Cobertos |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | E2 | Autenticação, cadastro e onboarding | 32 | 26 | 4 | 0 | 2 | 26 |
-| E3 | Criação e publicação de Recordas | 25 | 16 | 4 | 5 | 0 | 0 |
+| E3 | Criação e publicação de Recordas | 25 | 16 | 4 | 5 | 0 | 16 |
 | E4 | Feed | 26 | 18 | 2 | 6 | 0 | 18 |
 | E5 | Interações sociais | 39 | 36 | 3 | 0 | 0 | 36 |
 | E6 | Perfil e configurações | 22 | 20 | 2 | 0 | 0 | 20 |
@@ -36,7 +36,7 @@ Fontes: Termo de Abertura do Projeto (2026/2) e os Épicos e User Stories das is
 | E8 | Compartilhamento de cards | 16 | 9 | 0 | 5 | 2 | 9 |
 | E9 | Denúncias | 15 | 12 | 3 | 0 | 0 | 3 |
 | E10 | Administração e moderação | 19 | 18 | 1 | 0 | 0 | 17 |
-| TA | Termo de Abertura (sem User Story) | 1 | 1 | 0 | 0 | 0 | 0 |
+| TA | Termo de Abertura (sem User Story) | 1 | 1 | 0 | 0 | 0 | 1 |
 | NF | Requisitos não funcionais | 7 | 2 | 2 | 1 | 2 | 2 |
 
 ## Decisões
@@ -58,15 +58,15 @@ Requisitos decididos que o código atual ainda não atende. Um teste para eles d
 até a implementação (marque-o com `test.fail()` e um comentário apontando o ID).
 
 - **RF-01.7**: O código usa 5 s (SPLASH_TIMEOUT_MS em recorda-frontend/src/features/splash/screens/SplashScreen.tsx).
-- **RF-08.5**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
-- **RF-08.6**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
-- **RF-08.7**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
-- **RF-09.1**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
-- **RF-09.6**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
+- **RF-07.1**: GET /music/tracks/search devolve genre_id sempre null, e o app não envia song_genre_name ao publicar.
+- **RF-08.5**: Não implementado: o model recorda não tem Data da Memória nem Local (as marcações já existem).
+- **RF-08.6**: Não implementado: o model recorda não tem Data da Memória nem Local (as marcações já existem).
+- **RF-09.1**: Não implementado: o model recorda não tem Data da Memória nem Local (as marcações já existem).
+- **RF-09.4**: Só no build web: publicar falha antes de enviar a mídia, porque uploadRecordaMedia (recorda-frontend/src/features/recorda-publish/api) usa File do expo-file-system, sem suporte no web.
 - **RF-10.4**: No web, a captura do card (html2canvas-pro em ShareCardScreen) ignora contentFit="cover" e estica mídias que não são verticais, como o vídeo do seed.
 - **RF-11.2**: ShareCardScreen oferece quatro presets (light, mint, teal, dark); a US 11 exige exatamente três.
 - **RF-14.2**: O card não mostra a capa da música: RecordaCard (recorda-frontend/src/features/feed/components/RecordaCard.tsx) ignora song_cover_url.
-- **RF-17.2**: Não implementado: o model recorda não tem Data da Memória, Local nem marcações.
+- **RF-17.2**: Não implementado: o model recorda não tem Data da Memória nem Local (as marcações já existem).
 - **RF-20.5**: O FollowButton pede confirmação (UnfollowDialog) antes de deixar de seguir; ver OPEN_QUESTIONS.
 - **RF-24.3**: A linha do comentário não mostra a data (CommentRow em recorda-frontend/src/features/feed/components/RecordaDetailView.tsx).
 - **RF-27.3**: GET /users/suggestions já retorna common_genres/common_artists, mas SuggestedProfiles (recorda-frontend) não os mostra.
@@ -109,7 +109,7 @@ Os requisitos agrupados por jornada do usuário. Cada fluxo tem uma issue em
 | FL-02 Login | [#2](https://github.com/Recorda-ages/recorda-test-suite/issues/2) | 4 | 4 | 4 | 0 | não |
 | FL-03 Cadastro e onboarding | [#3](https://github.com/Recorda-ages/recorda-test-suite/issues/3) | 11 | 11 | 11 | 0 | sim (`@mutates`) |
 | FL-04 Recuperação de senha | [#4](https://github.com/Recorda-ages/recorda-test-suite/issues/4) | 4 | 4 | 4 | 0 | sim (`@mutates`) |
-| FL-05 Criação e publicação de Recorda | [#5](https://github.com/Recorda-ages/recorda-test-suite/issues/5) | 22 | 17 | 0 | 4 | sim (`@mutates`) |
+| FL-05 Criação e publicação de Recorda | [#5](https://github.com/Recorda-ages/recorda-test-suite/issues/5) | 22 | 17 | 17 | 4 | sim (`@mutates`) |
 | FL-06 Card de compartilhamento | [#6](https://github.com/Recorda-ages/recorda-test-suite/issues/6) | 14 | 9 | 9 | 2 | não |
 | FL-07 Feed | [#7](https://github.com/Recorda-ages/recorda-test-suite/issues/7) | 20 | 15 | 15 | 1 | não |
 | FL-08 Detalhes da Recorda, curtidas e comentários | [#8](https://github.com/Recorda-ages/recorda-test-suite/issues/8) | 17 | 16 | 16 | 2 | sim (`@mutates`) |
@@ -204,7 +204,7 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-06.1 | A tela Criar Recorda é acessível pela barra inferior e tem visor de câmera e botão central de captura. | web | — |
+| RF-06.1 | A tela Criar Recorda é acessível pela barra inferior e tem visor de câmera e botão central de captura. | web | [Criar Recorda opens the camera from the bottom bar](../tests/recorda-creation/create-recorda.spec.ts#L42) |
 | RF-06.2 | Ao entrar na tela, a câmera abre diretamente (prioridade sobre a galeria). | nativo | — |
 | RF-06.3 | É possível capturar mídia em tempo real ou selecioná-la da galeria. | nativo | — |
 | RF-06.4 | Cada Recorda tem exatamente uma foto ou um vídeo. | API | — |
@@ -217,12 +217,12 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-07.1 | O campo Música abre um buscador do Deezer que retorna faixa, artista, álbum, gênero e capa. | web | — |
-| RF-07.2 | A busca funciona por nome de música, artista ou álbum. | web | — |
+| RF-07.1 | O campo Música abre um buscador do Deezer que retorna faixa, artista, álbum, gênero e capa.<br>⚠️ GET /music/tracks/search devolve genre_id sempre null, e o app não envia song_genre_name ao publicar. | web | [the song search finds Deezer tracks by song, artist or album](../tests/recorda-creation/create-recorda.spec.ts#L61)<br>[song search results carry the genre](../tests/recorda-creation/create-recorda.spec.ts#L94) |
+| RF-07.2 | A busca funciona por nome de música, artista ou álbum. | web | [the song search finds Deezer tracks by song, artist or album](../tests/recorda-creation/create-recorda.spec.ts#L61) |
 | RF-07.3 | É possível ouvir o preview de 30 s de um resultado antes de confirmar. | nativo | — |
-| RF-07.4 | A publicação é associada a uma música específica. | web | — |
+| RF-07.4 | A publicação é associada a uma música específica. | web | [the next step needs a song, which then comes filled in and can't be changed there](../tests/recorda-creation/create-recorda.spec.ts#L143) |
 | RF-07.5 | É persistido o identificador da faixa no Deezer, nunca a URL do preview. | API | — |
-| RF-07.6 | Indisponibilidade da API de música é tratada com opção de tentar novamente. | web | — |
+| RF-07.6 | Indisponibilidade da API de música é tratada com opção de tentar novamente. | web | [a failed song search offers to try again](../tests/recorda-creation/create-recorda.spec.ts#L114) |
 
 ### US 8 — Detalhes da Recorda
 
@@ -230,13 +230,13 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-08.1 | Uma única tela mostra o preview da mídia com capa, título e artista da música sobrepostos e um campo de descrição. | web | — |
-| RF-08.2 | A descrição é opcional, com limite de 2200 caracteres. | web | — |
-| RF-08.3 | A música vem preenchida e não é editável nesta tela. | web | — |
-| RF-08.4 | Publicar só fica habilitado com a música associada. | web | — |
-| RF-08.5 | A tela de detalhes permite informar a Data da Memória (quando o momento aconteceu).<br>_Fonte: Decisão do time, 2026-11-08: obrigatório implementar._<br>⚠️ Não implementado: o model recorda não tem Data da Memória, Local nem marcações. | web | — |
-| RF-08.6 | A tela de detalhes permite informar o Local da memória.<br>_Fonte: Decisão do time, 2026-11-08: obrigatório implementar._<br>⚠️ Não implementado: o model recorda não tem Data da Memória, Local nem marcações. | web | — |
-| RF-08.7 | A tela de detalhes permite marcar outros usuários na Recorda.<br>_Fonte: Decisão do time, 2026-11-08: obrigatório implementar; Termo: marcação de amigos._<br>⚠️ Não implementado: o model recorda não tem Data da Memória, Local nem marcações. | web | — |
+| RF-08.1 | Uma única tela mostra o preview da mídia com capa, título e artista da música sobrepostos e um campo de descrição. | web | [the next step needs a song, which then comes filled in and can't be changed there](../tests/recorda-creation/create-recorda.spec.ts#L143) |
+| RF-08.2 | A descrição é opcional, com limite de 2200 caracteres. | web | [the description is optional and capped at 2200 characters](../tests/recorda-creation/create-recorda.spec.ts#L187) |
+| RF-08.3 | A música vem preenchida e não é editável nesta tela. | web | [the next step needs a song, which then comes filled in and can't be changed there](../tests/recorda-creation/create-recorda.spec.ts#L143) |
+| RF-08.4 | Publicar só fica habilitado com a música associada. | web | [the next step needs a song, which then comes filled in and can't be changed there](../tests/recorda-creation/create-recorda.spec.ts#L143) |
+| RF-08.5 | A tela de detalhes permite informar a Data da Memória (quando o momento aconteceu).<br>_Fonte: Decisão do time, 2026-11-08: obrigatório implementar._<br>⚠️ Não implementado: o model recorda não tem Data da Memória nem Local (as marcações já existem). | web | [the last step asks for the memory's date](../tests/recorda-creation/create-recorda.spec.ts#L237) |
+| RF-08.6 | A tela de detalhes permite informar o Local da memória.<br>_Fonte: Decisão do time, 2026-11-08: obrigatório implementar._<br>⚠️ Não implementado: o model recorda não tem Data da Memória nem Local (as marcações já existem). | web | [the last step asks for the memory's place](../tests/recorda-creation/create-recorda.spec.ts#L237) |
+| RF-08.7 | A tela de detalhes permite marcar outros usuários na Recorda.<br>_Fonte: Decisão do time, 2026-11-08: obrigatório implementar; Termo: marcação de amigos._ | web | [followed people can be marked in the Recorda](../tests/recorda-creation/create-recorda.spec.ts#L258) |
 
 ### US 9 — Publicação da Recorda
 
@@ -244,12 +244,12 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-09.1 | A Recorda é composta por mídia, música, descrição opcional, Data da Memória, Local e marcações.<br>_Fonte: Decisão do time, 2026-11-08: Data da Memória, Local e marcações voltam ao escopo._<br>⚠️ Não implementado: o model recorda não tem Data da Memória, Local nem marcações. | API | — |
-| RF-09.2 | A visibilidade não é escolhida na publicação: deriva da privacidade da conta, sem seletor nem campo por publicação. | web | — |
+| RF-09.1 | A Recorda é composta por mídia, música, descrição opcional, Data da Memória, Local e marcações.<br>_Fonte: Decisão do time, 2026-11-08: Data da Memória, Local e marcações voltam ao escopo._<br>⚠️ Não implementado: o model recorda não tem Data da Memória nem Local (as marcações já existem). | API | — |
+| RF-09.2 | A visibilidade não é escolhida na publicação: deriva da privacidade da conta, sem seletor nem campo por publicação. | web | [publishing has no visibility choice](../tests/recorda-creation/create-recorda.spec.ts#L210) |
 | RF-09.3 | A Data de Publicação é registrada automaticamente. | API | — |
-| RF-09.4 | Após publicar, a Recorda aparece imediatamente no perfil do autor e fica disponível aos feeds conforme a visibilidade da conta. | web | — |
-| RF-09.5 | Há indicador de progresso no upload e, em caso de falha, é possível tentar novamente sem perder os dados nem recapturar a mídia. | web | — |
-| RF-09.6 | Usuários marcados são notificados da marcação.<br>_Fonte: Decisão do time, 2026-11-08; US 26._<br>⚠️ Não implementado: o model recorda não tem Data da Memória, Local nem marcações. | web | — |
+| RF-09.4 | Após publicar, a Recorda aparece imediatamente no perfil do autor e fica disponível aos feeds conforme a visibilidade da conta.<br>⚠️ Só no build web: publicar falha antes de enviar a mídia, porque uploadRecordaMedia (recorda-frontend/src/features/recorda-publish/api) usa File do expo-file-system, sem suporte no web. | web | [a published Recorda shows the upload progress and appears on the author's profile](../tests/recorda-creation/create-recorda.spec.ts#L325) |
+| RF-09.5 | Há indicador de progresso no upload e, em caso de falha, é possível tentar novamente sem perder os dados nem recapturar a mídia. | web | [a failed upload keeps the draft and can be retried](../tests/recorda-creation/create-recorda.spec.ts#L286) |
+| RF-09.6 | Usuários marcados são notificados da marcação.<br>_Fonte: Decisão do time, 2026-11-08; US 26._ | web | [follows, requests, likes, comments and mentions notify the account owner](../tests/notifications/notification-center.spec.ts#L147) |
 
 ## E4 — Feed
 
@@ -298,7 +298,7 @@ Ficam fora:
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
 | RF-17.1 | Tocar num card do feed ou numa miniatura do perfil abre a tela Detalhes da Recorda. | web | [a feed card and a profile thumbnail both open the Recorda details](../tests/recorda-details/recorda-details.spec.ts#L48) |
-| RF-17.2 | A tela mostra mídia, avatar e username do autor, relato completo, música, Data da Memória, Local, marcações e comentários.<br>⚠️ Não implementado: o model recorda não tem Data da Memória, Local nem marcações. | web | [the details show the whole Recorda, with memory date, place and tagged people](../tests/recorda-details/recorda-details.spec.ts#L76) |
+| RF-17.2 | A tela mostra mídia, avatar e username do autor, relato completo, música, Data da Memória, Local, marcações e comentários.<br>⚠️ Não implementado: o model recorda não tem Data da Memória nem Local (as marcações já existem). | web | [the details show the whole Recorda, with memory date, place and tagged people](../tests/recorda-details/recorda-details.spec.ts#L76) |
 | RF-17.3 | A música continua tocando na transição do feed para os detalhes, sem reiniciar. | nativo | — |
 | RF-17.4 | A tela oferece curtir, comentar e compartilhar. | web | [the feed card and the details offer like, comment and share](../tests/recorda-details/recorda-details.spec.ts#L114) |
 | RF-17.5 | O menu de três pontos oferece só excluir na própria Recorda e só denunciar na de outra pessoa; não há edição. | web | [the three-dots menu offers only delete on your Recorda and only report on others'](../tests/recorda-details/recorda-details.spec.ts#L152) |
@@ -675,7 +675,7 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-T01 | A busca de músicas, previews, álbuns, artistas e gêneros usa a API do Deezer.<br>_Fonte: Termo: Integrações; Decisão do time, 2026-11-08: o Deezer substitui Spotify/Apple Music por atender melhor ao projeto._ | web | — |
+| RF-T01 | A busca de músicas, previews, álbuns, artistas e gêneros usa a API do Deezer.<br>_Fonte: Termo: Integrações; Decisão do time, 2026-11-08: o Deezer substitui Spotify/Apple Music por atender melhor ao projeto._ | web | [the song search finds Deezer tracks by song, artist or album](../tests/recorda-creation/create-recorda.spec.ts#L61) |
 
 ## NF — Requisitos não funcionais
 
@@ -742,7 +742,7 @@ Ficam fora:
 | [a late valid session response cannot navigate away from login](../tests/flows/session-timeout.spec.ts#L69) | After the current timeout sends the user to Login, releasing a real successful session response cannot reopen Feed or admin. | RF-01.7 |
 | [the bell shows the unread count and opening the list marks it as read](../tests/notifications/notification-center.spec.ts#L31) | Two new followers show as 2 unread on the Feed bell, which opens the notification center; after opening it the count is gone, also after reopening the app. | RF-26.1, RF-26.5 |
 | [notifications are listed newest first with who acted, what happened and the action](../tests/notifications/notification-center.spec.ts#L82) | A follow, then a like, then a follow request appear in reverse order, each with the actor's avatar initial and username and a description; only the request offers Accept and Decline, and the like shows the liked Recorda. | RF-26.2 |
-| [follows, requests, likes, comments and mentions notify the account owner](../tests/notifications/notification-center.spec.ts#L147) | Following a public account, liking and commenting on its Recorda, mentioning it in a Recorda and requesting to follow it once private each add a notification for it. | RF-26.3 |
+| [follows, requests, likes, comments and mentions notify the account owner](../tests/notifications/notification-center.spec.ts#L147) | Following a public account, liking and commenting on its Recorda, mentioning it in a Recorda and requesting to follow it once private each add a notification for it. | RF-26.3, RF-09.6 |
 | [an approved follow request notifies the requester](../tests/notifications/notification-center.spec.ts#L193) | When a private account accepts a follow request, the person who asked gets a notification that the request was approved. | RF-26.3 |
 | [follow requests are accepted or declined from the notification list](../tests/notifications/notification-center.spec.ts#L216) | A private account finds its follow requests in the notification center, accepts one (it becomes a new follower) and declines the other (it disappears); only the accepted person ends up following. | RF-21.1, RF-26.4 |
 | [tapping a notification opens the related Recorda or profile](../tests/notifications/notification-center.spec.ts#L271) | A like notification opens the liked Recorda, and a new-follower notification opens the follower's profile. | RF-26.6 |
@@ -756,6 +756,18 @@ Ficam fora:
 | [a private profile with an approved follow shows the header, counters and Recordas](../tests/profile/third-party-profile.spec.ts#L17) | Opened from the search, the profile shows the owner's name, @username, streak and favorite song, the Recordas/followers/following counters and the Recordas grid, with no private-account notice. | RF-29.1 |
 | [a private profile without approval hides counters and Recordas behind a notice](../tests/profile/third-party-profile.spec.ts#L57) | A private account whose follow request is pending shows its name, @username and favorite song, but no counters and no Recordas; each of the three tabs shows the private-account notice instead of its content. | RF-29.2 |
 | [a private profile without approval still shows the streak](../tests/profile/third-party-profile.spec.ts#L111) | A private account whose follow request is pending shows its name, favorite song and streak indicator, as RF-29.2 and backend decision D-06 say. | RF-29.2 |
+| [Criar Recorda opens the camera from the bottom bar](../tests/recorda-creation/create-recorda.spec.ts#L42) | The bottom bar's Criar Recorda opens a screen with the camera viewfinder and the central capture button. | RF-06.1 |
+| [the song search finds Deezer tracks by song, artist or album](../tests/recorda-creation/create-recorda.spec.ts#L61) | With the real Deezer behind the backend, searching by a song name, by an artist and by an album each lists matching tracks with title, artist and cover. | RF-07.1, RF-07.2, RF-T01 |
+| [song search results carry the genre](../tests/recorda-creation/create-recorda.spec.ts#L94) | Each track the song search returns comes with its Deezer genre. | RF-07.1 |
+| [a failed song search offers to try again](../tests/recorda-creation/create-recorda.spec.ts#L114) | When the music service is unavailable, the search says it couldn't find songs and offers Tentar novamente, which shows the results once the service is back. | RF-07.6 |
+| [the next step needs a song, which then comes filled in and can't be changed there](../tests/recorda-creation/create-recorda.spec.ts#L143) | Próximo stays disabled until a song is picked. The last step then shows the photo with the song's cover, title and artist over it and a description field, with the song as plain text (no field to edit it) and Publicar enabled. | RF-07.4, RF-08.1, RF-08.3, RF-08.4 |
+| [the description is optional and capped at 2200 characters](../tests/recorda-creation/create-recorda.spec.ts#L187) | Publicar is enabled with an empty description, and typing past 2200 characters keeps only the first 2200. | RF-08.2 |
+| [publishing has no visibility choice](../tests/recorda-creation/create-recorda.spec.ts#L210) | The last step has no visibility selector: no public/private switch, radio or field; who sees the Recorda follows the account's privacy. | RF-09.2 |
+| [the last step asks for the memory's date](../tests/recorda-creation/create-recorda.spec.ts#L237) | The last step has a Data da Memória field for when or where the moment happened. | RF-08.5 |
+| [the last step asks for the memory's place](../tests/recorda-creation/create-recorda.spec.ts#L237) | The last step has a Local field for when or where the moment happened. | RF-08.6 |
+| [followed people can be marked in the Recorda](../tests/recorda-creation/create-recorda.spec.ts#L258) | Marcar amigos lists the accounts the author follows; checking one marks it, shown as a chip and in the button's count. | RF-08.7 |
+| [a failed upload keeps the draft and can be retried](../tests/recorda-creation/create-recorda.spec.ts#L286) | When sending the media fails, the screen says so and Publicar becomes Tentar novamente, with the photo, the song, the description and the marked friend still there, so nothing has to be captured or typed again. | RF-09.5 |
+| [a published Recorda shows the upload progress and appears on the author's profile](../tests/recorda-creation/create-recorda.spec.ts#L325) | Publicar shows Enviando mídia... while the photo uploads, then returns to the Feed; the new Recorda is on the author's profile right away and on a follower's Seguindo. | RF-09.4 |
 | [a feed card and a profile thumbnail both open the Recorda details](../tests/recorda-details/recorda-details.spec.ts#L48) | Tapping a Recorda card in the feed, or its thumbnail in the author's profile grid, opens the details screen of that Recorda. | RF-17.1 |
 | [the details show the whole Recorda, with memory date, place and tagged people](../tests/recorda-details/recorda-details.spec.ts#L76) | The details show media, author, full description, song and comments, plus the Memory Date, Place and tagged users decided for the Recorda. | RF-17.2 |
 | [the feed card and the details offer like, comment and share](../tests/recorda-details/recorda-details.spec.ts#L114) | Feed cards and the details screen have a like button; the details also let the user open the comments and share the Recorda. | RF-17.4, RF-23.1 |

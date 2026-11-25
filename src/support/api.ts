@@ -60,6 +60,8 @@ export type CreatedRecorda = {
   description: string | null;
   song_title: string;
   song_artist_name: string;
+  /** ISO timestamp (UTC). */
+  created_at: string;
 };
 
 export type RecordaComment = {
@@ -235,6 +237,8 @@ export class RecordaApi {
       /** The song's 30 s preview; see `PREVIEW_URL` in support/media.ts. */
       songPreviewUrl?: string;
       songCoverUrl?: string;
+      /** Defaults to "Pop". */
+      songGenre?: string;
       video?: boolean;
       /** People to mark in the Recorda; the author must follow them. */
       mentioned?: TestAccount[];
@@ -260,7 +264,7 @@ export class RecordaApi {
         song_artist_name: data.songArtist ?? "E2E Artist",
         song_cover_url: data.songCoverUrl ?? "",
         song_preview_url: data.songPreviewUrl ?? null,
-        song_genre_name: "Pop",
+        song_genre_name: data.songGenre ?? "Pop",
         mentioned_user_ids: (data.mentioned ?? []).map((account) => account.session.user.user_id)
       }
     });

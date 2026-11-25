@@ -373,11 +373,11 @@ export const REQUIREMENTS = [
   req("RF-37.10", 37, "O visualizador tem a pílula sonora com controle do preview do Deezer.", "web"),
   req("RF-37.11", 37, "É possível ir ao dia anterior ou próximo com memórias sem fechar o visualizador.", "web"),
   req("RF-37.12", 37, "O visualizador fecha pelo X ou arrastando para baixo, voltando à grade com o dia em foco.", "web"),
-  req("RF-37.13", 37, "Períodos sem memórias exibem estado vazio convidando a publicar.", "web"),
+  req("RF-37.13", 37, "Períodos sem memórias exibem estado vazio convidando a publicar.", "web", { gap: "O calendário vazio só diz \"Nenhuma memória neste mês\", sem convite nem atalho para publicar (MemoryCalendarGrid em recorda-frontend/src/features/memories-calendar)." }),
 
   // ── E7 · US 38 — Métricas ────────────────────────────────────────────────────────────────
   req("RF-38.1", 38, "A aba Métricas mostra o Artista Mais Recorrente no período.", "web"),
-  req("RF-38.2", 38, "A aba mostra o ranking de gêneros com barras percentuais e contagem.", "web"),
+  req("RF-38.2", 38, "A aba mostra o ranking de gêneros com barras percentuais e contagem.", "web", { gap: "O ranking de gêneros mostra só nome e percentual, sem a contagem (TopGenresRankingCard em recorda-frontend/src/features/memories-metrics)." }),
   req("RF-38.3", 38, "A aba mostra a Streak Atual em dias consecutivos, zerando sem publicação no dia anterior ou atual (fuso de São Paulo).", "web"),
   req("RF-38.4", 38, "A Streak Atual tem visual minimalista, sem ícones de fogo ou brilho.", "manual"),
   req("RF-38.5", 38, "É possível alternar entre 30 dias, 90 dias, 1 ano e todo o histórico.", "web"),

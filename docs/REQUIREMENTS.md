@@ -23,7 +23,7 @@ Fontes: Termo de Abertura do Projeto (2026/2) e os Épicos e User Stories das is
 
 ## Resumo
 
-226 requisitos, 199 verificáveis por esta suíte (web ou API), 148 cobertos por 134 teste(s). 18 decididos mas ainda não atendidos pelo código (⚠️).
+226 requisitos, 199 verificáveis por esta suíte (web ou API), 168 cobertos por 148 teste(s). 20 decididos mas ainda não atendidos pelo código (⚠️).
 
 | Épico | Nome | Requisitos | Web | API | Nativo | Manual | Cobertos |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -32,7 +32,7 @@ Fontes: Termo de Abertura do Projeto (2026/2) e os Épicos e User Stories das is
 | E4 | Feed | 26 | 18 | 2 | 6 | 0 | 18 |
 | E5 | Interações sociais | 39 | 36 | 3 | 0 | 0 | 36 |
 | E6 | Perfil e configurações | 22 | 20 | 2 | 0 | 0 | 20 |
-| E7 | Memórias e estatísticas | 24 | 20 | 0 | 2 | 2 | 0 |
+| E7 | Memórias e estatísticas | 24 | 20 | 0 | 2 | 2 | 20 |
 | E8 | Compartilhamento de cards | 16 | 9 | 0 | 5 | 2 | 9 |
 | E9 | Denúncias | 15 | 12 | 3 | 0 | 0 | 3 |
 | E10 | Administração e moderação | 19 | 18 | 1 | 0 | 0 | 17 |
@@ -75,6 +75,8 @@ até a implementação (marque-o com `test.fail()` e um comentário apontando o 
 - **RF-34.1**: A tela Minha conta ainda lê e salva pelo accountService.mock (recorda-frontend/src/features/account/services/accountAdapter.ts), embora o backend já tenha GET e PATCH /users/me/account.
 - **RF-34.2**: A tela Minha conta ainda lê e salva pelo accountService.mock (recorda-frontend/src/features/account/services/accountAdapter.ts), embora o backend já tenha GET e PATCH /users/me/account.
 - **RF-35.2**: A streak do perfil inclui Recordas excluídas (list_publication_times em recorda-backend/app/repositories/recorda_repository.py), enquanto a de Métricas já as exclui.
+- **RF-37.13**: O calendário vazio só diz "Nenhuma memória neste mês", sem convite nem atalho para publicar (MemoryCalendarGrid em recorda-frontend/src/features/memories-calendar).
+- **RF-38.2**: O ranking de gêneros mostra só nome e percentual, sem a contagem (TopGenresRankingCard em recorda-frontend/src/features/memories-metrics).
 
 ## Pontos em aberto
 
@@ -117,7 +119,7 @@ Os requisitos agrupados por jornada do usuário. Cada fluxo tem uma issue em
 | FL-10 Notificações | [#10](https://github.com/Recorda-ages/recorda-test-suite/issues/10) | 7 | 7 | 7 | 0 | sim (`@mutates`) |
 | FL-11 Perfil pessoal e de terceiros | [#11](https://github.com/Recorda-ages/recorda-test-suite/issues/11) | 7 | 7 | 7 | 2 | sim (`@mutates`) |
 | FL-12 Configurações, preferências e conta | [#12](https://github.com/Recorda-ages/recorda-test-suite/issues/12) | 12 | 12 | 12 | 2 | sim (`@mutates`) |
-| FL-13 Memórias: calendário, métricas e retrospectiva | [#13](https://github.com/Recorda-ages/recorda-test-suite/issues/13) | 22 | 20 | 0 | 0 | não |
+| FL-13 Memórias: calendário, métricas e retrospectiva | [#13](https://github.com/Recorda-ages/recorda-test-suite/issues/13) | 22 | 20 | 20 | 2 | não |
 | FL-14 Denúncias | [#14](https://github.com/Recorda-ages/recorda-test-suite/issues/14) | 9 | 9 | 0 | 0 | sim (`@mutates`) |
 | FL-15 Moderação administrativa | [#15](https://github.com/Recorda-ages/recorda-test-suite/issues/15) | 21 | 21 | 20 | 0 | sim (`@mutates`) |
 
@@ -506,19 +508,19 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-37.1 | A aba Calendário mostra uma grade mensal de 7 colunas (domingo a sábado) calculada no fuso de São Paulo. | web | — |
-| RF-37.2 | Dias com publicações mostram a miniatura da primeira Recorda do dia. | web | — |
+| RF-37.1 | A aba Calendário mostra uma grade mensal de 7 colunas (domingo a sábado) calculada no fuso de São Paulo. | web | [the month grid runs Sunday to Saturday and marks today's Recordas](../tests/memories/calendar.spec.ts#L59) |
+| RF-37.2 | Dias com publicações mostram a miniatura da primeira Recorda do dia. | web | [the month grid runs Sunday to Saturday and marks today's Recordas](../tests/memories/calendar.spec.ts#L59) |
 | RF-37.3 | O número do dia fica legível sobre a miniatura (gradiente e sombra). | manual | — |
-| RF-37.4 | Dias com mais de uma Recorda mostram o indicador +N. | web | — |
-| RF-37.5 | Dias sem publicações aparecem em estilo escuro, sem miniatura. | web | — |
-| RF-37.6 | O cabeçalho permite navegar entre meses, atualizando a grade. | web | — |
-| RF-37.7 | Tocar num dia ativo abre o visualizador diário em tela cheia. | web | — |
-| RF-37.8 | O visualizador mostra a mídia com horário local e legenda. | web | — |
+| RF-37.4 | Dias com mais de uma Recorda mostram o indicador +N. | web | [the month grid runs Sunday to Saturday and marks today's Recordas](../tests/memories/calendar.spec.ts#L59) |
+| RF-37.5 | Dias sem publicações aparecem em estilo escuro, sem miniatura. | web | [the month grid runs Sunday to Saturday and marks today's Recordas](../tests/memories/calendar.spec.ts#L59) |
+| RF-37.6 | O cabeçalho permite navegar entre meses, atualizando a grade. | web | [the header moves between months](../tests/memories/calendar.spec.ts#L107) |
+| RF-37.7 | Tocar num dia ativo abre o visualizador diário em tela cheia. | web | [a day opens full screen with time, caption and the song, and closes back to the grid](../tests/memories/calendar.spec.ts#L137) |
+| RF-37.8 | O visualizador mostra a mídia com horário local e legenda. | web | [a day opens full screen with time, caption and the song, and closes back to the grid](../tests/memories/calendar.spec.ts#L137) |
 | RF-37.9 | Em dias com várias Recordas, é possível deslizar entre elas com paginação segmentada. | nativo | — |
-| RF-37.10 | O visualizador tem a pílula sonora com controle do preview do Deezer. | web | — |
-| RF-37.11 | É possível ir ao dia anterior ou próximo com memórias sem fechar o visualizador. | web | — |
-| RF-37.12 | O visualizador fecha pelo X ou arrastando para baixo, voltando à grade com o dia em foco. | web | — |
-| RF-37.13 | Períodos sem memórias exibem estado vazio convidando a publicar. | web | — |
+| RF-37.10 | O visualizador tem a pílula sonora com controle do preview do Deezer. | web | [a day opens full screen with time, caption and the song, and closes back to the grid](../tests/memories/calendar.spec.ts#L137) |
+| RF-37.11 | É possível ir ao dia anterior ou próximo com memórias sem fechar o visualizador. | web | [the viewer goes to the previous and next day with memories](../tests/memories/calendar.spec.ts#L229) |
+| RF-37.12 | O visualizador fecha pelo X ou arrastando para baixo, voltando à grade com o dia em foco. | web | [a day opens full screen with time, caption and the song, and closes back to the grid](../tests/memories/calendar.spec.ts#L137) |
+| RF-37.13 | Períodos sem memórias exibem estado vazio convidando a publicar.<br>⚠️ O calendário vazio só diz "Nenhuma memória neste mês", sem convite nem atalho para publicar (MemoryCalendarGrid em recorda-frontend/src/features/memories-calendar). | web | [a month without Recordas says so](../tests/memories/calendar.spec.ts#L186)<br>[a month without Recordas invites to publish one](../tests/memories/calendar.spec.ts#L206) |
 
 ### US 38 — Métricas e Estatísticas Pessoais
 
@@ -526,12 +528,12 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-38.1 | A aba Métricas mostra o Artista Mais Recorrente no período. | web | — |
-| RF-38.2 | A aba mostra o ranking de gêneros com barras percentuais e contagem. | web | — |
-| RF-38.3 | A aba mostra a Streak Atual em dias consecutivos, zerando sem publicação no dia anterior ou atual (fuso de São Paulo). | web | — |
+| RF-38.1 | A aba Métricas mostra o Artista Mais Recorrente no período. | web | [the most recurring artist, the genre ranking and today's streak](../tests/memories/metrics.spec.ts#L13) |
+| RF-38.2 | A aba mostra o ranking de gêneros com barras percentuais e contagem.<br>⚠️ O ranking de gêneros mostra só nome e percentual, sem a contagem (TopGenresRankingCard em recorda-frontend/src/features/memories-metrics). | web | [the most recurring artist, the genre ranking and today's streak](../tests/memories/metrics.spec.ts#L13)<br>[the genre ranking shows how many Recordas each genre has](../tests/memories/metrics.spec.ts#L78) |
+| RF-38.3 | A aba mostra a Streak Atual em dias consecutivos, zerando sem publicação no dia anterior ou atual (fuso de São Paulo). | web | [the period filter switches between 30 days, 90 days, 1 year and all history](../tests/memories/metrics.spec.ts#L120)<br>[the most recurring artist, the genre ranking and today's streak](../tests/memories/metrics.spec.ts#L13) |
 | RF-38.4 | A Streak Atual tem visual minimalista, sem ícones de fogo ou brilho. | manual | — |
-| RF-38.5 | É possível alternar entre 30 dias, 90 dias, 1 ano e todo o histórico. | web | — |
-| RF-38.6 | Sem memórias no período, há um estado vazio informativo. | web | — |
+| RF-38.5 | É possível alternar entre 30 dias, 90 dias, 1 ano e todo o histórico. | web | [the period filter switches between 30 days, 90 days, 1 year and all history](../tests/memories/metrics.spec.ts#L120) |
+| RF-38.6 | Sem memórias no período, há um estado vazio informativo. | web | [without Recordas in the period there is an empty state](../tests/memories/metrics.spec.ts#L99) |
 
 ### US 39 — Retrospectiva Musical de Período
 
@@ -539,11 +541,11 @@ Ficam fora:
 
 | ID | Requisito | Verificação | Testes |
 | --- | --- | --- | --- |
-| RF-39.1 | A retrospectiva de qualquer período elegível (mensal ou anual) é acessível pelo Perfil. | web | — |
-| RF-39.2 | O Story Viewer abre em tela cheia com barras de progresso (~5 s por slide), áudio e gestos de avançar, voltar e pausar. | web | — |
-| RF-39.3 | O viewer mostra os 6 blocos: total de Recordas, ranking de artistas, ranking de gêneros, amigos mais marcados, engajamento recebido e maior streak. | web | — |
+| RF-39.1 | A retrospectiva de qualquer período elegível (mensal ou anual) é acessível pelo Perfil. | web | [the profile lists the monthly and yearly retrospectives and opens one](../tests/memories/retrospective.spec.ts#L85) |
+| RF-39.2 | O Story Viewer abre em tela cheia com barras de progresso (~5 s por slide), áudio e gestos de avançar, voltar e pausar. | web | [slides advance every 5 seconds, can be tapped back and forth and paused by holding](../tests/memories/retrospective.spec.ts#L178) |
+| RF-39.3 | O viewer mostra os 6 blocos: total de Recordas, ranking de artistas, ranking de gêneros, amigos mais marcados, engajamento recebido e maior streak. | web | [the story shows total, artists, genres, marked friends, engagement and the best streak](../tests/memories/retrospective.spec.ts#L129) |
 | RF-39.4 | O último slide gera um poster exportável para Instagram Stories ou galeria. | nativo | — |
-| RF-39.5 | Há estados de carregamento, erro e período indisponível. | web | — |
+| RF-39.5 | Há estados de carregamento, erro e período indisponível. | web | [loading, error and an unavailable period each have their own state](../tests/memories/retrospective.spec.ts#L230) |
 
 ## E8 — Compartilhamento de cards
 
@@ -740,6 +742,20 @@ Ficam fora:
 | [an expired session is cleared before returning to login](../tests/flows/session-startup.spec.ts#L94) | An expired saved token cannot open Feed; authentication storage is cleared and reopening stays signed out. | RF-01.6 |
 | [a slow session check sends the user to login after three seconds](../tests/flows/session-timeout.spec.ts#L42) | When session verification exceeds the required three-second deadline, Splash must give way to Login. | RF-01.7 |
 | [a late valid session response cannot navigate away from login](../tests/flows/session-timeout.spec.ts#L69) | After the current timeout sends the user to Login, releasing a real successful session response cannot reopen Feed or admin. | RF-01.7 |
+| [the viewer goes to the previous and next day with memories](../tests/memories/calendar.spec.ts#L229) | On gabriel's 14 Feb 2026 Recorda, tapping the left side goes to the previous day with memories (7 Feb) without closing the viewer, and the right side comes back. | RF-37.11 |
+| [the month grid runs Sunday to Saturday and marks today's Recordas](../tests/memories/calendar.spec.ts#L59) | The calendar opens on the current month in São Paulo, with seven weekday columns from Sunday to Saturday. Today shows the thumbnail of its first Recorda and +2 for the other two; a day without Recordas is a plain dark cell that can't be opened. | RF-37.1, RF-37.2, RF-37.4, RF-37.5 |
+| [the header moves between months](../tests/memories/calendar.spec.ts#L107) | The previous-month arrow shows last month's grid, without today's Recordas, and the next-month arrow comes back to them. | RF-37.6 |
+| [a day opens full screen with time, caption and the song, and closes back to the grid](../tests/memories/calendar.spec.ts#L137) | Tapping today opens the day viewer on its first Recorda, with one segment per Recorda, the São Paulo time it was published and the caption, and the song pill playing the preview, with a button to pause and resume it. The X closes it, back on the same month's grid. | RF-37.7, RF-37.8, RF-37.10, RF-37.12 |
+| [a month without Recordas says so](../tests/memories/calendar.spec.ts#L186) | A new account's calendar has no active day and the header says there are no memories this month. | RF-37.13 |
+| [a month without Recordas invites to publish one](../tests/memories/calendar.spec.ts#L206) | The empty calendar offers a way to create a Recorda, as US 37 asks, like the empty Métricas tab does. | RF-37.13 |
+| [the period filter switches between 30 days, 90 days, 1 year and all history](../tests/memories/metrics.spec.ts#L120) | gabriel's two seeded Recordas are from February 2026: the last 30 and 90 days are empty, while 1 year and Todo o histórico show both, with no active streak. | RF-38.5, RF-38.3 |
+| [the most recurring artist, the genre ranking and today's streak](../tests/memories/metrics.spec.ts#L13) | With three Recordas today, two by one artist in Rock and one by another in Pop, Métricas shows 3 Recordas, the first artist on top with 2 Recordas, Rock at 67% and Pop at 33% with their bars, and a streak of 1 day. | RF-38.1, RF-38.2, RF-38.3 |
+| [the genre ranking shows how many Recordas each genre has](../tests/memories/metrics.spec.ts#L78) | Next to each genre's percentage, the ranking shows its Recorda count. | RF-38.2 |
+| [without Recordas in the period there is an empty state](../tests/memories/metrics.spec.ts#L99) | A new account's Métricas says there are no Recordas in the period yet, suggests registering a memory and offers Criar Recorda, with no metric cards. | RF-38.6 |
+| [the profile lists the monthly and yearly retrospectives and opens one](../tests/memories/retrospective.spec.ts#L85) | With only this month to show, Abrir retrospectiva on the own profile opens its story at once. With more periods it lists them, this month marked as a preview with its Recorda count, and picking it opens its story. | RF-39.1 |
+| [the story shows total, artists, genres, marked friends, engagement and the best streak](../tests/memories/retrospective.spec.ts#L129) | Stepping through the month's story: 3 Recordas, the top artist, the genres led by Rock, the marked friend with 1 marking, then 1 like, 1 comment and a best streak of 1 day, ending on the summary. | RF-39.3 |
+| [slides advance every 5 seconds, can be tapped back and forth and paused by holding](../tests/memories/retrospective.spec.ts#L178) | The story opens full screen with one progress segment per slide. After 5 seconds it moves to the next slide by itself; tapping the right and left sides moves forward and back; holding pauses it until released. | RF-39.2 |
+| [loading, error and an unavailable period each have their own state](../tests/memories/retrospective.spec.ts#L230) | While the month's retrospective loads the sheet shows a spinner; when it fails it says so and Tentar novamente opens it; a period with nothing to show says there are no Recordas in it. | RF-39.5 |
 | [the bell shows the unread count and opening the list marks it as read](../tests/notifications/notification-center.spec.ts#L31) | Two new followers show as 2 unread on the Feed bell, which opens the notification center; after opening it the count is gone, also after reopening the app. | RF-26.1, RF-26.5 |
 | [notifications are listed newest first with who acted, what happened and the action](../tests/notifications/notification-center.spec.ts#L82) | A follow, then a like, then a follow request appear in reverse order, each with the actor's avatar initial and username and a description; only the request offers Accept and Decline, and the like shows the liked Recorda. | RF-26.2 |
 | [follows, requests, likes, comments and mentions notify the account owner](../tests/notifications/notification-center.spec.ts#L147) | Following a public account, liking and commenting on its Recorda, mentioning it in a Recorda and requesting to follow it once private each add a notification for it. | RF-26.3, RF-09.6 |

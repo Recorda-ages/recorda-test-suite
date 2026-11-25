@@ -85,6 +85,8 @@ test.describe("Create a Recorda", () => {
             "Daft Punk"
           );
           await expect(match).toBeVisible({ timeout: 20_000 });
+          // The cover loads once the result is on screen.
+          await match.scrollIntoViewIfNeeded();
           await expect(match.locator("img")).toHaveCount(1);
         });
       }
